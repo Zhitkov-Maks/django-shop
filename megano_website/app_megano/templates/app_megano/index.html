@@ -37,7 +37,7 @@
   <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
-<body class="Site">
+<body>
   <!--if lt IE 8
   p.error-browser
       | Ваш браузер&nbsp;
@@ -47,25 +47,27 @@
           | браузера здесь&nbsp;
       | для правильного отображения сайта.
   -->
-  {{ block.super }}
-    <div class="Middle">
+{{ block.super }}
+  <div id="header" class="Middle">
     <div class="Section">
       <div class="wrap">
         <div class="BannersHome">
           {% if category_list %}
-          {% for cat in category_list %}
-          <a class="BannersHomeBlock" href="#">
+          {% for cat in category_list.values %}
+          <a class="BannersHomeBlock" href="{% url 'category' cat.0.id %}">
             <div class="BannersHomeBlock-row">
               <div class="BannersHomeBlock-block">
-                <strong class="BannersHomeBlock-title">{{ cat.name }}
+                <strong class="BannersHomeBlock-title">{{ cat.0.name }}
                 </strong>
-                <div class="BannersHomeBlock-content">from&#32;<span class="BannersHomeBlock-price">${{ cat.price }}</span>
+                <div class="BannersHomeBlock-content">От:&#32;<span class="BannersHomeBlock-price">{{ cat.1.price__min }}₽</span>
                 </div>
               </div>
+              {% if cat.0.image %}
               <div class="BannersHomeBlock-block">
-                <div class="BannersHomeBlock-img"><img src="{% static 'assets/img/content/home/videoca.png' %}" alt="videoca.png"/>
+                <div class="BannersHomeBlock-img"><img src="{{ cat.0.image.url }}" alt="videoca.png"/>
                 </div>
               </div>
+              {% endif %}
             </div>
           </a>
           {% endfor %}
@@ -81,18 +83,21 @@
             </h2>
           </header>
           <div class="Cards">
-            {% if top_list %}
-            {% for goods in top_list %}
-            <div class="Card"><a class="Card-picture" href="#"><img src="{% static 'assets/img/content/home/card.jpg' %}" alt="card.jpg"/></a>
+            {% if product_list %}
+            {% for goods in product_list|slice:"8" %}
+            <div class="Card"><a class="Card-picture" href="{% url 'detail' goods.id %}"><img src="{{ goods.image.url }}" alt="card.jpg"/></a>
               <div class="Card-content">
-                <strong class="Card-title"><a href="#">{{ goods.name }}</a>
+                <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{ goods.name|slice:"35" }}{{ "..." }}</a>
                 </strong>
                 <div class="Card-description">
-                  <div class="Card-cost"><span class="Card-price">${{ goods.price }}</span>
+                  <div class="Card-cost"><span class="Card-price">{{ goods.price }}₽</span>
                   </div>
-                  <div class="Card-category">Games / xbox
+                  <div class="Card-category">{% for tag in goods.tag.all %} {{ tag }} / {% endfor %}
                   </div>
-                  <div class="Card-hover"><a class="Card-btn" href="#"><img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/></a>
+                  <div class="Card-hover">
+                    <a href="{% url 'add' goods.id %}" class="Card-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                      <img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -102,6 +107,11 @@
           </div>
         </div>
       </div>
+    <div class="modal" data-modal="1">
+     <svg class="modal__cross js-modal-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+     <p class="modal__title">Заголовок окна 1</p>
+    </div>
+    <div class="overlay js-overlay-modal"></div>
     </div>
       <div class="Section Section_column Section_columnRight">
       <div class="wrap">
@@ -170,16 +180,16 @@
               {% for goods in limited_list %}
               <div class="Slider-item">
                 <div class="Slider-content">
-                  <div class="Card"><a class="Card-picture" href="#"><img src="{% static 'assets/img/content/home/card.jpg' %}" alt="card.jpg"/></a>
+                  <div class="Card"><a class="Card-picture" href="{% url 'detail' goods.id %}"><img src="{{ goods.image.url }}" alt="card.jpg"/></a>
                     <div class="Card-content">
-                      <strong class="Card-title"><a href="#">{{goods.name}}</a>
+                      <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{goods.name|slice:"35"}}{{ "..." }}</a>
                       </strong>
                       <div class="Card-description">
                         <div class="Card-cost"><span class="Card-price">${{ goods.price }}</span>
                         </div>
-                        <div class="Card-category">Games / xbox
+                        <div class="Card-category">{% for tag in goods.tag.all %} {{ tag }} / {% endfor %}
                         </div>
-                        <div class="Card-hover"><a class="Card-btn" href="#"><img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/></a>
+                        <div class="Card-hover"><a class="Card-btn" href="{% url 'add'  goods.id %}"><img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/></a>
                         </div>
                       </div>
                     </div>
@@ -194,9 +204,26 @@
       </div>
     </div>
   </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock header %}
 {% block footer %}
 {{ block.super }}
+{% endblock footer %}
 </body>
 </html>
-{% endblock footer %}

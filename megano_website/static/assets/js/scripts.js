@@ -890,3 +890,12 @@ Categories().init();
 
 
 })(jQuery);
+
+var modal = $modal({
+  title: 'Корзина',
+  content: '<p>Вы успешно добавили товар в корзину</p>',
+  footerButtons: [
+    { class: 'btn btn__cancel', text: 'Отмена', handler: 'modalHandlerCancel' },
+    { class: 'btn btn__ok', text: 'ОК', handler: 'modalHandlerOk' }
+  ]
+});

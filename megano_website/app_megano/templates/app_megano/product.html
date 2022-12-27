@@ -52,13 +52,175 @@
   <div class="Middle">
     <div class="Section">
       <div class="wrap">
-        <h1>Это страница с информацией о товаре.</h1>
+        <div class="Product">
+          <div class="ProductCard">
+            <div class="ProductCard-look">
+              <div class="ProductCard-photo">
+                <img src="{{ object.image.url }}" alt="bigGoods.png"/>
+              </div>
+              <div class="ProductCard-picts">
+                {% for img in object.images.all %}
+                <a class="ProductCard-pict ProductCard-pict_ACTIVE" href="{{ img.image.url }}"><img src="{{ img.image.url }}" alt="bigGoods.png"/></a>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="ProductCard-desc">
+              <div class="ProductCard-header">
+                <h2 class="ProductCard-title">{{ object.name }}
+                </h2>
+                <div class="ProductCard-info">
+                  <div class="ProductCard-cost">
+                    <div class="ProductCard-price">{{ object.price }}₽
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ProductCard-text">
+                {% for info in object.detail.all|slice:":5" %}
+                <ul>
+                  <li>
+                    {{ info.type }}: {{ info.info }}
+                  </li>
+                </ul>
+                {% endfor %}
+              </div>
+              <div class="ProductCard-cart">
+                <div class="ProductCard-cartElement ProductCard-cartElement_amount">
+                  <div class="Amount Amount_product">
+                    <button class="Amount-remove" type="button">
+                    </button>
+                    <input class="Amount-input form-input" name="amount" type="text" value="1"/>
+                    <button class="Amount-add" type="button">
+                    </button>
+                  </div>
+                </div>
+                <div class="ProductCard-cartElement"><a class="btn btn_primary" href="#"><img class="btn-icon" src="{% static 'assets/img/icons/card/cart_white.svg' %}" alt="cart_white.svg"/><span class="btn-content">Add To Cart</span></a>
+                </div>
+              </div>
+              <div class="ProductCard-footer">
+                <div class="ProductCard-tags">
+                  <strong class="ProductCard-tagsTitle">Tags:
+                    {% for tag in object.tag.all %}
+                  </strong><a href="{% url 'tag' tag.id %}">{{ tag }}</a>,
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="Tabs Tabs_default">
+            <div class="Tabs-links"><a class="Tabs-link_ACTIVE Tabs-link" href="#description"><span>Описание</span></a><a class="Tabs-link" href="#addit"><span>AdditionaL Info</span></a><a class="Tabs-link" href="#reviews"><span>Reviews ({{ object.goods.count }})</span></a>
+            </div>
+            <div class="Tabs-wrap">
+              <div class="Tabs-block" id="description">
+                <h2>{{ object.name }}
+                </h2>
+                <p>{{ object.description }}
+                <div class="clearfix">
+                </div>
+                <div class="table">
+                  <table>
+                    <tr>
+                      <th>Характеристика
+                      </th>
+                      <th>Значение
+                      </th>
+                    </tr>
+                    {% for info in object.detail.all %}
+                    <tr>
+                      <th>{{ info.type }}
+                      </th>
+                      <th>{{ info.info }}
+                      </th>
+                    </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+              </div>
+              <div class="Tabs-block" id="sellers">
+                <div class="Categories Categories_product">
+                </div>
+              </div>
+              <div class="Tabs-block" id="addit">
+                <div class="Product-props">
+                  <div class="Product-prop">
+                    <strong>Lorem
+                    </strong><span> Pfizer</span>
+                  </div>
+                  <div class="Product-prop">
+                    <strong>ipsum
+                    </strong><span> Lorem ipsum dolor sit</span>
+                  </div>
+                  <div class="Product-prop">
+                    <strong>dolor sit
+                    </strong><span> 5 ans</span>
+                  </div>
+                  <div class="Product-prop">
+                    <strong>psum dolo
+                    </strong><span> 2–3 jours</span>
+                  </div>
+                </div>
+              </div>
+              <div class="Tabs-block" id="reviews">
+                <header class="Section-header">
+                  <h3 class="Section-title">{{ object.goods.count }} REVIEWS
+                  </h3>
+                </header>
+                <div class="Comments">
+                  {% for comment in object.goods.all %}
+                  <div class="Comment">
+                    <div class="Comment-column Comment-column_pict">
+                      <div class="Comment-avatar">
+                      </div>
+                    </div>
+                    <div class="Comment-column">
+                      <header class="Comment-header">
+                        <div>
+                          <strong class="Comment-title">{{ comment.name }}
+                          </strong><span class="Comment-date">{{ comment.date_comment }}</span>
+                        </div>
+                      </header>
+                      <div class="Comment-content">{{ comment.comment }}
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                <header class="Section-header Section-header_product">
+                  <h3 class="Section-title">Add Review
+                  </h3>
+                </header>
+                <div class="Tabs-addComment">
+                  <form class="form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label for="{{ form.comment.id_for_label }}"></label>{{form.comment}}
+                    </div>
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="row-block">
+                          <label for="{{ form.name.id_for_label }}"></label>{{form.name}}
+                        </div>
+                        <div class="row-block">
+                          <label for="{{ form.email.id_for_label }}"></label>{{form.email}}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <button class="btn btn_muted" type="submit">Submit Review
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
   </div>
 {% endblock header %}
 {% block footer %}
 {{ block.super }}
-  </div>
 </body>
 </html>
 {% endblock footer %}

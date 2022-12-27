@@ -53,13 +53,43 @@
     <div class="Section">
       <div class="wrap">
             <h1 class="login__title">Registration</h1>
-            <form method="post">
+            <form id="creation" method="post">
                 {% csrf_token %}
+                {{ form.errors.password2 }}
+                {{ form.errors.email }}
                 {% for f in form %}
                 <p class="form-label"><label class="form-input" for="{{ f.id_for_label }}">{{ f.label }}:</label>{{f}}</p>
                 {% endfor %}
                 <button class="btn btn_primary" type="submit">Save</button>
             </form><br>
+            {% block javascript %}
+              <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+              <script>
+                  $(document).ready(function () {
+                      $('#id_username').keyup(function () {
+                          $.ajax({
+                              data: $(this).serialize(), // получаяем данные формы
+                              url: "{% url 'validate_username' %}",
+                              success: function (response) {
+                                  if (response.is_taken == true) {
+                                      $('#id_username').removeClass('is-valid').addClass('is-invalid');
+                                      $('#usernameError').remove();
+                                      $('#id_username').after('<div class="invalid-feedback d-block" id="usernameError">This name is already in use</div>')
+                                  }
+                                  else {
+                                      $('#id_username').removeClass('is-invalid').addClass('is-valid');
+                                      $('#usernameError').remove();
+                                  }
+                              },
+                              error: function (response) {
+                                  console.log(response.responseJSON.errors)
+                              }
+                          });
+                          return false;
+                      });
+                  })
+              </script>
+            {% endblock javascript %}
       </div>
   </div>
 {% endblock header %}

@@ -1,8 +1,8 @@
-from django.shortcuts import render
-from django.views import View
+from django.views.generic import ListView
+
+from app_megano.models import Goods
 
 
-class CartView(View):
-
-    def get(self, request):
-        return render(request, 'cart/cart.html')
+class CartView(ListView):
+    model = Goods
+    template_name = 'cart/cart.html'

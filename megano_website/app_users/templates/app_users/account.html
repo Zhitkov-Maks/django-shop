@@ -79,9 +79,9 @@
                   </li>
                   <li class="menu-item"><a class="menu-link" href="{% url 'profile' %}">Профиль</a>
                   </li>
-                  <li class="menu-item"><a class="menu-link" href="{% url 'historyorder' %}">История заказов</a>
+                  <li class="menu-item"><a class="menu-link" href="{% url 'historyorder' request.user.id %}">История заказов</a>
                   </li>
-                  <li class="menu-item"><a class="menu-link" href="/">История просмотра</a>
+                  <li class="menu-item"><a class="menu-link" href="{% url 'viewed' request.user.id %}">История просмотра</a>
                   </li>
                 </ul>
               </div>
@@ -91,53 +91,65 @@
         <div class="Section-content">
           <div class="Account">
             <div class="Account-group">
+              {% if request.user.profile.photo %}
               <div class="Account-column">
-                <div class="Account-avatar"><img src="{% static 'assets/img/content/home/card.jpg' %}" alt="card.jpg"/>
+                <div class="Account-avatar"><img src="{{ request.user.profile.photo.url }}" alt="card.jpg"/>
                 </div>
               </div>
+              {% endif %}
               <div class="Account-column">
-                <div class="Account-name">Иванов Иван Иванович
-                </div><a class="Account-editLink" href="profile.html">Редактировать профиль</a>
+                {% if request.user.first_name %}
+                <div class="Account-name">
+                  {{ request.user.last_name }} {{ request.user.first_name }} {{ request.user.profile.patronymic }}
+                </div>
+                {% else %}
+                <div class="Account-name">
+                  {{ request.user.username }}
+                </div>
+                {% endif %}
+                <a class="Account-editLink" href="{% url 'profile' %}">Редактировать профиль</a>
               </div>
             </div>
             <div class="Account-group">
               <div class="Account-column Account-column_full">
+                {% if order %}
                 <div class="Order Order_anons">
                   <div class="Order-personal">
                     <div class="row">
-                      <div class="row-block"><a class="Order-title" href="oneorder.html">Заказ&#32;<span class="Order-numberOrder">№200</span>&#32;от&#32;<span class="Order-dateOrder">21.07.2020</span></a>
-                        <div class="Account-editLink"><a href="{% url 'historyorder' %}">История заказов</a>
+                      <div class="row-block"><a class="Order-title" href="{% url 'oneorder' order.id %}">Заказ&#32;<span class="Order-numberOrder">№{{ order.id }}</span>&#32;от&#32;<span class="Order-dateOrder">{{ order.order_date }}</span></a>
+                        <div class="Account-editLink"><a href="{% url 'historyorder' request.user.id %}">История заказов</a>
                         </div>
                       </div>
                       <div class="row-block">
                         <div class="Order-info Order-info_delivery">
                           <div class="Order-infoType">Тип доставки:
                           </div>
-                          <div class="Order-infoContent">Обычная доставка
+                          <div class="Order-infoContent">{{ order.get_type_delivery }}
                           </div>
                         </div>
                         <div class="Order-info Order-info_pay">
                           <div class="Order-infoType">Оплата:
                           </div>
-                          <div class="Order-infoContent">Онлайн картой
+                          <div class="Order-infoContent">{{ order.get_type_payment }}
                           </div>
                         </div>
                         <div class="Order-info">
                           <div class="Order-infoType">Общая стоимость:
                           </div>
-                          <div class="Order-infoContent">200.99$
+                          <div class="Order-infoContent">{{ order.total_price }}
                           </div>
                         </div>
                         <div class="Order-info Order-info_status">
                           <div class="Order-infoType">Статус:
                           </div>
-                          <div class="Order-infoContent">Не оплачен
+                          <div class="Order-infoContent">{{ order.status }}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                {% endif %}
               </div>
             </div>
               </div>

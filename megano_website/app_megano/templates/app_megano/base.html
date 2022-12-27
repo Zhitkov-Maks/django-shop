@@ -51,7 +51,7 @@
     </div>
     <div class="wrap">
       <div class="row Header-rowMain">
-        <div class="row-block Header-logo"><a class="logo" href="{% url 'home' %}"><img class="logo-image" src="{% static 'assets/img/logo.png' %}" alt="logo.png"/></a>
+        <div class="row-block Header-logo"><a class="logo" href="{% url 'home' %}"><img class="logo-image" src="{{ site_settings.logotype.url }}" alt="logo.png"/></a>
         </div>
         <nav class="row-block row-block_right Header-menu">
           <div class="menuModal" id="navigate">
@@ -60,16 +60,14 @@
               </li>
               <li class="menu-item"><a class="menu-link" href="{% url 'sale' %}">Blog</a>
               </li>
-              <li class="menu-item"><span class="menu-label menu-label_success">Hot</span><a class="menu-link" href="{% url 'detail' %}">Gallery</a>
-              </li>
               <li class="menu-item"><a class="menu-link" href="{% url 'catalog' %}">Purchase</a>
               </li>
             </ul>
           </div>
         </nav>
         <div class="row-block">
-          <div class="CartBlock"><a class="CartBlock-block" href="{% url 'cart' %}"><img class="CartBlock-img" src="{% static 'assets/img/icons/cart.svg' %}" alt="cart.svg"/><span class="CartBlock-amount">0</span></a>
-            <div class="CartBlock-block"><span class="CartBlock-price">0.00$</span>
+          <div class="CartBlock"><a class="CartBlock-block" href="{% url 'cart' %}"><img class="CartBlock-img" src="{% static 'assets/img/icons/cart.svg' %}" alt="cart.svg"/><span class="CartBlock-amount">{{ cart|length }}</span></a>
+            <div class="CartBlock-block"><span class="CartBlock-price">{{ cart.get_total_price }}₽</span>
             </div>
           </div>
         </div>
@@ -90,16 +88,37 @@
               <div class="CategoriesButton-arrow">
               </div>
             </div>
-            <div class="CategoriesButton-content">
+           <div class="CategoriesButton-content">
               {% for cat in categories %}
-              <div class="CategoriesButton-link"><a href="#">
-                  <div class="CategoriesButton-icon"><img src="{% static 'assets/img/icons/departments/2.svg' %}" alt="2.svg"/>
-                  </div><span class="CategoriesButton-text">{{ cat }}</span></a>
+              {% if not cat.parent_id %}
+              <div class="CategoriesButton-link"><a href="{% url 'category' cat.id %}">
+                {% if cat.icon %}
+                <div class="CategoriesButton-icon"><img src="{{ cat.icon.url }}" alt="2.svg"/>
+                </div>
+                {% endif %}
+                <span class="CategoriesButton-text">{{ cat.name }}</span></a>
+                {% if not cat.is_leaf_node %}
+                <a class="CategoriesButton-arrow" href="#"></a>
+                <div class="CategoriesButton-submenu">
+                    {% for child in cat.children.all %}
+                      {% if child.categories.exists %}
+                      <a class="CategoriesButton-link" href="{% url 'category' child.id %}">
+                        {% if child.icon %}
+                        <div class="CategoriesButton-icon"><img src="{{ child.icon.url }}" alt="1.svg"/>
+                        </div>
+                        {% endif %}
+                        <span class="CategoriesButton-text">{{ child.name }}</span>
+                      </a>
+                      {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
               </div>
+             {% endif %}
               {% endfor %}
+              </div>
             </div>
           </div>
-        </div>
         <div class="Header-searchLink"><img src="{% static 'assets/img/icons/search.svg' %}" alt="search.svg"/>
         </div>
         <div class="Header-search">
@@ -174,7 +193,7 @@
         <div class="row-block">
           <strong class="Footer-title">Contacts
           </strong>
-          <p>Phone: 8.800.200.600<br>Email: Support@ninzio.com<br>Skype: techno<br>Address: New York, north<br>Avenue 26/7<br>0057
+          <p>Телефон: {{ site_settings.phone }}<br>Email: {{ site_settings.email }}<br>Skype: {{ site_settings.skype }}<br>Адрес: {{ site_settings.address }}<br>
           </p>
         </div>
       </div>
@@ -215,8 +234,10 @@
   <!--        +breadcrumbs('Главная','Портфолио')-->
   <!--    +Article('portfolio')-->
   <!---->
+<!--  <script src="{% static 'assets/plg/jQuery/jquery-3.5.0.slim.min.js' %}"></script>-->
   <script src="{% static 'assets/plg/jQuery/jquery-3.5.0.slim.min.js' %}"></script>
   <script src="{% static 'assets/plg/form/jquery.form.js' %}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="{% static 'assets/plg/form/jquery.maskedinput.min.js' %}"></script>
   <script src="{% static 'assets/plg/range/ion.rangeSlider.min.js' %}"></script>
   <script src="{% static 'assets/plg/Slider/slick.min.js' %}"></script>

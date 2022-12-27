@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import AccountView, LoginUser, LogoutUser, RegisterUser, ProfileView, HistoryOrderView
+from .views import AccountView, LoginUser, LogoutUser, ProfileView, HistoryOrderView, RegisterUser, validate_username
 
 urlpatterns = [
     path('register/', RegisterUser.as_view(), name='register'),
@@ -8,5 +8,6 @@ urlpatterns = [
     path('login/', LoginUser.as_view(), name='login'),
     path('account/', AccountView.as_view(), name='account'),
     path('profile/', ProfileView.as_view(), name='profile'),
-    path('historyorder/', HistoryOrderView.as_view(), name='historyorder'),
+    path('historyorder/<int:pk>', HistoryOrderView.as_view(), name='historyorder'),
+    path('validate_username', validate_username, name='validate_username'),
 ]

@@ -28,7 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 CART_SESSION_ID = 'cart'
-VIEWED_PRODUCT_SESSION_ID = 'products'
 
 
 # Application definition
@@ -43,7 +42,11 @@ INSTALLED_APPS = [
     'app_megano.apps.AppMeganoConfig',
     'app_users.apps.AppUserConfig',
     'cart.apps.CartConfig',
-    'orders.apps.OrdersConfig'
+    'orders.apps.OrdersConfig',
+    'mptt',
+    'django_mptt_admin',
+    'admin_settings.apps.AdminSettingsConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +72,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cart.context_processors.cart',
+                'admin_settings.context_processors.load_settings',
+                'app_megano.context_processors.load_tag',
             ],
         },
     },
@@ -154,3 +160,9 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 # DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
