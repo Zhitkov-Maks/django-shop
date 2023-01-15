@@ -891,11 +891,122 @@ Categories().init();
 
 })(jQuery);
 
-var modal = $modal({
-  title: 'Корзина',
-  content: '<p>Вы успешно добавили товар в корзину</p>',
-  footerButtons: [
-    { class: 'btn btn__cancel', text: 'Отмена', handler: 'modalHandlerCancel' },
-    { class: 'btn btn__ok', text: 'ОК', handler: 'modalHandlerOk' }
-  ]
+
+let modal = document.querySelector('.modal__container');
+let btnProduct = document.querySelectorAll('.Card-btn');
+
+btnProduct.forEach(function(el) {
+    el.addEventListener('click', function() {
+        fetch('http://127.0.0.1:8000/cart/add/' + el.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $("#myModal").load(location.href + " #myModal");
+                modal.classList.add('open__modal');
+            }
+            else {
+                alert('Извините! Произошел сбой. Попробуйте еще раз.')
+            }
+        });
+    });
+})
+
+$('#block--button').on('click', function(e) {
+        let value;
+        if (e.target.className.includes('btn-add')) {
+            value = e.target.value;
+            fetch('http://127.0.0.1:8000/cart/add/' + value).then((response) => {
+                if (response.status == 200) {
+                    $("#myCart").load(location.href + " #myCart");
+                    $('#block--button').load(location.href + " #block--button");
+                }
+                else {
+                    alert('Извините! Произошел сбой. Попробуйте еще раз. 927')
+                };
+            });
+        }
+        else if (e.target.parentNode.className.includes('btn-add')) {
+            value = e.target.parentNode.value;
+            fetch('http://127.0.0.1:8000/cart/add/' + value).then((response) => {
+                if (response.status == 200) {
+                    $("#myCart").load(location.href + " #myCart");
+                    $('#block--button').load(location.href + " #block--button");
+                }
+                else {
+                    alert('Извините! Произошел сбой. Попробуйте еще раз. 927')
+                };
+            });
+        };
+    })
+
+
+$('#cart-form').on('click', function(e) {
+    if (e.target.className == 'Amount-add') {
+        fetch('http://127.0.0.1:8000/cart/addQuantity/' + e.target.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $("#cart-form").load(location.href + " #cart-form");
+            };
+        });
+    }
+    else if (e.target.className == 'Amount-remove') {
+        fetch('http://127.0.0.1:8000/cart/removeQuantity/' + e.target.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $("#cart-form").load(location.href + " #cart-form");
+            };
+        });
+    }
 });
+
+
+$('#block--button').on('click', function(e) {
+    let value;
+    if (e.target.className == 'Amount-add') {
+        fetch('http://127.0.0.1:8000/cart/addQuantity/' + e.target.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $('#block--button').load(location.href + " #block--button");
+            };
+        });
+    }
+    else if (e.target.className == 'Amount-remove') {
+        fetch('http://127.0.0.1:8000/cart/removeQuantity/' + e.target.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $('#block--button').load(location.href + " #block--button");
+            };
+        });
+    }
+});
+
+
+$('#cart-form').on('click', function(e) {
+    if (e.target.className == 'Cart-delete') {
+        fetch('http://127.0.0.1:8000/cart/delete/' + e.target.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $("#cart-form").load(location.href + " #cart-form");
+            };
+        });
+    }
+    else if (e.target.parentNode.className == 'Cart-delete') {
+        fetch('http://127.0.0.1:8000/cart/delete/' + e.target.parentNode.value).then((response) => {
+            if (response.status == 200) {
+                $("#myCart").load(location.href + " #myCart");
+                $("#cart-form").load(location.href + " #cart-form");
+            };
+        });
+    }
+})
+
+$('#Amount_product').on('click', function(e) {
+    console.log(e);
+})
+
+
+let close = document.getElementById('close');
+if (close) {
+    close.onclick = function() {
+    modal.classList.remove('open__modal');
+}
+}

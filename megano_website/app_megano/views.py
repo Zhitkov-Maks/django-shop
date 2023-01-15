@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 from django.db.models import Min, Sum
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView, DetailView
 
 from cart.services.cart import Cart
-from .forms import ReviewsForm
+from .forms import ReviewsForm, CartAddProductForm
 from .models import Goods, Category, Tags, ViewedProduct
 
 
@@ -40,18 +40,6 @@ class HomeView(ListView):
         return context
 
 
-class AddProduct(View):
-    def get(self, request, pk):
-        cart = Cart(request)
-
-        product = get_object_or_404(Goods, id=pk)
-        cart.add(
-            product=product,
-            quantity=1
-        )
-        return render(request, 'app_megano/buy.html', {'object': product})
-
-
 class ShowCategory(ListView):
     """Класс выводит список товаров по категориям"""
     model = Category
@@ -81,6 +69,14 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
+        cart = Cart(self.request)
+        product = self.object
+        check_product_in_cart = False
+        quantity = 0
+        for detail in cart:
+            if detail['product'] == product:
+                check_product_in_cart = True
+                quantity = detail['quantity']
         if self.request.user.is_authenticated:
             user = self.request.user
             product = self.get_object()
@@ -91,7 +87,7 @@ class ProductDetailView(DetailView):
             else:
                 ViewedProduct.objects.create(user=user, goods=product, viewed_date=timezone.now())
         form = ReviewsForm()
-        context.update({"product": self.get_object(), 'form': form})
+        context.update({"product": self.get_object(), 'form': form, 'check': check_product_in_cart, 'quantity': quantity})
         return context
 
     def post(self, request, pk):
@@ -116,8 +112,8 @@ class SaleView(View):
 
 
 class CatalogView(ListView):
-    template_name = 'app_megano/catalog.html'
     model = Goods
+    template_name = 'app_megano/catalog.html'
     context_object_name = 'product_list'
     paginate_by = 8
 

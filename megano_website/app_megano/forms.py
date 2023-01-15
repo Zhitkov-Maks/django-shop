@@ -3,8 +3,14 @@ from django import forms
 from .models import Comment
 
 
+class CartAddProductForm(forms.Form):
+    quantity = forms.CharField(widget=forms.TextInput(attrs={'class': 'Amount-input form-input',
+                                                             'type': 'text'}))
+
+
 class ReviewsForm(forms.ModelForm):
     """Форма для добавления комментариев"""
+
     class Meta:
         model = Comment
         fields = ['comment', 'name', 'email']

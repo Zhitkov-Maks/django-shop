@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/my_style.css' %}">
   <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
@@ -136,7 +137,10 @@
                   </div>
                   <div class="Card-category">{% for tag in goods.tag.all %} {{ tag }} / {% endfor %}
                   </div>
-                  <div class="Card-hover"><a class="Card-btn" href="{% url 'add' goods.id %}"><img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/></a>
+                  <div class="Card-hover">
+                    <button type="button" class="Card-btn" value="{{ goods.id }}">
+                      <img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -156,9 +160,27 @@
         </div>
       </div>
     </div>
+  </div>
+<div class="modal__container">
+  <div class="modal__content">
+    <div id="myModal">
+      <p>Товары в вашей корзине</p>
+      {% for detail in cart %}
+      <div class="content__block">
+        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}">
+        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }})</p>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="modal__button">
+        <button class="button" type="button" id="close">Продолжить покупки</button>
+        <a class="modal--link" href="{% url 'cart' %}">Перейти в корзину</a>
+    </div>
+  </div>
+</div>
 {% endblock header %}
 {% block footer %}
 {{ block.super }}
+{% endblock footer %}
 </body>
 </html>
-{% endblock footer %}

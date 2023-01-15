@@ -66,7 +66,8 @@
     </div>
     <div class="Section">
       <div class="wrap">
-        <form class="form Cart" action="#" method="post">
+        <form id="cart-form" class="form Cart" action="#" method="post">
+          {% if cart %}
           {% for detail in cart %}
           <div class="Cart-product">
             <div class="Cart-block Cart-block_row">
@@ -88,15 +89,18 @@
               <div class="Cart-block Cart-block_amount">
                 <div class="Cart-amount">
                   <div class="Amount">
-                    <button class="Amount-remove" type="button">
+                    <button class="Amount-remove" type="button" value="{{ detail.product.id }}">
                     </button>
-                    <input class="Amount-input form-input" name="amount" type="text" value="{{ detail.quantity }}"/>
-                    <button class="Amount-add" type="button">
+                    <input class="Amount-input form-input" name="amount" type="text" disabled value="{{ detail.quantity }}"/>
+                    <button class="Amount-add" value="{{ detail.product.id }}" type="button">
                     </button>
                   </div>
                 </div>
               </div>
-              <div class="Cart-block Cart-block_delete"><a class="Cart-delete" href="#"><img src="{% static 'assets/img/icons/card/delete.svg' %}" alt="delete.svg"/></a>
+              <div class="Cart-block Cart-block_delete">
+                <button type="button" value="{{ detail.product.id }}" class="Cart-delete">
+                  <img src="{% static 'assets/img/icons/card/delete.svg' %}" alt="delete.svg"/>
+                </button>
               </div>
             </div>
           </div>
@@ -109,6 +113,9 @@
             <div class="Cart-block"><a class="btn btn_success btn_lg" href="{% url 'order' %}">Оформить заказ</a>
             </div>
           </div>
+        {% else %}
+        <p>В вашей корзине пусто:(</p>
+        {% endif %}
         </form>
       </div>
     </div>

@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/my_style.css' %}">
   <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
@@ -84,18 +85,42 @@
                 </ul>
                 {% endfor %}
               </div>
-              <div class="ProductCard-cart">
-                <div class="ProductCard-cartElement ProductCard-cartElement_amount">
-                  <div class="Amount Amount_product">
-                    <button class="Amount-remove" type="button">
+              <div id="block--button">
+              {% if check %}
+              <div class="ProductCard-cart Button-add-two">
+                  <div class="ProductCard-cartElement ProductCard-cartElement_amount">
+                    <div class="Amount Amount_product">
+                    <button class="Amount-remove" type="button" value="{{ object.id }}">
                     </button>
-                    <input class="Amount-input form-input" name="amount" type="text" value="1"/>
-                    <button class="Amount-add" type="button">
+                    <input class="Amount-input form-input" name="amount" type="text" value="{{ quantity }}"/>
+                    <button class="Amount-add" type="button" value="{{ object.id }}">
+                    </button>
+                    </div>
+                  </div>
+                  <div class="ProductCard-cartElement">
+                    <a class="btn btn_primary" href="{% url 'cart' %}">
+                      <img class="btn-icon" src="{% static 'assets/img/icons/card/cart_white.svg' %}" alt="cart_white.svg"/><span class="btn-content">Товар в корзине</span>
+                    </a>
+                  </div>
+              </div>
+              {% else %}
+              <div class="ProductCard-cart Button-add">
+                  <div class="ProductCard-cartElement ProductCard-cartElement_amount block-opacity">
+                    <div class="Amount Amount_product">
+                    <button class="Amount-remove" disabled type="button" value="{{ object.id }}">
+                    </button>
+                    <input class="Amount-input form-input" disabled name="amount" type="text" value="1"/>
+                    <button class="Amount-add" type="button" disabled value="{{ object.id }}">
+                    </button>
+                    </div>
+                  </div>
+                  <div class="ProductCard-cartElement">
+                    <button type="button" class="btn btn_primary btn-add" value="{{ object.id }}">
+                      <img class="btn-icon" src="{% static 'assets/img/icons/card/cart_white.svg' %}" alt="cart_white.svg"/><span class="btn-content">Добавить в корзину</span>
                     </button>
                   </div>
-                </div>
-                <div class="ProductCard-cartElement"><a class="btn btn_primary" href="#"><img class="btn-icon" src="{% static 'assets/img/icons/card/cart_white.svg' %}" alt="cart_white.svg"/><span class="btn-content">Add To Cart</span></a>
-                </div>
+              </div>
+              {% endif %}
               </div>
               <div class="ProductCard-footer">
                 <div class="ProductCard-tags">
@@ -108,15 +133,22 @@
             </div>
           </div>
           <div class="Tabs Tabs_default">
-            <div class="Tabs-links"><a class="Tabs-link_ACTIVE Tabs-link" href="#description"><span>Описание</span></a><a class="Tabs-link" href="#addit"><span>AdditionaL Info</span></a><a class="Tabs-link" href="#reviews"><span>Reviews ({{ object.goods.count }})</span></a>
+            <div class="Tabs-links"><a class="Tabs-link_ACTIVE Tabs-link" href="#description"><span>Описание</span></a><a class="Tabs-link" href="#addit"><span>Все характеристики</span></a><a class="Tabs-link" href="#reviews"><span>Reviews ({{ object.goods.count }})</span></a>
             </div>
             <div class="Tabs-wrap">
               <div class="Tabs-block" id="description">
                 <h2>{{ object.name }}
                 </h2>
-                <p>{{ object.description }}
+                <img class="pict pict_right" src="{{ object.image.url }}" alt="bigGoods.png"/>
+                <p>{{ object.description }}</p>
                 <div class="clearfix">
                 </div>
+              </div>
+              <div class="Tabs-block" id="sellers">
+                <div class="Categories Categories_product">
+                </div>
+              </div>
+              <div class="Tabs-block" id="addit">
                 <div class="table">
                   <table>
                     <tr>
@@ -134,30 +166,6 @@
                     </tr>
                     {% endfor %}
                   </table>
-                </div>
-              </div>
-              <div class="Tabs-block" id="sellers">
-                <div class="Categories Categories_product">
-                </div>
-              </div>
-              <div class="Tabs-block" id="addit">
-                <div class="Product-props">
-                  <div class="Product-prop">
-                    <strong>Lorem
-                    </strong><span> Pfizer</span>
-                  </div>
-                  <div class="Product-prop">
-                    <strong>ipsum
-                    </strong><span> Lorem ipsum dolor sit</span>
-                  </div>
-                  <div class="Product-prop">
-                    <strong>dolor sit
-                    </strong><span> 5 ans</span>
-                  </div>
-                  <div class="Product-prop">
-                    <strong>psum dolo
-                    </strong><span> 2–3 jours</span>
-                  </div>
                 </div>
               </div>
               <div class="Tabs-block" id="reviews">
@@ -206,7 +214,7 @@
                       </div>
                     </div>
                     <div class="form-group">
-                      <button class="btn btn_muted" type="submit">Submit Review
+                      <button class="btn btn_muted" name="review" type="submit">Submit Review
                       </button>
                     </div>
                   </form>
