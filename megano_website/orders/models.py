@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 
 from app_megano.models import Goods
@@ -32,7 +32,7 @@ class Order(models.Model):
     email = models.EmailField(verbose_name='Email')
     city = models.CharField(max_length=100, verbose_name='Город')
     address = models.CharField(max_length=250, verbose_name='Адрес')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users', verbose_name='Пользователь')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='users', verbose_name='Пользователь')
     type_payment = models.CharField(verbose_name='Тип платежа', choices=TYPE_PAYMENT, max_length=1, default='A')
     type_delivery = models.CharField(verbose_name='Тип доставки', choices=TYPE_DELIVERY, max_length=1, default='B')
     order_date = models.DateTimeField(auto_now_add=True)

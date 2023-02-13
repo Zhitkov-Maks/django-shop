@@ -2,12 +2,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
-from .views import CartView, AddProduct, DeleteProduct, AddProductQuantity, RemoveProductQuantity
+from .views import CartView, add_product, delete_product, add_product_quantity, remove_product_quantity
 
 urlpatterns = [
     path('cart/', CartView.as_view(), name='cart'),
-    path('add/<int:pk>', AddProduct.as_view(), name='add'),
-    path('delete/<int:pk>', DeleteProduct.as_view(), name='delete'),
-    path('addQuantity/<int:pk>', AddProductQuantity.as_view(), name='quantityAdd'),
-    path('removeQuantity/<int:pk>', RemoveProductQuantity.as_view(), name='quantityRemove')
+    path('add/<int:pk>', add_product, name='add'),
+    path('delete/<int:pk>', delete_product, name='delete'),
+    path('addQuantity/<int:pk>', add_product_quantity, name='quantityAdd'),
+    path('removeQuantity/<int:pk>', remove_product_quantity, name='quantityRemove')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -16,7 +16,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -29,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 CART_SESSION_ID = 'cart'
 
+AUTH_USER_MODEL = 'app_users.CustomUser'
 
 # Application definition
 
@@ -64,7 +64,7 @@ ROOT_URLCONF = 'megano_website.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, '../templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,13 +75,14 @@ TEMPLATES = [
                 'cart.context_processors.cart',
                 'admin_settings.context_processors.load_settings',
                 'app_megano.context_processors.load_tag',
+                'app_megano.context_processors.price_min',
+                'app_megano.context_processors.price_max'
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'megano_website.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -104,7 +105,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -123,7 +123,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -134,7 +133,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -166,3 +164,19 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+
+# EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+# EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
+EMAIL_HOST_USER = 'teoretickzhitkov@yandex.ru'
+EMAIL_HOST_PASSWORD = 'erboqowrxmlwvcrc'
+DEFAULT_FROM_EMAIL = 'teoretickzhitkov@yandex.ru'
+
+
+LOGIN_URL = 'login'

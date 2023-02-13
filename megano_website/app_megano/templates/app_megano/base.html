@@ -1,6 +1,52 @@
+<!--END-->
+<!--END--><!DOCTYPE html><!--[if IE 7]>
 {% block header %}
 {% load static %}
 {% load tags %}
+<html class="ie7" lang="ru">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie8" lang="ru">
+<![endif]-->
+<!--[if IE 9]>
+<html class="ie9" lang="ru">
+<![endif]-->
+<!--[if IE 10]>
+<html class="ie10" lang="ru">
+<![endif]-->
+<!--[if IE 11]>
+<html class="ie11" lang="ru">
+<![endif]-->
+<!--[if gt IE 11]><!--> <html lang="ru"> <!--<![endif]-->
+<head>
+  <title>Megano</title>
+  <meta name="description" content="Описание страницы">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
+  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Regular.woff' %}" as="font">
+  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Italic.woff' %}" as="font">
+  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold.woff' %}" as="font">
+  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold_Italic.woff' %}" as="font">
+  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light.woff' %}" as="font">
+  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light_Italic.woff' %}" as="font">
+  <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/my_style.css' %}">
+  <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body class="Site">
+  <!--if lt IE 8
+  p.error-browser
+      | Ваш браузер&nbsp;
+      em устарел!&nbsp;
+      a(href="http://browsehappy.com/") Выберите новую версию
+          +s
+          | браузера здесь&nbsp;
+      | для правильного отображения сайта.
+  -->
   <header class="Header">
     <div class="ControlPanel">
       <div class="wrap">
@@ -31,7 +77,7 @@
                 <div class="row-block"><a class="ControlPanel-title" href="{% url 'login' %}">Login</a></div>
                 <div class="row-block"><a class="ControlPanel-title" href="{% url 'register' %}">Register</a></div>
                 {% else %}
-                <div class="row-block"><a class="ControlPanel-title" href="{% url 'account' %}">{{ request.user.username }}</a></div>
+                <div class="row-block"><a class="ControlPanel-title" href="{% url 'account' %}">{{ request.user.first_name }}</a></div>
                 <div class="row-block"><a class="ControlPanel-title" href="{% url 'logout' %}">Logout</a></div>
                 {% endif %}
             </div>
@@ -58,8 +104,6 @@
             <ul class="menu menu_main">
               <li class="menu-item"><a class="menu-link" href="{% url 'home' %}">Home</a>
               </li>
-              <li class="menu-item"><a class="menu-link" href="{% url 'sale' %}">Blog</a>
-              </li>
               <li class="menu-item"><a class="menu-link" href="{% url 'catalog' %}">Purchase</a>
               </li>
             </ul>
@@ -84,7 +128,7 @@
           <div class="CategoriesButton">
             <div class="CategoriesButton-title">
               <div class="CategoriesButton-icon"><img src="{% static 'assets/img/icons/allDep.svg' %}" alt="allDep.svg"/>
-              </div><span class="CategoriesButton-text">All Departments</span>
+              </div><span class="CategoriesButton-text">Все категории</span>
               <div class="CategoriesButton-arrow">
               </div>
             </div>
@@ -101,7 +145,6 @@
                 <a class="CategoriesButton-arrow" href="#"></a>
                 <div class="CategoriesButton-submenu">
                     {% for child in cat.children.all %}
-                      {% if child.categories.exists %}
                       <a class="CategoriesButton-link" href="{% url 'category' child.id %}">
                         {% if child.icon %}
                         <div class="CategoriesButton-icon"><img src="{{ child.icon.url }}" alt="1.svg"/>
@@ -109,7 +152,6 @@
                         {% endif %}
                         <span class="CategoriesButton-text">{{ child.name }}</span>
                       </a>
-                      {% endif %}
                   {% endfor %}
                 </div>
                 {% endif %}
@@ -123,8 +165,8 @@
         </div>
         <div class="Header-search">
           <div class="search">
-            <form class="form form_search" action="#" method="post">
-              <input class="search-input" id="query" name="query" type="text" placeholder="What are you looking for ..."/>
+            <form class="form form_search" action="{% url 'searchProduct' %}" method="get">
+              <input class="search-input" id="query" name="query" type="text" placeholder="Что будем искать ..."/>
               <button class="search-button" type="submit" name="search" id="search"><img src="{% static 'assets/img/icons/search.svg' %}" alt="search.svg"/>Search
               </button>
             </form>

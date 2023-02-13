@@ -292,12 +292,12 @@ var range = function(){
             $line.ionRangeSlider({
                 onStart: function(data){
                     $('.rangePrice').text(
-                        '$' + data.from + ' - $' + data.to
+                        data.from + '₽' + ' - ' + data.to + '₽'
                     )
                 },
                 onChange: function(data){
                     $('.rangePrice').text(
-                        '$' + data.from + ' - $' + data.to
+                        data.from + '₽' + ' - ' + data.to + '₽'
                     )
                 }
             });
@@ -667,7 +667,7 @@ var Amount = function(){
                 e.preventDefault();
                 var $inputThis = $(this).siblings($input).filter($input);
                 var value = parseFloat($inputThis.val());
-                $inputThis.val(value>0?value - 1:0);
+                $inputThis.val(value>0?value:0);
             });
         }
     };
@@ -891,17 +891,26 @@ Categories().init();
 
 })(jQuery);
 
+const host = 'http://127.0.0.1:8000'
 
 let modal = document.querySelector('.modal__container');
 let btnProduct = document.querySelectorAll('.Card-btn');
 
+let btnLogin = document.getElementById('btnLogin');
+if (btnLogin) {
+    btnLogin.onclick = function() {
+    modal.classList.add('open__modal');
+    };
+}
+
+
 btnProduct.forEach(function(el) {
     el.addEventListener('click', function() {
-        fetch('http://127.0.0.1:8000/cart/add/' + el.value).then((response) => {
-            if (response.status == 200) {
+        fetch(host + '/cart/add/' + el.value).then((response) => {
+            if (response.status === 200) {
+                modal.classList.add('open__modal');
                 $("#myCart").load(location.href + " #myCart");
                 $("#myModal").load(location.href + " #myModal");
-                modal.classList.add('open__modal');
             }
             else {
                 alert('Извините! Произошел сбой. Попробуйте еще раз.')
@@ -914,99 +923,130 @@ $('#block--button').on('click', function(e) {
         let value;
         if (e.target.className.includes('btn-add')) {
             value = e.target.value;
-            fetch('http://127.0.0.1:8000/cart/add/' + value).then((response) => {
-                if (response.status == 200) {
+            fetch(host + '/cart/add/' + value).then((response) => {
+                if (response.status === 200) {
                     $("#myCart").load(location.href + " #myCart");
                     $('#block--button').load(location.href + " #block--button");
                 }
                 else {
                     alert('Извините! Произошел сбой. Попробуйте еще раз. 927')
-                };
+                }
             });
         }
         else if (e.target.parentNode.className.includes('btn-add')) {
             value = e.target.parentNode.value;
-            fetch('http://127.0.0.1:8000/cart/add/' + value).then((response) => {
-                if (response.status == 200) {
+            fetch(host + '/cart/add/' + value).then((response) => {
+                if (response.status === 200) {
                     $("#myCart").load(location.href + " #myCart");
                     $('#block--button').load(location.href + " #block--button");
                 }
                 else {
                     alert('Извините! Произошел сбой. Попробуйте еще раз. 927')
-                };
+                }
             });
-        };
+        }
     })
 
+let modalDelete = document.querySelector('.modal__container__delete');
+var valueDel;
 
-$('#cart-form').on('click', function(e) {
-    if (e.target.className == 'Amount-add') {
-        fetch('http://127.0.0.1:8000/cart/addQuantity/' + e.target.value).then((response) => {
-            if (response.status == 200) {
+$('.form-cart').on('click', function(e) {
+    if (e.target.className === 'Amount-add') {
+        fetch(host + '/cart/addQuantity/' + e.target.value).then((response) => {
+            if (response.status === 200) {
                 $("#myCart").load(location.href + " #myCart");
-                $("#cart-form").load(location.href + " #cart-form");
-            };
+                $(".form-cart").load(location.href + " .form-cart");
+            }
         });
     }
-    else if (e.target.className == 'Amount-remove') {
-        fetch('http://127.0.0.1:8000/cart/removeQuantity/' + e.target.value).then((response) => {
-            if (response.status == 200) {
-                $("#myCart").load(location.href + " #myCart");
-                $("#cart-form").load(location.href + " #cart-form");
-            };
-        });
+    else if (e.target.className === 'Amount-remove') {
+
+        let inputValue = e.target.nextElementSibling;
+        if (inputValue.value >= 2) {
+            fetch(host + '/cart/removeQuantity/' + e.target.value).then((response) => {
+                if (response.status === 200) {
+                    $("#myCart").load(location.href + " #myCart");
+                    $(".form-cart").load(location.href + " .form-cart");
+                }
+            });
+        }
+        else if (inputValue.value <= 1) {
+            valueDel = e.target.value;
+            modalDelete.classList.add('open__modal__delete');
+        }
     }
 });
 
 
 $('#block--button').on('click', function(e) {
-    let value;
-    if (e.target.className == 'Amount-add') {
-        fetch('http://127.0.0.1:8000/cart/addQuantity/' + e.target.value).then((response) => {
-            if (response.status == 200) {
+    if (e.target.className === 'Amount-add') {
+        fetch(host + '/cart/addQuantity/' + e.target.value).then((response) => {
+            if (response.status === 200) {
                 $("#myCart").load(location.href + " #myCart");
                 $('#block--button').load(location.href + " #block--button");
-            };
+            }
         });
     }
-    else if (e.target.className == 'Amount-remove') {
-        fetch('http://127.0.0.1:8000/cart/removeQuantity/' + e.target.value).then((response) => {
-            if (response.status == 200) {
-                $("#myCart").load(location.href + " #myCart");
-                $('#block--button').load(location.href + " #block--button");
-            };
-        });
+    else if (e.target.className === 'Amount-remove') {
+        let inputValue = document.querySelector('.Amount-input');
+        if (inputValue.value > 1) {
+            fetch(host + '/cart/removeQuantity/' + e.target.value).then((response) => {
+                if (response.status === 200) {
+                    $("#myCart").load(location.href + " #myCart");
+                    $('#block--button').load(location.href + " #block--button");
+                };
+            });
+        }
+        else if (inputValue.value <= 1) {
+            valueDel = e.target.value;
+            modalDelete.classList.add('open__modal__delete');
+        }
     }
 });
 
 
+
+let buttonYes = document.querySelector('.button-yes');
+let buttonNo = document.querySelector('.button-no');
+
 $('#cart-form').on('click', function(e) {
-    if (e.target.className == 'Cart-delete') {
-        fetch('http://127.0.0.1:8000/cart/delete/' + e.target.value).then((response) => {
-            if (response.status == 200) {
-                $("#myCart").load(location.href + " #myCart");
-                $("#cart-form").load(location.href + " #cart-form");
-            };
-        });
+    if (e.target.className === 'Cart-delete') {
+        valueDel = e.target.value;
+        modalDelete.classList.add('open__modal__delete');
     }
-    else if (e.target.parentNode.className == 'Cart-delete') {
-        fetch('http://127.0.0.1:8000/cart/delete/' + e.target.parentNode.value).then((response) => {
-            if (response.status == 200) {
-                $("#myCart").load(location.href + " #myCart");
-                $("#cart-form").load(location.href + " #cart-form");
-            };
-        });
+    else if (e.target.parentNode.className === 'Cart-delete') {
+        valueDel = e.target.parentNode.value;
+        modalDelete.classList.add('open__modal__delete');
     }
 })
 
-$('#Amount_product').on('click', function(e) {
-    console.log(e);
-})
+$('.modal__button__delete').on('click', function(e) {
+    if (e.target.className === 'button-yes') {
+        modalDelete.classList.remove('open__modal__delete');
+        fetch(host + '/cart/delete/' + valueDel).then((response) => {
+            if (response.status === 200) {
+                valueDel = 0;
+                $("#myCart").load(location.href + " #myCart");
+                $("#cart-form").load(location.href + " #cart-form");
+                $('#block--button').load(location.href + ' #block--button');
+                $(".form-cart").load(location.href + " .form-cart");
+            }
+        });
+    }
+    else if (e.target.className === 'button-no') {
+        modalDelete.classList.remove('open__modal__delete');
+        $("#myCart").load(location.href + " #myCart");
+        $("#cart-form").load(location.href + " #cart-form");
+        $('#block--button').load(location.href + ' #block--button');
+        $(".form-cart").load(location.href + " .form-cart");
+    }
+ });
 
 
 let close = document.getElementById('close');
 if (close) {
     close.onclick = function() {
     modal.classList.remove('open__modal');
+    };
 }
-}
+

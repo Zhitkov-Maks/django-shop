@@ -4,9 +4,11 @@ from orders.models import Order
 
 
 class OrderForms(forms.ModelForm):
-    password = forms.CharField(max_length=30, required=False, label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    password = forms.CharField(max_length=30, required=False, label='Пароль',
+                               widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     passwordReplay = forms.CharField(max_length=30, required=False, label='Повторите пароль',
-                                     widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+                                     widget=forms.PasswordInput(attrs={'class': 'form-input',
+                                                                       'placeholder': 'Повторите пароль'}))
 
     class Meta:
         model = Order

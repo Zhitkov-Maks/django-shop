@@ -1,52 +1,8 @@
-<!--END-->
-<!--END--><!DOCTYPE html><!--[if IE 7]>
-{% extends 'app_megano/base.html' %}
-{% load static %}
-{% block header %}
-<html class="ie7" lang="ru">
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie8" lang="ru">
-<![endif]-->
-<!--[if IE 9]>
-<html class="ie9" lang="ru">
-<![endif]-->
-<!--[if IE 10]>
-<html class="ie10" lang="ru">
-<![endif]-->
-<!--[if IE 11]>
-<html class="ie11" lang="ru">
-<![endif]-->
-<!--[if gt IE 11]><!--> <html lang="ru"> <!--<![endif]-->
-<head>
-  <title>Catalog</title>
-  <meta name="description" content="Описание страницы">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Regular.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold_Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light_Italic.woff' %}" as="font">
-  <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/my_style.css' %}">
-  <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-</head>
-<body class="Site">
-  <!--if lt IE 8
-  p.error-browser
-      | Ваш браузер&nbsp;
-      em устарел!&nbsp;
-      a(href="http://browsehappy.com/") Выберите новую версию
-          +s
-          | браузера здесь&nbsp;
-      | для правильного отображения сайта.
-  -->
+<html>
+<body>
+  {% extends 'app_megano/base.html' %}
+  {% load static %}
+  {% block header %}
   {{ block.super }}
   <div class="Middle Middle_top">
     <div class="Middle-top">
@@ -72,33 +28,45 @@
               </strong>
             </header>
             <div class="Section-columnContent">
-              <form class="form" action="#" method="post">
+              <form class="form" action="{% url 'searchFilter' %}" method="GET">
                 <div class="form-group">
                   <div class="range Section-columnRange">
-                    <input class="range-line" id="price" name="price" type="text" data-type="double" data-min="7" data-max="50" data-from="7" data-to="27"/>
-                    <div class="range-price">Price:&#32;
+                      <label for="price"></label><input class="range-line" id="price" name="price" type="text" data-type="double" data-min="{{ price__min }}" data-max="{{ price__max }}" data-from="{{ data_from }}" data-to="{{ data_to }}"/>
+                    <div class="range-price">Price;
                       <div class="rangePrice">
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="form-group">
-                  <input class="form-input form-input_full" id="title" name="title" type="text" placeholder="Название"/>
+                    <label for="title"></label><input class="form-input form-input_full" id="title" name="title" type="text" value="{{ title }}" placeholder="Название"/>
                 </div>
                 <div class="form-group">
                 </div>
                 <div class="form-group">
+                  {% if active %}
                   <label class="toggle">
-                    <input type="checkbox"/><span class="toggle-box"></span><span class="toggle-text">Только товары в наличии</span>
+                    <input type="checkbox" checked  name="active"/><span class="toggle-box"></span><span class="toggle-text">Только товары в наличии</span>
                   </label>
-                </div>
-                <div class="form-group">
+                  {% else %}
                   <label class="toggle">
-                    <input type="checkbox"/><span class="toggle-box"></span><span class="toggle-text">С бесплатной доставкой</span>
+                    <input type="checkbox"  name="active"/><span class="toggle-box"></span><span class="toggle-text">Только товары в наличии</span>
                   </label>
+                  {% endif %}
                 </div>
                 <div class="form-group">
-                  <div class="buttons"><a class="btn btn_square btn_dark btn_narrow" href="#">Filter</a>
+                  {% if delivery %}
+                  <label class="toggle">
+                    <input type="checkbox" checked name="delivery"/><span class="toggle-box"></span><span class="toggle-text">С бесплатной доставкой</span>
+                  </label>
+                  {% else %}
+                  <label class="toggle">
+                    <input type="checkbox" name="delivery"/><span class="toggle-box"></span><span class="toggle-text">С бесплатной доставкой</span>
+                  </label>
+                  {% endif %}
+                </div>
+                <div class="form-group">
+                  <div class="buttons"><button type="submit" class="btn btn_square btn_dark btn_narrow">Filter</button>
                   </div>
                 </div>
               </form>
@@ -118,12 +86,32 @@
             </div>
           </div>
         </div>
-            <div class="Section-content">
+        <div class="Section-content">
           <div class="Sort">
             <div class="Sort-title">Сортировать по:
             </div>
-            <div class="Sort-variants"><a class="Sort-sortBy Sort-sortBy_dec" href="#">Популярности</a><a class="Sort-sortBy" href="#">Цене</a><a class="Sort-sortBy" href="#">Отзывам</a><a class="Sort-sortBy Sort-sortBy_inc" href="#">Новизне</a>
+            {% if sortPopular %}
+            <div class="Sort-variants"><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
             </div>
+            {% elif sortPriceMin %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortPriceMax' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortPriceMax %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortReview %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortNew %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif search %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% else %}
+            <div class="Sort-variants"><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% endif %}
           </div>
           <div class="Cards">
             {% if product_list %}
@@ -133,7 +121,7 @@
                 <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{ goods.name|slice:"35" }}</a>
                 </strong>
                 <div class="Card-description">
-                  <div class="Card-cost"><span class="Card-price">${{ goods.price }}</span>
+                  <div class="Card-cost"><span class="Card-price">{{ goods.price }}₽</span>
                   </div>
                   <div class="Card-category">{% for tag in goods.tag.all %} {{ tag }} / {% endfor %}
                   </div>
@@ -148,15 +136,27 @@
             {% endfor %}
             {% endif %}
           </div>
-          <div class="Pagination">
-            <div class="Pagination-ins">
-              <a class="Pagination-element Pagination-element_prev" href="#"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
-              {% for page in paginator.page_range %}
-              <a class="Pagination-element" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
-              {% endfor %}
-              <a class="Pagination-element Pagination-element_prev" href="#"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
-            </div>
-          </div>
+        </div>
+      </div>
+      <div class="Pagination">
+        <div class="Pagination-ins">
+          {% if page_obj.has_previous %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% endif %}
+          {% for page in paginator.page_range %}
+          {% if page == page_obj.number %}
+          <a class="Pagination-element Pagination-element_current" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% else %}
+          <a class="Pagination-element" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -164,15 +164,15 @@
 <div class="modal__container">
   <div class="modal__content">
     <div id="myModal">
-      <p>Товары в вашей корзине</p>
+      <p class="modal__title">Товары в вашей корзине</p>
       {% for detail in cart %}
       <div class="content__block">
-        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}">
-        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }})</p>
+        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}" alt="photo товара">
+        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }}шт.)</p>
       </div>
       {% endfor %}
     </div>
-    <div class="modal__button">
+    <div class="modal__button__delete">
         <button class="button" type="button" id="close">Продолжить покупки</button>
         <a class="modal--link" href="{% url 'cart' %}">Перейти в корзину</a>
     </div>

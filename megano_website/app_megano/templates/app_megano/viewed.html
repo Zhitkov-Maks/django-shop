@@ -1,77 +1,55 @@
-
-<!--END-->
-<!--END--><!DOCTYPE html><!--[if IE 7]>
-{% extends 'app_megano/base.html' %}
-{% load static %}
-{% block header %}
-<html class="ie7" lang="ru">
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie8" lang="ru">
-<![endif]-->
-<!--[if IE 9]>
-<html class="ie9" lang="ru">
-<![endif]-->
-<!--[if IE 10]>
-<html class="ie10" lang="ru">
-<![endif]-->
-<!--[if IE 11]>
-<html class="ie11" lang="ru">
-<![endif]-->
-<!--[if gt IE 11]><!--> <html lang="ru"> <!--<![endif]-->
-<head>
-  <title>Megano</title>
-  <meta name="description" content="Описание страницы">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Regular.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold_Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light_Italic.woff' %}" as="font">
-  <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
-  <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-</head>
+<html>
 <body>
-  <!--if lt IE 8
-  p.error-browser
-      | Ваш браузер&nbsp;
-      em устарел!&nbsp;
-      a(href="http://browsehappy.com/") Выберите новую версию
-          +s
-          | браузера здесь&nbsp;
-      | для правильного отображения сайта.
-  -->
-{{ block.super }}
+  {% extends 'app_megano/base.html' %}
+  {% load static %}
+  {% block header %}
+  {{ block.super }}
   <div id="header" class="Middle">
     <div class="Section Section_column Section_columnDesktop"  >
       <div class="wrap">
         <div class="Section-content">
+        <div class="Section-column">
+          <div class="Section-columnSection">
+            <header class="Section-header">
+              <strong class="Section-title">Навигация
+              </strong>
+            </header>
+            <div class="Section-columnContent">
+              <div class="NavigateProfile">
+                <ul class="menu menu_vt">
+                  <li class="menu-item"><a class="menu-link" href="{% url 'account' %}">Личный кабинет</a>
+                  </li>
+                  <li class="menu-item"><a class="menu-link" href="{% url 'profile' %}">Профиль</a>
+                  </li>
+                  <li class="menu-item"><a class="menu-link" href="{% url 'historyorder' request.user.id %}">История заказов</a>
+                  </li>
+                  <li class="menu-item_ACTIVE menu-item"><a class="menu-link" href="{% url 'viewed' request.user.id %}">История просмотра</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
           <header class="Section-header">
             <h2 class="Section-title">Вы смотрели
             </h2>
           </header>
           <div class="Cards">
             {% if history_list %}
-            {% for goods in history_list|slice:"32" %}
+            {% for goods in history_list %}
             <div class="Card"><a class="Card-picture" href="{% url 'detail' goods.goods.id %}"><img src="{{ goods.goods.image.url }}" alt="card.jpg"/></a>
               <div class="Card-content">
-                <strong class="Card-title"><a href="{% url 'detail' goods.goods.id %}">{{ goods.goods.name|slice:"35" }}{{ "..." }}</a>
+                <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{ goods.goods.name|slice:"35" }}{{ "..." }}</a>
                 </strong>
                 <div class="Card-description">
-                  <div class="Card-cost"><span class="Card-price">${{ goods.goods.price }}</span>
+                  <div class="Card-cost"><span class="Card-price">{{ goods.goods.price }}₽</span>
                   </div>
                   <div class="Card-category">{% for tag in goods.goods.tag.all %} {{ tag }} / {% endfor %}
                   </div>
                   <div class="Card-hover">
-                    <a href="{% url 'add' goods.goods.id %}" class="Card-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button type="button" class="Card-btn" value="{{ goods.goods.id }}">
                       <img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -99,9 +77,26 @@
     </div>
   </div>
 </div>
+<div class="modal__container">
+  <div class="modal__content">
+    <div id="myModal">
+      <p class="modal__title">Товары в вашей корзине</p>
+      {% for detail in cart %}
+      <div class="content__block">
+        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}">
+        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }}шт.)</p>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="modal__button__delete">
+        <button class="button" type="button" id="close">Продолжить покупки</button>
+        <a class="modal--link" href="{% url 'cart' %}">Перейти в корзину</a>
+    </div>
+  </div>
+</div>
 {% endblock header %}
 {% block footer %}
 {{ block.super }}
 {% endblock footer %}
-</body>
+  </div>
 </html>

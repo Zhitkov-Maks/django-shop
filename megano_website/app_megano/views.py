@@ -1,42 +1,35 @@
-from django.contrib.auth.models import User
-from django.db.models import Min, Sum
-from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count, Q
+from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.utils import timezone
-from django.views import View
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 
 from cart.services.cart import Cart
-from .forms import ReviewsForm, CartAddProductForm
+from .forms import ReviewsForm
 from .models import Goods, Category, Tags, ViewedProduct
+from app_users.models import CustomUser
+
+from .services import add_category_favorite, add_queryset_top, check_product_in_cart, add_product_in_top_list, \
+    add_product_filter, add_data_filter
 
 
 class HomeView(ListView):
-    """Главная страница."""
-    model = ViewedProduct
+    """Класс для отображения главной страницы"""
+    model = Goods
     template_name = 'app_megano/index.html'
     context_object_name = "product_list"
 
     def get_queryset(self):
-        current_datetime = timezone.now()
-        queryset = ViewedProduct.objects.values('goods')\
-            .distinct()\
-            .annotate(sum=Sum("quantity")) \
-            .filter(viewed_date__year=current_datetime.year,
-                    viewed_date__month=current_datetime.month).order_by("-sum")
-        product_list = []
-        for product in queryset:
-            product_list.append(Goods.objects.get(id=product['goods']))
-        return product_list
+        """Переопределяем queryset, чтобы отфильтровать вывод товаров по сортировке топ просмотров"""
+        queryset = add_queryset_top()
+        return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляем на главную страницу так же список с товарами с меткой ограниченная серия и
+        список из 3 элементов с избранными категориями"""
         context = super().get_context_data()
         limited_list = Goods.objects.filter(limited_edition=True)
-        category_list = Category.objects.filter(favorite=True)
-        category_dict = {}
-        for cat in category_list[:3]:
-            category_dict[cat.id] = [cat, cat.categories.aggregate(Min('price'))]
-        context.update({'limited_list': limited_list, 'category_list': category_dict})
+        category_dict = add_category_favorite()
+        context.update({'limited_list': limited_list, 'category_dict': category_dict})
         return context
 
 
@@ -52,7 +45,7 @@ class ShowCategory(ListView):
 
 
 class ShowTag(ListView):
-    """Класс выводит список товаров по категориям"""
+    """Класс выводит список товаров по тегам"""
     model = Tags
     template_name = 'app_megano/catalog.html'
     context_object_name = "product_list"
@@ -69,25 +62,13 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        cart = Cart(self.request)
-        product = self.object
-        check_product_in_cart = False
-        quantity = 0
-        for detail in cart:
-            if detail['product'] == product:
-                check_product_in_cart = True
-                quantity = detail['quantity']
+        check = check_product_in_cart(Cart(self.request), self.object)
+
         if self.request.user.is_authenticated:
-            user = self.request.user
-            product = self.get_object()
-            if ViewedProduct.objects.filter(user_id=user.id, goods_id=product.id).exists():
-                viewed_product = ViewedProduct.objects.get(user_id=user.id, goods_id=product.id)
-                viewed_product.viewed_date = timezone.now()
-                viewed_product.save()
-            else:
-                ViewedProduct.objects.create(user=user, goods=product, viewed_date=timezone.now())
+            add_product_in_top_list(self.request.user, self.get_object())
         form = ReviewsForm()
-        context.update({"product": self.get_object(), 'form': form, 'check': check_product_in_cart, 'quantity': quantity})
+        context.update(
+            {"product": self.get_object(), 'form': form, 'check': check[0], 'quantity': check[1]})
         return context
 
     def post(self, request, pk):
@@ -103,14 +84,6 @@ class ProductDetailView(DetailView):
         return render(request, 'app_megano/product.html', context={'form': form})
 
 
-class SaleView(View):
-    """Вывод списка акционных товаров."""
-
-    def get(self, request):
-        cart = Cart(self.request)
-        return render(request, 'app_megano/sale.html', {'cart': cart})
-
-
 class CatalogView(ListView):
     model = Goods
     template_name = 'app_megano/catalog.html'
@@ -118,14 +91,132 @@ class CatalogView(ListView):
     paginate_by = 8
 
     def get_queryset(self):
+        queryset = add_queryset_top()
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'sortPopular': True})
+        return context
+
+
+class CatalogSortPrice(ListView):
+    """Класс для сортировки товаров начиная с самых дешевых"""
+    model = Goods
+    template_name = 'app_megano/catalog.html'
+    context_object_name = 'product_list'
+    paginate_by = 8
+
+    def get_queryset(self):
+        return Goods.objects.all().order_by('price')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'sortPriceMin': True})
+        return context
+
+
+class CatalogSortPriceMax(ListView):
+    """Класс для сортировки товаров начиная с самых дорогих"""
+    model = Goods
+    template_name = 'app_megano/catalog.html'
+    context_object_name = 'product_list'
+    paginate_by = 8
+
+    def get_queryset(self):
+        return Goods.objects.all().order_by('-price')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'sortPriceMax': True})
+        return context
+
+
+class CatalogSortReview(ListView):
+    """Класс для сортировки товаров по количеству отзывов. Сначала выводятся товары где больше всего отзывов.
+    Обратную сортировку делать не стал, не думаю что кому-то интересны товары без отзывов."""
+    model = Goods
+    template_name = 'app_megano/catalog.html'
+    context_object_name = 'product_list'
+    paginate_by = 8
+
+    def get_queryset(self):
+        return Goods.objects.all().annotate(count=Count('goods')).order_by('-count')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'sortReview': True})
+        return context
+
+
+class CatalogSortNew(ListView):
+    """Класс для вывода каталога товаров отсортированных по новизне. Сначала отображаются товары, которые были
+    добавлены последними. Сортировку в обратном направлении делать не стал, так как усомнился в необходимости вывода
+    товаров которые, возможно, уже не особо интересны."""
+    template_name = 'app_megano/catalog.html'
+    context_object_name = 'product_list'
+    paginate_by = 8
+
+    def get_queryset(self):
         return Goods.objects.all().order_by('-date_create')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'sortNew': True})
+        return context
+
+
+class SearchProduct(ListView):
+    """Класс для поиска товаров по вводу пользователя"""
+    template_name = 'app_megano/catalog.html'
+    context_object_name = 'product_list'
+    paginate_by = 16
+
+    def get_queryset(self):
+        """Переопределяем queryset для поиска"""
+        query = self.request.GET.get('query').split()
+        query_list = Q()
+        for word in query:
+            query_list |= Q(name__iregex=word)
+        queryset = Goods.objects.filter(query_list)
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'search': True})
+        return context
+
+
+class SearchFilter(ListView):
+    """Класс для поиска товаров по вводу пользователя"""
+    template_name = 'app_megano/catalog.html'
+    context_object_name = 'product_list'
+    paginate_by = 16
+
+    def get_queryset(self):
+        """Переопределяем queryset для поиска"""
+        queryset = add_product_filter(self.request)
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        add_data_filter(self.request, context)
+        return add_data_filter(self.request, context)
 
 
 class ViewedProducts(ListView):
-    model = User
+    """Класс для отображения товаров просмотренных пользователем"""
+    model = CustomUser
     template_name = 'app_megano/viewed.html'
     context_object_name = 'history_list'
 
     def get_queryset(self):
-        user = User.objects.get(id=self.kwargs['pk'])
-        return user.persons.all().order_by('-viewed_date')[:50]
+        user = CustomUser.objects.get(id=self.kwargs['pk'])
+        return user.persons.all().order_by('-viewed_date')[:16]

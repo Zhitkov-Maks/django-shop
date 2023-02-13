@@ -1,5 +1,8 @@
+from django.db import transaction
+
 from orders.models import Order, Status, DetailOrder
 from cart.services.cart import Cart
+from app_megano.models import Purchases
 
 
 def add_order(form, user, total_price):
@@ -18,6 +21,7 @@ def add_order(form, user, total_price):
     return order
 
 
+@transaction.atomic
 def add_detail_to_order(order, request):
     cart = Cart(request)
     for item in cart:
@@ -25,4 +29,8 @@ def add_detail_to_order(order, request):
                                    product=item['product'],
                                    price=item['price'],
                                    quantity=item['quantity'])
+        Purchases.objects.create(
+            goods=item['product'],
+            quantity=item['quantity']
+        )
     cart.clear()

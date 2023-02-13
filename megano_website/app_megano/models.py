@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -69,12 +70,11 @@ class Goods(models.Model):
     stock = models.PositiveIntegerField(verbose_name='Остаток')
     limited_edition = models.BooleanField(default=False, verbose_name='Ограниченная серия')
     date_create = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    is_active = models.BooleanField(verbose_name='Активен', default=True)
+    free_delivery = models.BooleanField(verbose_name='Бесплатная доставка', default=False)
 
     def __str__(self):
         return f'{str(self.name)[:40]}...'
-
-    # def total_views(self):
-    #     return self.views.count()
 
     class Meta:
         ordering = ('-date_create',)
@@ -110,7 +110,7 @@ class Comment(models.Model):
 
 class ViewedProduct(models.Model):
     goods = models.ForeignKey(Goods, verbose_name='Товар', on_delete=models.CASCADE, related_name='products')
-    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, related_name='persons')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Пользователь', on_delete=models.CASCADE, related_name='persons')
     quantity = models.IntegerField(default=1)
     viewed_date = models.DateTimeField()
 
@@ -119,3 +119,12 @@ class ViewedProduct(models.Model):
 
     def total_count(self):
         return self.goods.count()
+
+
+class Purchases(models.Model):
+    goods = models.ForeignKey(Goods, verbose_name='Товар', on_delete=models.CASCADE, related_name='shipments')
+    quantity = models.PositiveIntegerField(verbose_name='Количество')
+    date_purchases = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.goods} {self.quantity} {self.date_purchases}'

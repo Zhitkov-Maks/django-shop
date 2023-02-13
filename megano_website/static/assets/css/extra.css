@@ -919,9 +919,15 @@
   background-color: #ebebeb;
   justify-content: center;
   align-items: center;
+  border: none;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom 0.3s ease-in;
 }
 .Card-btn + .Card-btn {
   margin-left: 12px;
+}
+.Card-btn:hover {
+    border-bottom: 1px solid black;
 }
 .Card-hover {
   position: absolute;

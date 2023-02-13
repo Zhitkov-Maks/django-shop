@@ -1,101 +1,38 @@
-
-<!--END-->
-<!--END--><!DOCTYPE html><!--[if IE 7]>
-{% extends 'app_megano/base.html' %}
-{% load static %}
-{% block header %}
-<html class="ie7" lang="ru">
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie8" lang="ru">
-<![endif]-->
-<!--[if IE 9]>
-<html class="ie9" lang="ru">
-<![endif]-->
-<!--[if IE 10]>
-<html class="ie10" lang="ru">
-<![endif]-->
-<!--[if IE 11]>
-<html class="ie11" lang="ru">
-<![endif]-->
-<!--[if gt IE 11]><!--> <html lang="ru"> <!--<![endif]-->
-<head>
+<html>
+<body>
+  {% extends 'app_megano/base.html' %}
   {% load static %}
-  <title>Register</title>
-  <meta name="description" content="Описание страницы">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Regular.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold_Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light_Italic.woff' %}" as="font">
-  <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
-  <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-</head>
-<body class="Site">
-  <!--if lt IE 8
-  p.error-browser
-      | Ваш браузер&nbsp;
-      em устарел!&nbsp;
-      a(href="http://browsehappy.com/") Выберите новую версию
-          +s
-          | браузера здесь&nbsp;
-      | для правильного отображения сайта.
-  -->
+  {% block header %}
   {{ block.super }}
-    <div class="Middle">
     <div class="Section">
-      <div class="wrap">
-            <h1 class="login__title">Registration</h1>
-            <form id="creation" method="post">
+        <div class="wrap">
+        <header class="Section-header Section-header_sm">
+            <h2 class="Section-title">Регистрация
+            </h2>
+        </header>
+        <form id="creation" method="post">
                 {% csrf_token %}
-                {{ form.errors.password2 }}
-                {{ form.errors.email }}
-                {% for f in form %}
-                <p class="form-label"><label class="form-input" for="{{ f.id_for_label }}">{{ f.label }}:</label>{{f}}</p>
-                {% endfor %}
-                <button class="btn btn_primary" type="submit">Save</button>
+                <p class="message__errors"><label class="form-label">{{ form.email.label }}</label>{{form.email}}
+                    {{ form.errors.email }}
+                </p>
+                <p><label class="form-label">{{ form.last_name.label }}</label>{{form.last_name}}</p>
+                <p><label class="form-label">{{ form.first_name.label }}</label>{{form.first_name}}</p>
+                <p><label class="form-label">{{ form.patronymic.label }}</label>{{form.patronymic}}</p>
+                <p class="message__errors"><label class="form-label">{{ form.phone.label }}</label>{{form.phone}}</p>
+                    {{ form.errors.phone }}
+                <p class="message__errors"><label class="form-label">{{ form.password1.label }}</label>{{form.password1}}
+                    {{ form.errors.password1 }}
+                </p>
+                <p class="message__errors"><label class="form-label">{{ form.password2.label }}</label>{{form.password2}}
+                    {{ form.errors.password2 }}
+                </p>
+                <button class="btn btn_primary" type="submit">Зарегистрироваться</button>
             </form><br>
-            {% block javascript %}
-              <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-              <script>
-                  $(document).ready(function () {
-                      $('#id_username').keyup(function () {
-                          $.ajax({
-                              data: $(this).serialize(), // получаяем данные формы
-                              url: "{% url 'validate_username' %}",
-                              success: function (response) {
-                                  if (response.is_taken == true) {
-                                      $('#id_username').removeClass('is-valid').addClass('is-invalid');
-                                      $('#usernameError').remove();
-                                      $('#id_username').after('<div class="invalid-feedback d-block" id="usernameError">Это имя уже используется</div>')
-                                  }
-                                  else {
-                                      $('#id_username').removeClass('is-invalid').addClass('is-valid');
-                                      $('#usernameError').remove();
-                                  }
-                              },
-                              error: function (response) {
-                                  console.log(response.responseJSON.errors)
-                              }
-                          });
-                          return false;
-                      });
-                  })
-              </script>
-            {% endblock javascript %}
-      </div>
-  </div>
+        </div>
+    </div>
 {% endblock header %}
 {% block footer %}
 {{ block.super }}
-  </div>
 </body>
 </html>
 {% endblock footer %}

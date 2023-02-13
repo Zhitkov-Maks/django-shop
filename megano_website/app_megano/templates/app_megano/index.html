@@ -1,60 +1,15 @@
-
-<!--END-->
-<!--END--><!DOCTYPE html><!--[if IE 7]>
-{% extends 'app_megano/base.html' %}
-{% load static %}
-{% block header %}
-<html class="ie7" lang="ru">
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie8" lang="ru">
-<![endif]-->
-<!--[if IE 9]>
-<html class="ie9" lang="ru">
-<![endif]-->
-<!--[if IE 10]>
-<html class="ie10" lang="ru">
-<![endif]-->
-<!--[if IE 11]>
-<html class="ie11" lang="ru">
-<![endif]-->
-<!--[if gt IE 11]><!--> <html lang="ru"> <!--<![endif]-->
-<head>
-  <title>Megano</title>
-  <meta name="description" content="Описание страницы">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Regular.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Bold_Italic.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light.woff' %}" as="font">
-  <link rel="preload" href="{% static 'assets/fonts/Roboto/Roboto-Light_Italic.woff' %}" as="font">
-  <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/my_style.css' %}">
-  <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-</head>
-<body class="Site">
-  <!--if lt IE 8
-  p.error-browser
-      | Ваш браузер&nbsp;
-      em устарел!&nbsp;
-      a(href="http://browsehappy.com/") Выберите новую версию
-          +s
-          | браузера здесь&nbsp;
-      | для правильного отображения сайта.
-  -->
-{{ block.super }}
+<html>
+<body>
+  {% extends 'app_megano/base.html' %}
+  {% load static %}
+  {% block header %}
+  {{ block.super }}
   <div id="header" class="Middle">
     <div class="Section">
       <div class="wrap">
         <div class="BannersHome">
-          {% if category_list %}
-          {% for cat in category_list.values %}
+          {% if category_dict %}
+          {% for cat in category_dict.values %}
           <a class="BannersHomeBlock" href="{% url 'category' cat.0.id %}">
             <div class="BannersHomeBlock-row">
               <div class="BannersHomeBlock-block">
@@ -109,7 +64,7 @@
         </div>
       </div>
     <div class="modal" data-modal="1">
-     <svg class="modal__cross js-modal-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+     <svg class="modal__cross js-modal-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"></path></svg>
      <p class="modal__title">Заголовок окна 1</p>
     </div>
     <div class="overlay js-overlay-modal"></div>
@@ -183,7 +138,7 @@
                 <div class="Slider-content">
                   <div class="Card"><a class="Card-picture" href="{% url 'detail' goods.id %}"><img src="{{ goods.image.url }}" alt="card.jpg"/></a>
                     <div class="Card-content">
-                      <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{goods.name|slice:"35"}}{{ "..." }}</a>
+                      <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{goods.name|slice:"35"}}...</a>
                       </strong>
                       <div class="Card-description">
                         <div class="Card-cost"><span class="Card-price">${{ goods.price }}</span>
@@ -214,12 +169,12 @@
       <p class="modal__title">Товары в вашей корзине</p>
       {% for detail in cart %}
       <div class="content__block">
-        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}">
-        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }})</p>
+        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}" alt="photo product">
+        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }}шт.)</p>
       </div>
       {% endfor %}
     </div>
-    <div class="modal__button">
+    <div class="modal__button__delete">
         <button class="button" type="button" id="close">Продолжить покупки</button>
         <a class="modal--link" href="{% url 'cart' %}">Перейти в корзину</a>
     </div>

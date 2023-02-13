@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from django_mptt_admin.admin import DjangoMpttAdmin
 
 
@@ -34,20 +35,19 @@ class GalleryInline(admin.TabularInline):
 
 @admin.register(Goods)
 class GoodsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'get_description', 'stock', 'limited_edition')
+    list_display = ('id', 'name', 'image_show', 'stock', 'limited_edition', 'is_active', 'free_delivery')
     list_display_links = ('name',)
-    list_editable = ('stock',)
+    list_editable = ('stock', 'is_active', 'free_delivery')
     list_filter = ('category',)
     filter_horizontal = ('tag', 'detail', 'category')
     inlines = (GalleryInline,)
 
-    def get_description(self, rec):
-        if len(str(rec.description)) >= 15:
-            return f'{rec.description[:15]} ...'
-        else:
-            return rec.description
+    def image_show(self, rec):
+        if rec.image:
+            return mark_safe("<img src='{}' width='60' />".format(rec.image.url))
+        return None
 
-    get_description.short_description = 'Описание'
+    image_show.__name__ = "Фото"
 
 
 @admin.register(Comment)
