@@ -891,7 +891,8 @@ Categories().init();
 
 })(jQuery);
 
-const host = 'http://127.0.0.1:8000'
+const host = window.location.origin
+
 
 let modal = document.querySelector('.modal__container');
 let btnProduct = document.querySelectorAll('.Card-btn');
@@ -903,64 +904,50 @@ if (btnLogin) {
     };
 }
 
-
-btnProduct.forEach(function(el) {
-    el.addEventListener('click', function() {
-        fetch(host + '/cart/add/' + el.value).then((response) => {
-            if (response.status === 200) {
-                modal.classList.add('open__modal');
-                $("#myCart").load(location.href + " #myCart");
-                $("#myModal").load(location.href + " #myModal");
-            }
-            else {
-                alert('Извините! Произошел сбой. Попробуйте еще раз.')
-            }
+if (btnProduct) {
+    btnProduct.forEach(function(el) {
+        el.addEventListener('click', function() {
+            fetch(host + '/cart/add/' + el.value).then(async (response) => {
+                if (response.status === 200) {
+                    let res = await response.json()
+                    if (res['success'] === true) {
+                        modal.classList.add('open__modal');
+                        setTimeout(modalClose, 3000)
+                        $("#myCart").load(location.href + " #myCart");
+                        $("#myModal").load(location.href + " #myModal");
+                    }
+                    else {
+                        alert('Количество товара в корзине превышает количество в магазине.')
+                    }
+                } else {
+                    alert('Извините! Произошел сбой. Попробуйте еще раз.')
+                }
+            });
         });
-    });
-})
-
-$('#block--button').on('click', function(e) {
-        let value;
-        if (e.target.className.includes('btn-add')) {
-            value = e.target.value;
-            fetch(host + '/cart/add/' + value).then((response) => {
-                if (response.status === 200) {
-                    $("#myCart").load(location.href + " #myCart");
-                    $('#block--button').load(location.href + " #block--button");
-                }
-                else {
-                    alert('Извините! Произошел сбой. Попробуйте еще раз. 927')
-                }
-            });
-        }
-        else if (e.target.parentNode.className.includes('btn-add')) {
-            value = e.target.parentNode.value;
-            fetch(host + '/cart/add/' + value).then((response) => {
-                if (response.status === 200) {
-                    $("#myCart").load(location.href + " #myCart");
-                    $('#block--button').load(location.href + " #block--button");
-                }
-                else {
-                    alert('Извините! Произошел сбой. Попробуйте еще раз. 927')
-                }
-            });
-        }
     })
+}
 
 let modalDelete = document.querySelector('.modal__container__delete');
-var valueDel;
+let valueDel;
 
 $('.form-cart').on('click', function(e) {
     if (e.target.className === 'Amount-add') {
-        fetch(host + '/cart/addQuantity/' + e.target.value).then((response) => {
+        fetch(host + '/cart/add/' + e.target.value).then(async (response) => {
             if (response.status === 200) {
-                $("#myCart").load(location.href + " #myCart");
-                $(".form-cart").load(location.href + " .form-cart");
+                let res = await response.json()
+                if (res['success'] === true) {
+                    $("#myCart").load(location.href + " #myCart");
+                    $(".form-cart").load(location.href + " .form-cart");
+                }
+                else {
+                    $("#myCart").load(location.href + " #myCart");
+                    $("#cart-form").load(location.href + " #cart-form");
+                    alert('Количество товара в корзине превышает количество в магазине.')
+                }
             }
         });
     }
     else if (e.target.className === 'Amount-remove') {
-
         let inputValue = e.target.nextElementSibling;
         if (inputValue.value >= 2) {
             fetch(host + '/cart/removeQuantity/' + e.target.value).then((response) => {
@@ -979,13 +966,15 @@ $('.form-cart').on('click', function(e) {
 
 
 $('#block--button').on('click', function(e) {
-    if (e.target.className === 'Amount-add') {
-        fetch(host + '/cart/addQuantity/' + e.target.value).then((response) => {
-            if (response.status === 200) {
-                $("#myCart").load(location.href + " #myCart");
-                $('#block--button').load(location.href + " #block--button");
-            }
-        });
+    let value;
+    if (e.target.className.includes('btn-add')) {
+        value = e.target.value;
+    }
+    else if (e.target.parentNode.className.includes('btn-add')) {
+        value = e.target.parentNode.value;
+    }
+    else if (e.target.className === 'Amount-add') {
+        value = e.target.value;
     }
     else if (e.target.className === 'Amount-remove') {
         let inputValue = document.querySelector('.Amount-input');
@@ -994,7 +983,7 @@ $('#block--button').on('click', function(e) {
                 if (response.status === 200) {
                     $("#myCart").load(location.href + " #myCart");
                     $('#block--button').load(location.href + " #block--button");
-                };
+                }
             });
         }
         else if (inputValue.value <= 1) {
@@ -1002,12 +991,20 @@ $('#block--button').on('click', function(e) {
             modalDelete.classList.add('open__modal__delete');
         }
     }
+    if (value) {
+        fetch(host + '/cart/add/' + value).then(async (response) => {
+            if (response.status === 200) {
+                let res = await response.json()
+                if (res['success'] === false) {
+                    alert('Количество товара в корзине превышает количество в магазине.')
+                }
+                $("#myCart").load(location.href + " #myCart");
+                $('#block--button').load(location.href + " #block--button");
+            }
+        });
+    }
 });
 
-
-
-let buttonYes = document.querySelector('.button-yes');
-let buttonNo = document.querySelector('.button-no');
 
 $('#cart-form').on('click', function(e) {
     if (e.target.className === 'Cart-delete') {
@@ -1050,3 +1047,38 @@ if (close) {
     };
 }
 
+
+let btnOrder = document.querySelector('.order_end');
+if (btnOrder) {
+    btnOrder.onclick = function() {
+        fetch(host + '/order/addInfoUser/', {
+            method: 'POST',
+            body: new FormData(document.getElementById('form'))
+        }).then((response) => {
+            if (response.status === 200) {
+                $("#about_order").load(location.href + " #about_order");
+            }
+        })
+    }
+}
+
+
+function modalClose () {
+    modal.classList.remove('open__modal');
+}
+
+let userAuth = document.getElementById('orderAuth')
+if (userAuth) {
+    userAuth.classList.add('open__modal');
+}
+
+let btnAllComment = document.getElementById('all__comment');
+if (btnAllComment) {
+    btnAllComment.onclick = function() {
+        let comment = document.querySelectorAll('.Comment')
+        comment.forEach(function (el){
+            el.classList.add('open__comment')
+            btnAllComment.style.display = 'none';
+        })
+    }
+}

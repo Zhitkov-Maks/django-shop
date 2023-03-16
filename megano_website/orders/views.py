@@ -1,15 +1,20 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from django.http import JsonResponse
+
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.generic import DetailView, TemplateView
 
-from orders.forms import OrderForms
-from orders.models import DetailOrder, Order
-from orders.services.payment import add_order, add_detail_to_order
+from orders.forms import OrderForms, NumberCard
+from orders.models import Order
+from orders.services.orderInfo import OrderInfo
+from orders.services.payment import add_order, add_detail_to_order, get_number_card
 from cart.services.cart import Cart
 
 
 class OrderView(TemplateView):
+    """Страница с оформлением заказа."""
     template_name = 'orders/order.html'
 
     def get_context_data(self, **kwargs):
@@ -19,9 +24,11 @@ class OrderView(TemplateView):
         form_login = AuthenticationForm()
         if hasattr(user, 'profile'):
             form = OrderForms({
-                'full_name': f'{user.first_name} {user.last_name} {user.profile.patronymic}',
+                'full_name': f'{user.last_name} {user.first_name} {user.profile.patronymic}',
                 'email': user.email,
-                'phone': user.profile.phone
+                'phone': user.profile.phone,
+                'type_delivery': 'B',
+                'type_payment': 'A'
             })
         context.update({'form': form, 'form2': form_login})
         return context
@@ -31,20 +38,25 @@ class OrderView(TemplateView):
         user = self.request.user
         cart = Cart(self.request)
         if form.is_valid():
-            order = add_order(form, user, cart.get_total_price())
+            order, payment = add_order(form, user, cart.get_total_price())
             add_detail_to_order(order, request)
-            if form.cleaned_data['type_payment'] == 'A':
-                return redirect('payment')
-            elif form.cleaned_data['type_payment'] == 'B':
-                return redirect('paymentsomeone')
+            if payment == 'A':
+                return redirect(reverse('payment', args=[order.pk]))
+            elif payment == 'B':
+                return redirect(reverse('paymentSomeOne', args=[order.pk]))
         return render(request, 'orders/order.html', {'form': form})
 
 
-def check_form(request, *args, **kwargs):
-    form = OrderForms(data=request.POST)
-    if form.is_valid():
-        print(form.cleaned_data)
-    return render(request, 'orders/order.html', {'form': form})
+def add_info_about_user(request):
+    """Получает форму с данными о доставке и отправляет на сохранение в сессии"""
+    if request.method == "POST":
+        form = OrderForms(request.POST)
+        if form.is_valid():
+            order_info = OrderInfo(request)
+            order_info.add(form=form, request=request)
+            response = JsonResponse({'success': True})
+            return response
+    return JsonResponse({'success': False})
 
 
 def login_modal(request):
@@ -65,18 +77,73 @@ def login_modal(request):
     return render(request, 'app_users/login.html', {'form': form})
 
 
-class PaymentView(TemplateView):
+class PaymentView(DetailView):
+    """Страница с вводом номера карты пользователя"""
     template_name = 'orders/payment.html'
+    model = Order
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        form = NumberCard()
+        context.update({'header': 'Оплата со своей карты', 'form': form})
+        return context
+
+    def post(self, request, pk):
+        form = NumberCard(request.POST)
+        order = Order.objects.get(id=pk)
+        if form.is_valid():
+            pay = get_number_card(form, order)
+            return redirect(reverse('progressPayment'))
+        return render(request, 'orders/paymentSomeOne.html', {'header': 'Оплата с чужой карты', 'form': form})
 
 
-class PaymentSomeOneView(TemplateView):
-    template_name = 'orders/paymentsomeone.html'
+class PaymentSomeOneView(DetailView):
+    """Страница с вводом случайно выбранного номера карты."""
+    template_name = 'orders/paymentSomeOne.html'
+    model = Order
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        form = NumberCard()
+        context.update({'header': 'Оплата с чужой карты', 'form': form})
+        return context
+
+    def post(self, request, pk):
+        form = NumberCard(request.POST)
+        order = Order.objects.get(id=pk)
+        if form.is_valid():
+            get_number_card(form, order)
+            return redirect(reverse('progressPayment'))
+        return render(request, 'orders/paymentSomeOne.html', {'header': 'Оплата с чужой карты', 'form': form})
 
 
 class ProgressPaymentView(TemplateView):
+    """Страница с фиктивной оплатой товара."""
     template_name = 'orders/progressPayment.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        context = super().get_context_data()
+        context.update({'header': 'Прогресс оплаты'})
+        return context
 
 
 class OneOrderView(DetailView):
-    template_name = 'orders/oneorder.html'
+    """Страница с подробной информацией о заказе."""
+    template_name = 'orders/oneOrder.html'
     model = Order
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        obj = self.object
+        link = True
+        if obj.type_payment == 'B':
+            link = False
+        if obj.comment:
+            context.update({'statuses': True})
+        title = 'Информация о заказе.'
+        context.update({'link': link, 'header': title})
+        return context
+

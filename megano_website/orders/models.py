@@ -6,7 +6,6 @@ from app_megano.models import Goods
 
 class Status(models.Model):
     status = models.CharField(verbose_name='Статус', max_length=50)
-    comment = models.CharField(verbose_name='Комментарий к статусу', max_length=500, blank=True)
 
     def __str__(self):
         return str(self.status)
@@ -14,6 +13,13 @@ class Status(models.Model):
     class Meta:
         verbose_name = 'статус'
         verbose_name_plural = 'статусы'
+
+
+def get_payment(type_payment):
+    if type_payment == 'A':
+        return str(Order.TYPE_PAYMENT[0][1])
+    elif type_payment == 'B':
+        return str(Order.TYPE_PAYMENT[1][1])
 
 
 class Order(models.Model):
@@ -32,12 +38,16 @@ class Order(models.Model):
     email = models.EmailField(verbose_name='Email')
     city = models.CharField(max_length=100, verbose_name='Город')
     address = models.CharField(max_length=250, verbose_name='Адрес')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='users', verbose_name='Пользователь')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='users',
+                             verbose_name='Пользователь')
     type_payment = models.CharField(verbose_name='Тип платежа', choices=TYPE_PAYMENT, max_length=1, default='A')
     type_delivery = models.CharField(verbose_name='Тип доставки', choices=TYPE_DELIVERY, max_length=1, default='B')
     order_date = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(verbose_name='Общая стоимость', decimal_places=2, max_digits=8, default=0)
-    status = models.ForeignKey(Status, verbose_name='Статус', related_name='statuses', on_delete=models.CASCADE, default=None)
+    status = models.ForeignKey(Status, verbose_name='Статус', related_name='statuses', on_delete=models.CASCADE,
+                               default=None)
+    paid = models.BooleanField(verbose_name='Оплачен', default=False)
+    comment = models.TextField(max_length=100, verbose_name='Комментарий', null=True)
 
     def __str__(self):
         return f'{self.user} / {self.city} / {self.address}'
@@ -59,6 +69,20 @@ class Order(models.Model):
         elif self.type_payment == 'B':
             return str(Order.TYPE_DELIVERY[1][1])
 
+    @classmethod
+    def get_payment(cls, type_payment):
+        if type_payment == 'A':
+            return str(Order.TYPE_PAYMENT[0][1])
+        elif type_payment == 'B':
+            return str(Order.TYPE_PAYMENT[1][1])
+
+    @classmethod
+    def get_delivery(cls, type_delivery):
+        if type_delivery == 'A':
+            return str(Order.TYPE_DELIVERY[0][1])
+        elif type_delivery == 'B':
+            return str(Order.TYPE_DELIVERY[1][1])
+
 
 class DetailOrder(models.Model):
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='orders', on_delete=models.CASCADE)
@@ -70,5 +94,5 @@ class DetailOrder(models.Model):
         return str(self.product)
 
     class Meta:
-        verbose_name = 'еденица заказа'
+        verbose_name = 'единица заказа'
         verbose_name_plural = 'детали заказа'

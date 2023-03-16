@@ -19,7 +19,7 @@
 <![endif]-->
 <!--[if gt IE 11]><!--> <html lang="ru"> <!--<![endif]-->
 <head>
-  <title>Megano</title>
+  <title>{{ header }}</title>
   <meta name="description" content="Описание страницы">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
@@ -33,7 +33,7 @@
   <link rel="stylesheet" href="{% static 'assets/css/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/basic.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/extra.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/my_style.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
   <script src="{% static 'assets/plg/CountDown/countdown.js' %}"></script><!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
@@ -106,6 +106,8 @@
               </li>
               <li class="menu-item"><a class="menu-link" href="{% url 'catalog' %}">Purchase</a>
               </li>
+              <li class="menu-item"><a class="menu-link" href="{% url 'sale' %}">Sale</a>
+              </li>
             </ul>
           </div>
         </nav>
@@ -124,7 +126,7 @@
     <div class="Header-searchWrap">
       <div class="wrap">
         <div class="Header-categories">
-          {% all_categories as categories %}
+          {% get_cats as categories %}
           <div class="CategoriesButton">
             <div class="CategoriesButton-title">
               <div class="CategoriesButton-icon"><img src="{% static 'assets/img/icons/allDep.svg' %}" alt="allDep.svg"/>
@@ -166,7 +168,7 @@
         <div class="Header-search">
           <div class="search">
             <form class="form form_search" action="{% url 'searchProduct' %}" method="get">
-              <input class="search-input" id="query" name="query" type="text" placeholder="Что будем искать ..."/>
+                <label for="query"></label><input class="search-input" id="query" name="query" type="text" placeholder="Что будем искать ..."/>
               <button class="search-button" type="submit" name="search" id="search"><img src="{% static 'assets/img/icons/search.svg' %}" alt="search.svg"/>Search
               </button>
             </form>

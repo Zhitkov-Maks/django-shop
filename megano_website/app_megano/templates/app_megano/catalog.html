@@ -1,7 +1,9 @@
-<html>
+
+<html lang="ru">
 <body>
   {% extends 'app_megano/base.html' %}
   {% load static %}
+  {% load tags %}
   {% block header %}
   {{ block.super }}
   <div class="Middle Middle_top">
@@ -31,7 +33,9 @@
               <form class="form" action="{% url 'searchFilter' %}" method="GET">
                 <div class="form-group">
                   <div class="range Section-columnRange">
-                      <label for="price"></label><input class="range-line" id="price" name="price" type="text" data-type="double" data-min="{{ price__min }}" data-max="{{ price__max }}" data-from="{{ data_from }}" data-to="{{ data_to }}"/>
+                      {% get_priceMin as priceMin %}
+                      {% get_priceMax as priceMax %}
+                      <label for="price"></label><input class="range-line" id="price" name="price" type="text" data-type="double" data-min="{{ priceMin.price__min }}" data-max="{{ priceMax.price__max }}" data-from="{{ data_from }}" data-to="{{ data_to }}"/>
                     <div class="range-price">Price;
                       <div class="rangePrice">
                       </div>
@@ -78,6 +82,7 @@
               </strong>
             </header>
             <div class="Section-columnContent">
+                {% get_tags as tag_list %}
               <div class="buttons">
                 {% for tag in tag_list %}
                 <a class="btn btn_default btn_sm" href="{% url 'tag' tag.id %}">{{ tag }}</a>
@@ -100,16 +105,16 @@
             <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
             </div>
             {% elif sortReview %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortReviewMin' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortReviewMin %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
             </div>
             {% elif sortNew %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortNew' %}">Новизне</a>
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortOld' %}">Новизне</a>
             </div>
-            {% elif search %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
-            </div>
-            {% else %}
-            <div class="Sort-variants"><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            {% elif sortOld %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortNew' %}">Новизне</a>
             </div>
             {% endif %}
           </div>
@@ -138,10 +143,15 @@
           </div>
         </div>
       </div>
+      {% if paginator.num_pages > 1 %}
       <div class="Pagination">
         <div class="Pagination-ins">
           {% if page_obj.has_previous %}
-          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% if sortFilter %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}&query={{ query }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% endif %}
           {% else %}
           <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
           {% endif %}
@@ -149,31 +159,34 @@
           {% if page == page_obj.number %}
           <a class="Pagination-element Pagination-element_current" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
           {% else %}
-          <a class="Pagination-element" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% if sortFilter %}
+          <a class="Pagination-element" href="?page={{ page }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% else %}
+          <a class="Pagination-element" href="?page={{ page }}&query={{ query }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% endif %}
           {% endif %}
           {% endfor %}
           {% if page_obj.has_next %}
-          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% if sortFilter %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}&query={{ query }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% endif %}
           {% else %}
           <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
           {% endif %}
         </div>
       </div>
+      {% endif %}
     </div>
   </div>
 <div class="modal__container">
   <div class="modal__content">
-    <div id="myModal">
-      <p class="modal__title">Товары в вашей корзине</p>
-      {% for detail in cart %}
-      <div class="content__block">
-        <img width="60px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}" alt="photo товара">
-        <p class="modal__descr">{{ detail.product }}. ({{ detail.quantity }}шт.)</p>
-      </div>
-      {% endfor %}
+    <div id="myModal" class="cart__content">
+      <p class="modal__title">Товар добавлен в корзину.</p>
     </div>
     <div class="modal__button__delete">
-        <button class="button" type="button" id="close">Продолжить покупки</button>
+        <button class="button" type="button" id="close">Ок</button>
         <a class="modal--link" href="{% url 'cart' %}">Перейти в корзину</a>
     </div>
   </div>

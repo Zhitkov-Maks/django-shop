@@ -1,4 +1,4 @@
-<html>
+<html lang="ru">
 <body>
   {% extends 'app_megano/base.html' %}
   {% load static %}
@@ -42,7 +42,7 @@
           </div>
         </div>
         <div class="Section-content">
-            <form class="form" method="post" action="">
+            <form class="form" id="form" method="post" action="#step4">
             {% csrf_token %}
             <div class="Order-block Order-block_OPEN" id="step1">
               <header class="Section-header Section-header_sm">
@@ -60,18 +60,21 @@
                       <div class="form-group">
                         <label class="form-label">{{ form.email.label }}</label>{{form.email}}
                       </div>
-                    </div>
-                    <div class="row-block">
-                    {% if not request.user.is_authenticated %}
-                      <div class="form-group">
-                        <label class="form-label">{{ form.password.label }}</label>{{ form.password }}
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label">{{ form.passwordReplay.label }}</label>{{form.passwordReplay}}
-                      </div>
-                      <div class="form-group"><button class="btn btn_muted Order-btnReg" id="btnLogin">Я уже зарегистрирован</button>
+                      {% if not request.user.is_authenticated %}
+                      <div id="orderAuth" class="order__auth">
+                        <div class="order__auth__content">
+                            <div class="cart__content">
+                              <p class="modal__title order__title">Чтобы оформить заказ необходимо зарегистрироваться или войти. Это нужно, чтобы вы имели доступ в личный кабинет и могли взаимодействовать с вашими заказами.</p>
+                            </div>
+                            <div class="modal__button__delete">
+                                <a class="button modal--link" href="{% url 'register' %}">Регистрация</a>
+                                <button class="button modal--link" id="btnLogin">Я уже зарегистрирован</button>
+                            </div>
+                        </div>
                       </div>
                     {% endif %}
+                    </div>
+                    <div class="row-block">
                     </div>
                 </div>
               <div class="Order-footer"><a class="btn btn_success Order-next" href="#step2">Дальше</a>
@@ -105,10 +108,8 @@
                 <div>
                     <label class="toggle">{{ form.type_payment.label }}</label>{{form.type_payment}}
                 </div>
-                <div class="Order-footer">
-                  <a class="btn btn_success Order-next" href="#step4">Дальше
-                  </a>
-                </div>
+                <div class="Order-footer"><a class="btn btn_success Order-next order_end" href="#step4">Дальше</a>
+              </div>
               </div>
             </div>
             <div class="Order-block" id="step4">
@@ -117,26 +118,26 @@
                 </h2>
               </header>
               <!--+div.Order.-confirmation-->
-              <div class="Order-infoBlock">
+              <div class="Order-infoBlock" id="about_order">
                 <div class="Order-personal">
                   <div class="row">
                     <div class="row-block">
                       <div class="Order-info">
                         <div class="Order-infoType">ФИО:
                         </div>
-                        <div class="Order-infoContent">{{ form.full_name.data }}
+                        <div class="Order-infoContent">{{ order.full_name }}
                         </div>
                       </div>
                       <div class="Order-info">
                         <div class="Order-infoType">Телефон:
                         </div>
-                        <div class="Order-infoContent">{{ form.phone.value }}
+                        <div class="Order-infoContent">{{ order.phone }}
                         </div>
                       </div>
                       <div class="Order-info">
                         <div class="Order-infoType">E-mail:
                         </div>
-                        <div class="Order-infoContent">{{ form.email.value }}
+                        <div class="Order-infoContent">{{ order.email }}
                         </div>
                       </div>
                     </div>
@@ -144,25 +145,25 @@
                       <div class="Order-info Order-info_delivery">
                         <div class="Order-infoType">Тип доставки:
                         </div>
-                        <div class="Order-infoContent">{{ form.type_delivery.value }}
+                        <div class="Order-infoContent">{{ order.type_delivery }}
                         </div>
                       </div>
                       <div class="Order-info">
                         <div class="Order-infoType">Город:
                         </div>
-                        <div class="Order-infoContent">{{ form.city.data }}
+                        <div class="Order-infoContent">{{ order.city }}
                         </div>
                       </div>
                       <div class="Order-info">
                         <div class="Order-infoType">Адрес:
                         </div>
-                        <div class="Order-infoContent">{{ form.address.data }}
+                        <div class="Order-infoContent">{{ order.address }}
                         </div>
                       </div>
                       <div class="Order-info Order-info_pay">
                         <div class="Order-infoType">Оплата:
                         </div>
-                        <div class="Order-infoContent">{{ form.type_payment.data }}
+                        <div class="Order-infoContent">{{ order.type_payment }}
                         </div>
                       </div>
                     </div>
@@ -179,7 +180,7 @@
                         </div>
                       </div>
                       <div class="Cart-block Cart-block_price">
-                        <div class="Cart-price">{{ goods.product.price }}₽
+                        <div class="Cart-price">{{ goods.total_price }}₽
                         </div>
                       </div>
                     </div>
@@ -190,12 +191,18 @@
                   </div>
                   {% endfor %}
                   <div class="Cart-total">
+                      <div class="Cart-block Cart-block_total">
+                          <strong class="Cart-title">Стоимость доставки:
+                          </strong><span class="Cart-price">{{ order.delivery_price }}₽</span>
+                      </div>
+                  </div>
+                  <div class="Cart-total">
                     <div class="Cart-block Cart-block_total">
                       <strong class="Cart-title">Итого:
-                      </strong><span class="Cart-price">{{ cart.get_total_price }}₽</span>
+                      </strong><span class="Cart-price">{{ order.total_price }}₽</span>
                     </div>
                     <div class="Cart-block">
-                      <button class="btn btn_primary btn_lg" type="submit">Оплатить
+                      <button type="submit" class="btn btn_primary btn_lg">Оплатить
                       </button>
                     </div>
                   </div>
@@ -216,15 +223,15 @@
         <p class="form-label"><label class="form-input">{{ form2.username.label }}</label>{{form2.username}}</p><br>
         <p class="form-label"><label class="form-input">{{ form2.password.label }}</label>{{form2.password}}</p><br>
         <div class="button__block">
-          <button class="btn btn_primary" type="submit">Войти </button>
-          <button class="btn btn_primary" type="button" id="close">Отмена</button>
+          <button class="button modal--link" type="submit">Войти </button>
+          <button class="button modal--link" type="button" id="close">Отмена</button>
         </div>
       </form><br>
       </div>
     </div>
   </div>
 </div>
-{% endblock header %}
+{% endblock %}
 {% block footer %}
 {{ block.super }}
 </body>

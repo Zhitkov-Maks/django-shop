@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
@@ -8,7 +9,8 @@ from django.views.generic import CreateView, ListView, TemplateView
 from .forms import RegisterUserForm, UpdateUserForm
 from .models import Profile, CustomUser
 
-from .services import edit_profile
+from .services import func_for_check_form
+from orders.models import Order
 
 
 class RegisterUser(CreateView):
@@ -16,6 +18,11 @@ class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = 'app_users/register.html'
     success_url = reverse_lazy('home')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'header': 'Регистрация'})
+        return context
 
     def post(self, request, *args, **kwargs):
         """Метод проверяет форму и если она валидна сохраняет пользователя в модели CustomUser и дополнительные
@@ -47,6 +54,11 @@ class LoginUser(LoginView):
     success_url = reverse_lazy('home')
     form_class = AuthenticationForm
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'header': 'Авторизация'})
+        return context
+
     def post(self, request, **kwargs):
         form = AuthenticationForm(data=request.POST)
         username = request.POST['username']
@@ -57,7 +69,7 @@ class LoginUser(LoginView):
             if user.is_active:
                 login(request, user)
                 return redirect('home')
-        form.add_error('username', 'Неверно введен email или пароль попробуйте еще раз.')
+        form.add_error('username', 'Неверно введен email или пароль. Попробуйте еще раз.')
         return render(request, 'app_users/login.html', {'form': form})
 
 
@@ -66,14 +78,25 @@ class LogoutUser(LogoutView):
     next_page = 'home'
 
 
-class AccountView(TemplateView):
+class AccountView(LoginRequiredMixin, TemplateView):
     """Класс для отображения профиля пользователя"""
     template_name = 'app_users/account.html'
+    login_url = 'login'
+
+    def get_context_data(self, **kwargs):
+        """Получаем последний заказ пользователя, если таковой имеется"""
+        context = super().get_context_data()
+        user = self.request.user
+        if Order.objects.filter(user=user).exists():
+            order = Order.objects.filter(user=user).order_by('-id')[0]
+            context.update({'order': order, 'header': f'Профиль {user.first_name} {user.last_name}'})
+        return context
 
 
-class ProfileView(TemplateView):
+class ProfileEditView(LoginRequiredMixin, TemplateView):
     """Класс для редактирования профиля пользователя."""
     template_name = 'app_users/profile.html'
+    login_url = 'login'
 
     def get_context_data(self, **kwargs):
         """Добавляет и вставляет в форму текущие данные пользователя."""
@@ -90,38 +113,34 @@ class ProfileView(TemplateView):
                     'full_name': f'{user.last_name} {user.first_name} {user.profile.patronymic}'
                 }
             )
-        context.update({'form': form})
+        context.update({'form': form, 'header': 'Редактирование профиля'})
         return context
 
     def post(self, request, *args, **kwargs):
         form = UpdateUserForm(request.POST, request.FILES)
         user = request.user
+        edit = False
         if form.is_valid():
-            email = form.cleaned_data.get('email')
-            phone = form.cleaned_data.get('phone')
-            if email != user.email:  # Проверяем не занята ли почта
-                if CustomUser.objects.filter(email=email).exists():
-                    form.add_error('email', 'Этот email уже используется.')
-                else:
-                    user.email = email
-            elif phone != user.profile.phone:
-                if Profile.objects.filter(phone=phone).exists():
-                    form.add_error('phone', 'Этот номер телефона уже занят.')
-                else:
-                    user.profile.phone = phone
-            raw_pass = form.cleaned_data.get('password')
-            edit = edit_profile(user, form)
-            if raw_pass and edit:
-                user = authenticate(email=email, password=raw_pass)
-                login(request, user)
-        return render(request, 'app_users/profile.html', {'form': form, 'image': user.profile.photo, 'edit': True})
+            if len(form.cleaned_data.get('full_name').split()) == 3:
+                edit = func_for_check_form(form, user)
+            else:
+                form.add_error('full_name', 'Необходимо ввести имя, фамилию и отчество!')
+                form['full_name'].field.widget.attrs['class'] += ' form-input_error'
+        return render(request, 'app_users/profile.html', {'form': form, 'image': user.profile.photo, 'edit': edit})
 
 
-class HistoryOrderView(ListView):
+class HistoryOrderView(LoginRequiredMixin, ListView):
+    """Страница для отображения заказов в профиле."""
     model = CustomUser
-    template_name = 'app_users/historyorder.html'
+    template_name = 'app_users/historyOrder.html'
     context_object_name = 'history_list'
+    login_url = 'login'
 
     def get_queryset(self):
         user = CustomUser.objects.get(id=self.kwargs['pk'])
         return user.users.all().order_by('-order_date')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'header': 'История заказов'})
+        return context

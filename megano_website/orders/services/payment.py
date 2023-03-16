@@ -1,28 +1,25 @@
+import random
+
 from django.db import transaction
 
-from orders.models import Order, Status, DetailOrder
+from orders.models import Status, DetailOrder
 from cart.services.cart import Cart
-from app_megano.models import Purchases
+from app_megano.models import Purchases, Goods
 
 
 def add_order(form, user, total_price):
-    order = Order.objects.create(
-        full_name=form.cleaned_data['full_name'],
-        phone=form.cleaned_data['phone'],
-        email=form.cleaned_data['email'],
-        city=form.cleaned_data['city'],
-        address=form.cleaned_data['address'],
-        user_id=user.id,
-        type_delivery=form.cleaned_data['type_delivery'],
-        type_payment=form.cleaned_data['type_payment'],
-        total_price=total_price,
-        status=Status.objects.get(pk=1)
-    )
-    return order
+    """Добавляем информацию о заказе."""
+    order = form.save(commit=False)
+    order.total_price = total_price
+    order.user_id = user.id
+    order.status = Status.objects.get(pk=2)
+    order.save()
+    return order, order.type_payment
 
 
 @transaction.atomic
-def add_detail_to_order(order, request):
+def add_detail_to_order(order, request) -> None:
+    """Добавляем к заказу товары из которых он состоит."""
     cart = Cart(request)
     for item in cart:
         DetailOrder.objects.create(order=order,
@@ -33,4 +30,37 @@ def add_detail_to_order(order, request):
             goods=item['product'],
             quantity=item['quantity']
         )
+        product = Goods.objects.get(id=item['product'].id)
+        product.stock -= item['quantity']
+        if product.stock <= 0:
+            product.is_active = False
+        product.save()
     cart.clear()
+
+
+def check_cart(cart) -> bool:
+    """Проверяем не закончился ли товар, который есть в корзине."""
+    stock = True
+    for item in cart:
+        product = Goods.objects.get(id=item['product'].id)
+        if not product.is_active:
+            stock = False
+    return stock
+
+
+def get_number_card(form, order):
+    """Проверяем номер карты на валидность условиям."""
+    list_payment_failed = [
+        'Недостаточно средств',
+        'Ошибка соединения с платежной системой',
+        'Сервер занят попробуйте позже',
+        'Подозрение на спам'
+    ]
+    card_number = int(''.join([item for item in form.cleaned_data.get('number') if item.isdigit()]))
+    if card_number % 10 == 0 or card_number % 10 == 6:
+        order.comment = random.choice(list_payment_failed)
+    else:
+        order.status = Status.objects.get(pk=1)
+        order.paid = True
+        order.comment = None
+    order.save()

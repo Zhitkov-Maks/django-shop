@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
+# import environ
+#
+# env = environ.Env()
+# environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,6 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-s4u!m%zei%bflwco@t!ro-ho*^x9ql(o)xh8w)mm5914!fbdsu'
+# SECRET_KEY = env("SECRET_KEY")
 SECRET_KEY = 'django-insecure-s4u!m%zei%bflwco@t!ro-ho*^x9ql(o)xh8w)mm5914!fbdsu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -27,6 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 CART_SESSION_ID = 'cart'
+ORDER_SESSION_INFO = 'order'
 
 AUTH_USER_MODEL = 'app_users.CustomUser'
 
@@ -72,11 +79,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'cart.context_processors.cart',
                 'admin_settings.context_processors.load_settings',
-                'app_megano.context_processors.load_tag',
-                'app_megano.context_processors.price_min',
-                'app_megano.context_processors.price_max'
+                'app_megano.context_processors.load_order',
+                'app_megano.context_processors.cart',
             ],
         },
     },
@@ -148,7 +153,7 @@ SESSION_COOKIE_AGE = 30 * 24 * 60 * 60
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 INTERNAL_IPS = [
-    '127.0.0.1'
+    '127.0.0.1',
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

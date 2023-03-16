@@ -2,7 +2,7 @@ from django.db import models
 
 
 class SingletonModel(models.Model):
-    """Модель для нужна для того чтобы у нас в настройках была всгда одна запись"""
+    """Модель нужна для того чтобы у нас в настройках была всегда одна запись"""
     class Meta:
         abstract = True
 

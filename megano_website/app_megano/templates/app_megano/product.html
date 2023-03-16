@@ -1,10 +1,24 @@
-<html>
+<html lang="ru">
 <body>
   {% extends 'app_megano/base.html' %}
   {% load static %}
   {% block header %}
   {{ block.super }}
-  <div class="Middle">
+    <div class="Middle Middle_top">
+    <div class="Middle-top">
+      <div class="wrap">
+        <div class="Middle-header">
+          <h1 class="Middle-title">Megano Product
+          </h1>
+          <ul class="breadcrumbs Middle-breadcrumbs">
+            <li class="breadcrumbs-item"><a href="{% url 'home' %}">home</a>
+            </li>
+            <li class="breadcrumbs-item breadcrumbs-item_current"><span>Product</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="Section">
       <div class="wrap">
         <div class="Product">
@@ -46,8 +60,10 @@
                     <div class="Amount Amount_product">
                     <button class="Amount-remove" type="button" value="{{ object.id }}">
                     </button>
-                    <input class="Amount-input form-input" name="amount" type="text" value="{{ quantity }}"/>
-                    <button class="Amount-add" type="button" value="{{ object.id }}">
+                        <label>
+                        <input class="Amount-input form-input" disabled name="amount" type="text" value="{{ quantity }}"/>
+                        </label>
+                        <button class="Amount-add" type="button" value="{{ object.id }}">
                     </button>
                     </div>
                   </div>
@@ -63,8 +79,10 @@
                     <div class="Amount Amount_product">
                     <button class="Amount-remove" disabled type="button" value="{{ object.id }}">
                     </button>
-                    <input class="Amount-input form-input" disabled name="amount" type="text" value="0"/>
-                    <button class="Amount-add" type="button" disabled value="{{ object.id }}">
+                        <label>
+                        <input class="Amount-input form-input" disabled name="amount" type="text" value="0"/>
+                        </label>
+                        <button class="Amount-add" type="button" disabled value="{{ object.id }}">
                     </button>
                     </div>
                   </div>
@@ -119,6 +137,27 @@
                       </th>
                     </tr>
                     {% endfor %}
+                    <tr>
+                      <th>Осталось в наличии
+                      </th>
+                      <th>{{ object.stock }}шт
+                      </th>
+                    <tr>
+                      <tr>
+                      <th>Просмотров за неделю
+                      </th>
+                      <th>{{ count_viewed }}
+                      </th>
+                    </tr>
+                    <tr>
+                    {% if object.discount.active %}
+                    <tr>
+                      <th>Действующая скидка
+                      </th>
+                      <th>-{{ object.discount.discount }}%
+                      </th>
+                    </tr>
+                    {% endif %}
                   </table>
                 </div>
               </div>
@@ -131,8 +170,12 @@
                   {% for comment in object.goods.all %}
                   <div class="Comment">
                     <div class="Comment-column Comment-column_pict">
+                      {% if comment.user.profile.photo.url %}
+                      <img class="Comment__avatar" src="{{ comment.user.profile.photo.url }}" alt="photo">
+                      {% else %}
                       <div class="Comment-avatar">
                       </div>
+                      {% endif %}
                     </div>
                     <div class="Comment-column">
                       <header class="Comment-header">
@@ -146,6 +189,11 @@
                     </div>
                   </div>
                   {% endfor %}
+                  {% if length > 6 %}
+                  <div class="all-comment">
+                    <button class="btn btn_primary" id="all__comment">Показать все</button>
+                  </div>
+                  {% endif %}
                 </div>
                 <header class="Section-header Section-header_product">
                   <h3 class="Section-title">Оставить отзыв
@@ -169,7 +217,7 @@
                       </div>
                     </div>
                     <div class="form-group">
-                      <button class="btn btn_muted" name="review" type="submit">Submit Review
+                      <button class="btn btn_muted" name="review" type="submit">Оставить отзыв
                       </button>
                     </div>
                   </form>

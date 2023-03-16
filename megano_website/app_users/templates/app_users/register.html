@@ -1,4 +1,4 @@
-<html>
+<html lang="ru">
 <body>
   {% extends 'app_megano/base.html' %}
   {% load static %}
@@ -12,21 +12,28 @@
         </header>
         <form id="creation" method="post">
                 {% csrf_token %}
-                <p class="message__errors"><label class="form-label">{{ form.email.label }}</label>{{form.email}}
-                    {{ form.errors.email }}
-                </p>
-                <p><label class="form-label">{{ form.last_name.label }}</label>{{form.last_name}}</p>
-                <p><label class="form-label">{{ form.first_name.label }}</label>{{form.first_name}}</p>
-                <p><label class="form-label">{{ form.patronymic.label }}</label>{{form.patronymic}}</p>
-                <p class="message__errors"><label class="form-label">{{ form.phone.label }}</label>{{form.phone}}</p>
+                <label class="form-label">{{ form.email.label }}:</label>{{form.email}}<br>
+                <div>
+                  {{ form.errors.email }}
+                </div>
+                <label class="form-label">{{ form.last_name.label }}:</label>{{form.last_name}}<br>
+                <label class="form-label">{{ form.first_name.label }}:</label>{{form.first_name}}<br>
+                <label class="form-label">{{ form.patronymic.label }}:</label>{{form.patronymic}}<br>
+                <label class="form-label">{{ form.phone.label }}:</label>{{form.phone}}<br>
+                <div>
                     {{ form.errors.phone }}
-                <p class="message__errors"><label class="form-label">{{ form.password1.label }}</label>{{form.password1}}
-                    {{ form.errors.password1 }}
-                </p>
-                <p class="message__errors"><label class="form-label">{{ form.password2.label }}</label>{{form.password2}}
-                    {{ form.errors.password2 }}
-                </p>
-                <button class="btn btn_primary" type="submit">Зарегистрироваться</button>
+                </div>
+                <label class="form-label">{{ form.password1.label }}:</label>{{form.password1}}<br>
+                <div>
+                   {{ form.errors.password1 }}
+                </div>
+                <label class="form-label">{{ form.password2.label }}:</label>{{form.password2}}<br>
+                    <div>
+                        {{ form.errors.password2 }}
+                    </div>
+                <div><br><br>
+                    <button class="btn btn_primary" type="submit">Зарегистрироваться</button>
+                </div>
             </form><br>
         </div>
     </div>

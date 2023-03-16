@@ -1,16 +1,13 @@
-from django.db.models import Min, Max
-
-from .models import Tags, Goods
-
-
-def load_tag(request):
-    """Функция для вывода тегов в catalog.html. Сделал так как уже минимум в трех местах был повторяющийся код."""
-    return {'tag_list': Tags.objects.all()}
+from cart.services.cart import Cart
+from orders.services.orderInfo import OrderInfo
 
 
-def price_min(request):
-    return Goods.objects.aggregate(Min('price'))
+def cart(request):
+    return {'cart': Cart(request)}
 
 
-def price_max(request):
-    return Goods.objects.aggregate(Max('price'))
+def load_order(request):
+    order = OrderInfo(request)
+    if list(order):
+        return {'order': list(order)[0]}
+    return []

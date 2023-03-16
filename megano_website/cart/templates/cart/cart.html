@@ -1,4 +1,4 @@
-<html>
+<html lang="ru">
 <body>
   {% extends 'app_megano/base.html' %}
   {% load static %}
@@ -29,8 +29,13 @@
               <div class="Cart-block Cart-block_pict"><a class="Cart-pict" href="{% url 'detail' detail.product.id %}"><img width="100px" height="auto" class="Cart-img" src="{{ detail.product.image.url }}" alt="card.jpg"/></a>
               </div>
               <div class="Cart-block Cart-block_info"><a class="Cart-title" href="{% url 'detail' detail.product.id %}">{{ detail.product.name }}</a>
+                {% if detail.product.is_active %}
                 <div class="Cart-desc">{{ detail.product.description|slice:':150' }}
                 </div>
+                {% else %}
+                <div class="Cart-desc">Извините товар закончился
+                </div>
+                {% endif %}
               </div>
               <div class="Cart-block Cart-block_price">
                 <div class="Cart-price">{{ detail.total_price }}₽
@@ -46,8 +51,9 @@
                   <div class="Amount">
                     <button class="Amount-remove" type="button" value="{{ detail.product.id }}">
                     </button>
-                    <input class="Amount-input form-input" name="amount" type="text" disabled value="{{ detail.quantity }}"/>
-                    <button class="Amount-add" value="{{ detail.product.id }}" type="button">
+                      <input id="input" class="Amount-input form-input" name="amount" type="text" disabled value="{{ detail.quantity }}"/>
+                      <label for="input"></label>
+                      <button class="Amount-add" value="{{ detail.product.id }}" type="button">
                     </button>
                   </div>
                 </div>
@@ -63,10 +69,12 @@
           <div class="Cart-total">
             <div class="Cart-block Cart-block_total">
               <strong class="Cart-title">Итого:
-              </strong><span class="Cart-price">{{ cart.get_total_price }}₽</span>
+              </strong><span class="Cart-price">{{ cart.get_total_price }}₽ {% if cart.get_total_discount > 0 %}(Скидка {{ cart.get_total_discount }}₽){% endif %}</span>
             </div>
+            {% if stock %}
             <div class="Cart-block"><a class="btn btn_success btn_lg" href="{% url 'order' %}">Оформить заказ</a>
             </div>
+            {% endif %}
           </div>
         {% else %}
         <p>В вашей корзине пусто:(</p>
@@ -89,5 +97,6 @@
 {% endblock header %}
 {% block footer %}
 {{ block.super }}
-</body></html>
 {% endblock footer %}
+</body>
+</html>

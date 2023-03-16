@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
 
@@ -8,13 +9,13 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 class Tags(models.Model):
     """Модель для добавления тегов"""
-    name = models.CharField(max_length=20, verbose_name='Тэги')
+    name = models.CharField(max_length=20, verbose_name='Теги')
 
     def __str__(self):
         return str(self.name)
 
     class Meta:
-        verbose_name = 'тэг'
+        verbose_name = 'тег'
         verbose_name_plural = 'теги'
 
 
@@ -82,6 +83,23 @@ class Goods(models.Model):
         verbose_name_plural = 'товары'
 
 
+class Discount(models.Model):
+    product = models.OneToOneField(Goods, verbose_name='Товар', on_delete=models.CASCADE)
+    valid_from = models.DateTimeField(verbose_name='Начало акции')
+    valid_to = models.DateTimeField(verbose_name='Конец акции')
+    discount = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Скидка в %')
+    active = models.BooleanField(verbose_name='Активность')
+    description = models.TextField(verbose_name='Описание скидки', max_length=200)
+
+    def __str__(self):
+        return str(self.product)
+
+    class Meta:
+        ordering = ('valid_from',)
+        verbose_name = 'скидка'
+        verbose_name_plural = 'скидки'
+
+
 class Gallery(models.Model):
     """Для добавления еще нескольких фотографий для товара"""
     image = models.ImageField(upload_to='gallery')
@@ -93,7 +111,10 @@ class Gallery(models.Model):
 
 
 class Comment(models.Model):
+    """Модель для добавления комментариев"""
     goods = models.ForeignKey(Goods, verbose_name='Товар', related_name='goods', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Пользователь', on_delete=models.CASCADE,
+                             related_name='comments', default=None, null=True)
     name = models.CharField(max_length=30, verbose_name='Имя')
     email = models.EmailField(verbose_name='Email')
     comment = models.TextField(max_length=2000, verbose_name='Комментарий')
@@ -106,22 +127,23 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
+        ordering = ('date_comment',)
 
 
 class ViewedProduct(models.Model):
+    """Модель для хранения просмотренных товаров"""
     goods = models.ForeignKey(Goods, verbose_name='Товар', on_delete=models.CASCADE, related_name='products')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Пользователь', on_delete=models.CASCADE, related_name='persons')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Пользователь', on_delete=models.CASCADE,
+                             related_name='persons')
     quantity = models.IntegerField(default=1)
     viewed_date = models.DateTimeField()
 
     def __str__(self):
         return f'{self.goods} {self.user} {self.viewed_date}'
 
-    def total_count(self):
-        return self.goods.count()
-
 
 class Purchases(models.Model):
+    """Модель для хранения истории продаж"""
     goods = models.ForeignKey(Goods, verbose_name='Товар', on_delete=models.CASCADE, related_name='shipments')
     quantity = models.PositiveIntegerField(verbose_name='Количество')
     date_purchases = models.DateTimeField(auto_now=True)

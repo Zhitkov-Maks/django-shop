@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from django_mptt_admin.admin import DjangoMpttAdmin
 
 
-from .models import Tags, Category, Detail, Goods, Comment, Gallery
+from .models import Tags, Category, Detail, Goods, Comment, Gallery, Discount
 
 
 @admin.register(Tags)
@@ -35,14 +35,15 @@ class GalleryInline(admin.TabularInline):
 
 @admin.register(Goods)
 class GoodsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'image_show', 'stock', 'limited_edition', 'is_active', 'free_delivery')
+    list_display = ('id', 'name', 'price', 'image_show', 'stock', 'limited_edition', 'is_active', 'free_delivery')
     list_display_links = ('name',)
-    list_editable = ('stock', 'is_active', 'free_delivery')
+    list_editable = ('stock', 'limited_edition', 'is_active', 'free_delivery')
     list_filter = ('category',)
     filter_horizontal = ('tag', 'detail', 'category')
     inlines = (GalleryInline,)
 
     def image_show(self, rec):
+        """Для отображения картинок товаров в админ панели"""
         if rec.image:
             return mark_safe("<img src='{}' width='60' />".format(rec.image.url))
         return None
@@ -63,4 +64,12 @@ class CommentAdmin(admin.ModelAdmin):
             return rec.comment
 
     get_comment.short_description = 'Комментарий'
+
+
+@admin.register(Discount)
+class DiscountAdmin(admin.ModelAdmin):
+    list_display = ['product', 'valid_from', 'valid_to', 'discount', 'active']
+    list_filter = ['active', 'valid_from', 'valid_to']
+    search_fields = ['active']
+    list_editable = ['active']
 

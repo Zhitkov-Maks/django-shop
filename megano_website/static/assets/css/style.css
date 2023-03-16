@@ -1,7 +1,7 @@
 .modal__container {
     position: fixed;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     top: 0;
     left: 0;
@@ -26,10 +26,9 @@
 
 .modal__content {
     width: 80%;
-    max-width: 600px;
+    max-width: 400px;
     background-color: #fff;
     padding: 30px;
-    border-radius: 10px;
     transition: all 0.6s ease 0s;
     opacity: 0;
     transform: translate(0px, -150%);
@@ -110,10 +109,45 @@
     max-width: 500px;
     background-color: #fff;
     padding: 30px;
-    border-radius: 10px;
     opacity: 0;
     transition: all 0.3s ease 0s;
     transform: translate(0px, -100%);
+}
+
+.order__auth {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 1px;
+    left: 1px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease 0s;
+}
+
+.order__auth__content {
+    width: 80%;
+    max-width: 600px;
+    background-color: #fff;
+    padding: 30px;
+    transition: all 0.6s ease 0s;
+    opacity: 0;
+    transform: translate(0px, -150%);
+}
+
+.open__modal {
+    opacity: 1;
+    visibility: visible;
+}
+
+.order__auth .order__auth__content {
+    transform: translate(0px, 0px);
+    opacity: 1;
 }
 
 .open__modal__delete {
@@ -150,4 +184,81 @@
 .form__content {
     display: flex;
     justify-content: center;
+}
+
+.order__block {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 600px;
+}
+
+.cart__content {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 15px;
+}
+
+.order__title {
+    text-align: center;
+}
+
+@media screen and (max-width: 500px) {
+    .modal__button__delete {
+        align-items: center;
+    }
+}
+
+.Comment:nth-child(n + 7) {
+    visibility: hidden;
+    max-height: 0;
+    padding: 0;
+    opacity: 0;
+    transition: all .3s ease-in-out;
+}
+
+.Comment.open__comment {
+    visibility: visible;
+    max-height: 100%;
+    padding: 45px;
+    opacity: 1;
+    transition: all .3s ease-in-out;
+}
+
+.all-comment {
+    margin-top: 40px;
+}
+
+.Comment__avatar {
+  width: 99px;
+  height: 99px;
+  border-radius: 100px;
+}
+
+.form-group {
+    position: relative;
+}
+
+.error__message {
+    position: absolute;
+    top: 75%;
+    left: 0;
+    color: red;
+    font-size: 12px;
+}
+
+.error__avatar {
+    position: absolute;
+    top: 28.5vh;
+    left: 0;
+    color: red;
+    font-size: 12px;
+}
+
+.form-label {
+    margin-bottom: 8px;
+}
+
+.error input, .error select {
+    border: 2px red solid;
 }

@@ -40,13 +40,15 @@ class RegisterUserForm(UserCreationForm):
         return password2
 
 
-def file_size(value):  # add this to some file where you can import it from
+def file_size(value):
+    """Функция для проверки на размер загружаемого файла на аватар, файл не должен превышать 2 Мб."""
     limit = 2 * 1024 * 1024
     if value.size > limit:
         raise forms.ValidationError('Файл не должен быть больше 2 MB.')
 
 
 class UpdateUserForm(forms.Form):
+    """Форма для обновления данных в профиле."""
     avatar = forms.ImageField(label='Выберите аватар', required=False, validators=[file_size],
                               widget=forms.FileInput(attrs={'class': 'Profile-file form-input',
                                                             'id': 'avatar', 'name': 'avatar',

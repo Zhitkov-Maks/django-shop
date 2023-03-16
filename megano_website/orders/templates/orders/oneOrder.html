@@ -1,4 +1,4 @@
-<html>
+<html lang="ru">
 <body>
   {% extends 'app_megano/base.html' %}
   {% load static %}
@@ -13,7 +13,7 @@
           <ul class="breadcrumbs Middle-breadcrumbs">
             <li class="breadcrumbs-item"><a href="{% url 'home' %}">home</a>
             </li>
-            <li class="breadcrumbs-item"><a href="historyorder.html">История заказов</a>
+            <li class="breadcrumbs-item"><a>История заказов</a>
             </li>
             <li class="breadcrumbs-item breadcrumbs-item_current"><span>Заказ №{{ object.id }}</span>
             </li>
@@ -87,12 +87,14 @@
                       <div class="Order-infoContent">{{ object.status }}
                       </div>
                     </div>
+                    {% if statuses %}
                     <div class="Order-info Order-info_error">
-                      <div class="Order-infoType">Оплата не прошла:
+                      <div class="Order-infoType">Комментарий:
                       </div>
-                      <div class="Order-infoContent">Оплата не выполнена, т.к. вы подозреваетесь в нетолерантности
+                      <div class="Order-infoContent">{{ object.comment }}
                       </div>
                     </div>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -112,7 +114,6 @@
                     </div>
                   </div>
                   <div class="Cart-block Cart-block_row">
-                  
                     <div class="Cart-block Cart-block_amount">{{ product.quantity }} шт
                     </div>
                   </div>
@@ -123,8 +124,15 @@
                     <strong class="Cart-title">Итого:<span class="Cart-price">{{ object.total_price }}</span>
                     </strong>
                   </div>
-                  <div class="Cart-block"><a class="btn btn_primary btn_lg" href="#">Оплатить</a>
+                  {% if not object.paid %}
+                  {% if link %}
+                  <div class="Cart-block"><a class="btn btn_primary btn_lg" href="{% url 'payment' object.id %}">Оплатить</a>
                   </div>
+                  {% else %}
+                  <div class="Cart-block"><a class="btn btn_primary btn_lg" href="{% url 'paymentSomeOne' object.id %}">Оплатить</a>
+                  </div>
+                  {% endif %}
+                  {% endif %}
                 </div>
               </div>
             </div>
