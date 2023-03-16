@@ -249,7 +249,7 @@
 
 .error__avatar {
     position: absolute;
-    top: 28.5vh;
+    top: 95%;
     left: 0;
     color: red;
     font-size: 12px;
