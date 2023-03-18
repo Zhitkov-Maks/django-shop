@@ -306,6 +306,7 @@ class ViewedProducts(ListView):
 
 
 class Sale(ListView):
+    """Класс для отображения страницы с акциями"""
     model = Discount
     template_name = 'app_megano/sale.html'
     context_object_name = 'sale_list'

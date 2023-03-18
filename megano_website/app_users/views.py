@@ -123,6 +123,10 @@ class ProfileEditView(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             if len(form.cleaned_data.get('full_name').split()) == 3:
                 edit = func_for_check_form(form, user)
+                email = form.cleaned_data.get('email')
+                raw_pass = form.cleaned_data.get('password')
+                user = authenticate(email=email, password=raw_pass)
+                login(request, user)
             else:
                 form.add_error('full_name', 'Необходимо ввести имя, фамилию и отчество!')
                 form['full_name'].field.widget.attrs['class'] += ' form-input_error'

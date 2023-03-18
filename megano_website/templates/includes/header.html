@@ -111,7 +111,7 @@
         <div class="Header-search">
           <div class="search">
             <form class="form form_search" action="{% url 'searchProduct' %}" method="get">
-                <label for="query"></label><input class="search-input" id="query" name="query" type="text" placeholder="Что будем искать ..."/>
+                <label for="query"></label><input class="search-input" id="query" name="query" value="{{ query }}" type="text" placeholder="Что будем искать ..."/>
               <button class="search-button" type="submit" name="search" id="search"><img src="{% static 'assets/img/icons/search.svg' %}" alt="search.svg"/>Search
               </button>
             </form>
