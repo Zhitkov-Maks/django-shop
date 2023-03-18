@@ -1,9 +1,6 @@
-<html lang="ru">
-<body>
-{% extends 'app_megano/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
-{% block header %}
-{{ block.super }}
+{% block content %}
 <div class="Middle Middle_top">
 <div class="Middle-top">
   <div class="wrap">
@@ -67,9 +64,4 @@
     </div>
     {% endif %}
 </div>
-{% endblock header %}
-{% block footer %}
-{{ block.super }}
-{% endblock footer %}
-</body>
-</html>
+{% endblock %}

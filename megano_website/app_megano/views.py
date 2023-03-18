@@ -295,7 +295,9 @@ class ViewedProducts(ListView):
 
     def get_queryset(self):
         user = CustomUser.objects.get(id=self.kwargs['pk'])
-        return user.persons.all().order_by('-viewed_date')[:16]
+        list_goods = user.persons.all().order_by('-viewed_date')[:16]
+        queryset = list(map(lambda x: Goods.objects.get(id=x.goods.id), list_goods))
+        return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()

@@ -1,9 +1,6 @@
-<html lang="ru">
-<body>
-  {% extends 'app_megano/base.html' %}
-  {% load static %}
-  {% block header %}
-  {{ block.super }}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
   <div class="Middle Middle_top">
     <div class="Middle-top">
       <div class="wrap">
@@ -83,20 +80,7 @@
       </div>
     </div>
   </div>
-  <div class="modal__container__delete">
-    <div class="modal__content__delete">
-      <div id="myModal" class="content__delete">
-        <p class="modal__title">Удалить товар из корзины?</p><br>
-      </div>
-      <div class="modal__button__delete">
-          <button class="button-yes" type="button">Да</button>
-          <button class="button-no">Нет</button>
-      </div>
-    </div>
-  </div>
-{% endblock header %}
-{% block footer %}
-{{ block.super }}
-{% endblock footer %}
-</body>
-</html>
+{% include 'includes/modaldelete.html' %}
+{% endblock %}
+
+

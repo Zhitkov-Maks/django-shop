@@ -139,7 +139,7 @@ class ViewedProduct(models.Model):
     viewed_date = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.goods} {self.user} {self.viewed_date}'
+        return f'{self.goods}'
 
 
 class Purchases(models.Model):

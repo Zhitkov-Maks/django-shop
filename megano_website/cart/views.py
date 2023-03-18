@@ -19,7 +19,7 @@ class CartView(ListView):
         context = super().get_context_data()
         cart = Cart(self.request)
         stock = check_cart(cart)
-        context.update({'stock': stock})
+        context.update({'stock': stock, 'header': 'Корзина'})
         return context
 
 
