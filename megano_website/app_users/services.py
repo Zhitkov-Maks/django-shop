@@ -1,7 +1,9 @@
+from django.contrib.auth import authenticate, login
+
 from .models import Profile, CustomUser
 
 
-def func_for_check_form(form, user):
+def func_for_check_form(form, user, request):
     """Проверяем форму и сохраняем данные из формы"""
     edit_email(user, form.cleaned_data.get('email'), form)
     user.first_name = form.cleaned_data.get('full_name').split()[1]
@@ -24,6 +26,10 @@ def func_for_check_form(form, user):
     if form.cleaned_data.get('password') and form.cleaned_data.get('passwordReplay'):
         if form.cleaned_data['password'] == form.cleaned_data['passwordReplay']:
             user.set_password(form.cleaned_data['password'])
+            email = form.cleaned_data.get('email')
+            raw_pass = form.cleaned_data.get('password')
+            user = authenticate(email=email, password=raw_pass)
+            login(request, user)
         else:
             form.add_error('passwordReplay', 'Пароли не совпадают.')
             form['passwordReplay'].field.widget.attrs['class'] += ' form-input_error'
