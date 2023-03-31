@@ -47,8 +47,8 @@ class Category(MPTTModel):
 
 class Detail(models.Model):
     """Модель для хранения информации о товаре"""
-    type = models.CharField(max_length=40, verbose_name='Тип')
-    info = models.CharField(max_length=200, verbose_name='Описание')
+    type = models.CharField(max_length=40, verbose_name='Название атрибута')
+    info = models.CharField(max_length=200, verbose_name='Значение')
 
     def __str__(self):
         return f'{self.type} - {self.info}'
@@ -65,7 +65,7 @@ class Goods(models.Model):
     tag = models.ManyToManyField(Tags, verbose_name='тэг', related_name='tags')
     detail = models.ManyToManyField(Detail, verbose_name='детали', related_name='details')
     image = models.ImageField(upload_to='files/images/', verbose_name='Основная фотография')
-    name = models.CharField(max_length=200, verbose_name='Название')
+    name = models.TextField(max_length=200, verbose_name='Название')
     description = models.TextField(max_length=2000, verbose_name='Описание')
     price = models.DecimalField(verbose_name="Цена", max_digits=8, decimal_places=2)
     stock = models.PositiveIntegerField(verbose_name='Остаток')
@@ -114,11 +114,11 @@ class Comment(models.Model):
     """Модель для добавления комментариев"""
     goods = models.ForeignKey(Goods, verbose_name='Товар', related_name='goods', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Пользователь', on_delete=models.CASCADE,
-                             related_name='comments', default=None, null=True)
+                             related_name='comments')
     name = models.CharField(max_length=30, verbose_name='Имя')
     email = models.EmailField(verbose_name='Email')
     comment = models.TextField(max_length=2000, verbose_name='Комментарий')
-    active = models.BooleanField(verbose_name='Активен', default=True)
+    active = models.BooleanField(verbose_name='Активен', default=False)
     date_comment = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

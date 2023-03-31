@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView
@@ -103,7 +104,7 @@ class ProfileEditView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data()
         user = self.request.user
         form = UpdateUserForm()
-        if hasattr(user, 'profile'):
+        if hasattr(user, 'profile'):  # Проверяем есть ли у нас связь с таблицей profile
             image = user.profile.photo
             context.update({'image': image})
             form = UpdateUserForm(
@@ -137,8 +138,7 @@ class HistoryOrderView(LoginRequiredMixin, ListView):
     login_url = 'login'
 
     def get_queryset(self):
-        user = CustomUser.objects.get(id=self.kwargs['pk'])
-        return user.users.all().order_by('-order_date')
+        return Order.objects.select_related('status').filter(Q(user_id=self.request.user.id))
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()

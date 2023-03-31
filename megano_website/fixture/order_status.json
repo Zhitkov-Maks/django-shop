@@ -1,0 +1,1 @@
+[{"model": "orders.status", "pk": 1, "fields": {"status": "Оплачен"}}, {"model": "orders.status", "pk": 2, "fields": {"status": "Не оплачен"}}, {"model": "orders.status", "pk": 3, "fields": {"status": "Доставляется"}}, {"model": "orders.status", "pk": 4, "fields": {"status": "Доставлен"}}]

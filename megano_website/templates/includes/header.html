@@ -90,6 +90,7 @@
                 <a class="CategoriesButton-arrow" href="#"></a>
                 <div class="CategoriesButton-submenu">
                     {% for child in cat.children.all %}
+                      {% if child.active %}
                       <a class="CategoriesButton-link" href="{% url 'category' child.id %}">
                         {% if child.icon %}
                         <div class="CategoriesButton-icon"><img src="{{ child.icon.url }}" alt="1.svg"/>
@@ -97,6 +98,7 @@
                         {% endif %}
                         <span class="CategoriesButton-text">{{ child.name }}</span>
                       </a>
+                      {% endif %}
                   {% endfor %}
                 </div>
                 {% endif %}

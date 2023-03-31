@@ -25,6 +25,7 @@
                 <img src="{{ object.image.url }}" alt="bigGoods.png"/>
               </div>
               <div class="ProductCard-picts">
+                <a class="ProductCard-pict ProductCard-pict_ACTIVE" href="{{ object.image.url }}"><img src="{{ object.image.url }}" alt="bigGoods.png"/></a>
                 {% for img in object.images.all %}
                 <a class="ProductCard-pict ProductCard-pict_ACTIVE" href="{{ img.image.url }}"><img src="{{ img.image.url }}" alt="bigGoods.png"/></a>
                 {% endfor %}
@@ -42,7 +43,7 @@
                 </div>
               </div>
               <div class="ProductCard-text">
-                {% for info in object.detail.all|slice:":5" %}
+                {% for info in detail|slice:":5" %}
                 <ul>
                   <li>
                     {{ info.type }}: {{ info.info }}
@@ -95,7 +96,7 @@
                 <div class="ProductCard-tags">
                   <strong class="ProductCard-tagsTitle">Tags:
                     {% for tag in object.tag.all %}
-                  </strong><a href="{% url 'tag' tag.id %}">{{ tag }}</a>,
+                  </strong><a href="{% url 'tag' tag.id %}">{{ tag }}</a>
                   {% endfor %}
                 </div>
               </div>
@@ -126,7 +127,7 @@
                       <th>Значение
                       </th>
                     </tr>
-                    {% for info in object.detail.all %}
+                    {% for info in detail %}
                     <tr>
                       <th>{{ info.type }}
                       </th>
@@ -141,7 +142,7 @@
                       </th>
                     <tr>
                       <tr>
-                      <th>Просмотров за неделю
+                      <th>Просмотров
                       </th>
                       <th>{{ count_viewed }}
                       </th>
@@ -164,7 +165,7 @@
                   </h3>
                 </header>
                 <div class="Comments">
-                  {% for comment in object.goods.all %}
+                  {% for comment in messages %}
                   <div class="Comment">
                     <div class="Comment-column Comment-column_pict">
                       {% if comment.user.profile.photo.url %}
@@ -186,7 +187,7 @@
                     </div>
                   </div>
                   {% endfor %}
-                  {% if length > 6 %}
+                  {% if len > 6 %}
                   <div class="all-comment">
                     <button class="btn btn_primary" id="all__comment">Показать все</button>
                   </div>

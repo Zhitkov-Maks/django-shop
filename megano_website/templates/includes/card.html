@@ -9,7 +9,7 @@
       <div class="Card-description">
         <div class="Card-cost"><span class="Card-price">{{ goods.price }}₽</span>
         </div>
-        <div class="Card-category">{% for tag in goods.tag.all %} {{ tag }} / {% endfor %}
+        <div class="Card-category">{% for tag in goods.tag.all|slice:"2" %} {{ tag }} / {% endfor %}
         </div>
         <div class="Card-hover">
           <button type="button" class="Card-btn" value="{{ goods.id }}">

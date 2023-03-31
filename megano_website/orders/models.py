@@ -15,13 +15,6 @@ class Status(models.Model):
         verbose_name_plural = 'статусы'
 
 
-def get_payment(type_payment):
-    if type_payment == 'A':
-        return str(Order.TYPE_PAYMENT[0][1])
-    elif type_payment == 'B':
-        return str(Order.TYPE_PAYMENT[1][1])
-
-
 class Order(models.Model):
     TYPE_DELIVERY = (
         ('A', 'Экспресс доставка'),
@@ -58,12 +51,14 @@ class Order(models.Model):
         verbose_name_plural = 'заказы'
 
     def get_type_payment(self):
+        """Для полноценного отображения выбранного типа платежа в шаблоне"""
         if self.type_payment == 'A':
             return str(Order.TYPE_PAYMENT[0][1])
         elif self.type_payment == 'B':
             return str(Order.TYPE_PAYMENT[1][1])
 
     def get_type_delivery(self):
+        """Для полноценного отображения выбранной доставки в шаблоне"""
         if self.type_payment == 'A':
             return str(Order.TYPE_DELIVERY[0][1])
         elif self.type_payment == 'B':
@@ -71,6 +66,7 @@ class Order(models.Model):
 
     @classmethod
     def get_payment(cls, type_payment):
+        """Для полноценной записи типа платежа в заказ"""
         if type_payment == 'A':
             return str(Order.TYPE_PAYMENT[0][1])
         elif type_payment == 'B':
@@ -78,6 +74,7 @@ class Order(models.Model):
 
     @classmethod
     def get_delivery(cls, type_delivery):
+        """Для полноценной записи платежа в заказ"""
         if type_delivery == 'A':
             return str(Order.TYPE_DELIVERY[0][1])
         elif type_delivery == 'B':
@@ -85,6 +82,7 @@ class Order(models.Model):
 
 
 class DetailOrder(models.Model):
+    """Модель для добавления подробной информации о заказе"""
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='orders', on_delete=models.CASCADE)
     product = models.ForeignKey(Goods, verbose_name='goods', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')

@@ -36,9 +36,9 @@ class OrderView(TemplateView):
     def post(self, request):
         form = OrderForms(request.POST)
         user = self.request.user
-        cart = Cart(self.request)
+        order = OrderInfo(request)
         if form.is_valid():
-            order, payment = add_order(form, user, cart.get_total_price())
+            order, payment = add_order(form, user, order.get_total_price())
             add_detail_to_order(order, request)
             if payment == 'A':
                 return redirect(reverse('payment', args=[order.pk]))
@@ -48,7 +48,7 @@ class OrderView(TemplateView):
 
 
 def add_info_about_user(request):
-    """Получает форму с данными о доставке и отправляет на сохранение в сессии"""
+    """Получает форму с данными о заказе и отправляет на сохранение в сессии"""
     if request.method == "POST":
         form = OrderForms(request.POST)
         if form.is_valid():
@@ -93,7 +93,7 @@ class PaymentView(DetailView):
         form = NumberCard(request.POST)
         order = Order.objects.get(id=pk)
         if form.is_valid():
-            pay = get_number_card(form, order)
+            get_number_card(form, order)
             return redirect(reverse('progressPayment'))
         return render(request, 'orders/paymentSomeOne.html', {'header': 'Оплата с чужой карты', 'form': form})
 
@@ -124,7 +124,6 @@ class ProgressPaymentView(TemplateView):
     template_name = 'orders/progressPayment.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
         context = super().get_context_data()
         context.update({'header': 'Прогресс оплаты'})
         return context
@@ -138,12 +137,11 @@ class OneOrderView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         obj = self.object
-        link = True
+        link = True  # Для того чтобы отправить на оплату своей картой или случайной
         if obj.type_payment == 'B':
             link = False
-        if obj.comment:
+        if obj.comment:  # Проверяем есть ли комментарий у заказа
             context.update({'statuses': True})
         title = 'Информация о заказе.'
         context.update({'link': link, 'header': title})
         return context
-

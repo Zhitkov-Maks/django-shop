@@ -1,10 +1,13 @@
+"""Модуль для операций с бд, чтобы не делать это во view, а также при необходимости
+использовать в другом месте."""
+
 from _decimal import Decimal
 from datetime import timedelta
 
-from django.db.models import Min, Sum
+from django.db.models import Min, Count, Q
 from django.utils import timezone
 
-from .models import Category, ViewedProduct, Goods, Purchases, Discount
+from .models import Category, ViewedProduct, Goods, Discount
 
 
 def add_category_favorite() -> dict:
@@ -21,26 +24,22 @@ def add_queryset_top() -> list:
     """Функция для получения списка самых продаваемых товаров за последние два месяца."""
     end_datetime = timezone.now()
     start_datetime = end_datetime - timedelta(days=60)
-    queryset = Purchases.objects.values('goods').distinct().annotate(
-        sum=Sum("quantity")
-    ).filter(
-        date_purchases__gte=start_datetime, date_purchases__lte=end_datetime,
-    ).order_by("-sum")
-    map_list = map(lambda x: Goods.objects.get(id=x['goods']), queryset)
-    product_list = list(filter(lambda product: product.is_active, map_list))
-    return product_list
+    queryset = Goods.objects.prefetch_related('tag').annotate(count=Count('shipments')) \
+        .filter(Q(shipments__date_purchases__gte=start_datetime, shipments__date_purchases__lte=end_datetime)) \
+        .order_by('-count')
+    return queryset
 
 
 def get_viewed_product_week(product) -> int:
-    """Получаем количество просмотров товара за неделю"""
+    """Получаем количество просмотров товара за полгода"""
     end_datetime = timezone.now()
-    start_datetime = end_datetime - timedelta(days=7)
-    count_viewed = ViewedProduct.objects.filter(goods_id=product.id)\
-        .filter(viewed_date__gte=start_datetime, viewed_date__lte=end_datetime,)
+    start_datetime = end_datetime - timedelta(days=180)
+    count_viewed = ViewedProduct.objects.filter(goods_id=product.id) \
+        .filter(viewed_date__gte=start_datetime, viewed_date__lte=end_datetime, )
     return len(count_viewed)
 
 
-def check_product_in_cart(cart, product):
+def check_product_in_cart(cart, product) -> tuple:
     """Функция нужна для страницы с описанием товара, чтобы проверить есть ли этот товар в корзине, а если
     есть то узнать количество. Чтобы на странице с товаром уже сразу отображалось что данный товар у пользователя уже в
     корзине."""
@@ -68,25 +67,28 @@ def add_product_filter(request) -> list:
     """Функция для поиска товара по выбранным параметрам"""
     price = request.GET.get('price').split(';')
     price_range = (Decimal(price[0]), Decimal(price[1]))
-    name = request.GET.get('title')
+    name = request.GET.get('title').split()
     active = request.GET.get('active')
     delivery = request.GET.get('delivery')
+    query_name, query_descr, query_info = Q(), Q(), Q()
+    for word in name:
+        query_name &= Q(name__iregex=word)
+        query_descr &= Q(description__iregex=word)
+        query_info &= Q(detail__info__iregex=word)
 
-    if active == 'on' and not delivery:
-        queryset = Goods.objects.filter(price__range=price_range).filter(name__iregex=name)\
-            .filter(is_active=True).order_by('-date_create')
-    elif delivery == 'on' and not active:
-        queryset = Goods.objects.filter(price__range=price_range).filter(name__iregex=name).filter(
-            free_delivery=True).order_by('-date_create')
-    elif active == 'on' and delivery == 'on':
-        queryset = Goods.objects.filter(price__range=price_range). \
-            filter(name__iregex=name).filter(is_active=True).filter(free_delivery=True).order_by('-date_create')
-    else:
-        queryset = Goods.objects.filter(price__range=price_range).filter(name__iregex=name).order_by('-date_create')
+    queryset = Goods.objects.prefetch_related('tag').filter(
+        Q(query_name, price__range=price_range) |
+        Q(query_info, price__range=price_range) |
+        Q(query_descr, price__range=price_range)).distinct()
+
+    if active == 'on':
+        queryset = list(filter(lambda x: x.is_active, queryset))
+    if delivery == 'on':
+        queryset = list(filter(lambda x: x.free_delivery, queryset))
     return queryset
 
 
-def add_data_filter(request, context):
+def add_data_filter(request, context) -> dict:
     """Функция для получения данных которые ввел пользователь, чтобы после перезагрузки были
     выставлены параметры введенные пользователем."""
     price = request.GET.get('price').split(';')
@@ -119,3 +121,12 @@ def add_product_in_discount() -> None:
         if not product.active:
             product.active = True
             product.save()
+
+
+def get_sale():
+    """Получаем список акционных товаров, предварительно проверяем на неактивные акции и не появились ли новые"""
+    current_date = timezone.now()
+    clean_no_active_discount()
+    add_product_in_discount()
+    queryset = Goods.objects.select_related('discount').filter(Q(discount__valid_to__gte=current_date))
+    return queryset

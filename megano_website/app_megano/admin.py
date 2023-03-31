@@ -23,8 +23,9 @@ class CategoryAdmin(DjangoMpttAdmin):
 @admin.register(Detail)
 class DetailAdmin(admin.ModelAdmin):
     list_display = ('id', 'type', 'info')
-    list_display_links = ('info',)
-    list_filter = ('type',)
+    list_display_links = ('type',)
+    list_per_page = 100
+    search_fields = ('type',)
     ordering = ('type',)
 
 
@@ -72,4 +73,3 @@ class DiscountAdmin(admin.ModelAdmin):
     list_filter = ['active', 'valid_from', 'valid_to']
     search_fields = ['active']
     list_editable = ['active']
-

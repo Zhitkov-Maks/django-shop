@@ -37,6 +37,9 @@ class OrderInfo(object):
         self.session[settings.ORDER_SESSION_INFO] = self.order
         self.session.modified = True
 
+    def get_total_price(self):
+        return self.order['order']['total_price']
+
     def __iter__(self):
         """Перебор элементов в заказе и получение информации из сессии."""
         order = self.order
@@ -46,15 +49,15 @@ class OrderInfo(object):
 
 
 def get_delivery_price(type_delivery, request):
-    """Функция для получения стоимости доставки, заказа с учетом доставки"""
+    """Функция для получения стоимости доставки, в зависимости от суммы и выбранной доставки."""
     price = 0
-    obj = SiteSettings.objects.all()[0]
+    admin_settings = SiteSettings.objects.all()[0]
     cart = Cart(request)
     if type_delivery == 'A':
-        price = obj.price_delivery_express
+        price = admin_settings.price_delivery_express
     elif type_delivery == 'B':
-        price = obj.price
-        min_sum = obj.min_sum
+        price = admin_settings.price
+        min_sum = admin_settings.min_sum
         if cart.get_total_price() >= min_sum:
             price = decimal('0')
     total_price = cart.get_total_price() + price

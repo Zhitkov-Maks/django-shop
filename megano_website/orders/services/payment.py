@@ -7,8 +7,9 @@ from cart.services.cart import Cart
 from app_megano.models import Purchases, Goods
 
 
-def add_order(form, user, total_price):
-    """Добавляем информацию о заказе."""
+def add_order(form, user, total_price) -> tuple:
+    """Добавляем информацию о заказе. Возвращаем заказ и тип платежа чтобы в зависимости от выбранного платежа
+    перенаправить на нужную страницу"""
     order = form.save(commit=False)
     order.total_price = total_price
     order.user_id = user.id
@@ -32,6 +33,7 @@ def add_detail_to_order(order, request) -> None:
         )
         product = Goods.objects.get(id=item['product'].id)
         product.stock -= item['quantity']
+        # Проверяем не закончился ли товар, если закончился то переводим в статус не активен
         if product.stock <= 0:
             product.is_active = False
         product.save()
@@ -54,8 +56,10 @@ def get_number_card(form, order):
         'Недостаточно средств',
         'Ошибка соединения с платежной системой',
         'Сервер занят попробуйте позже',
-        'Подозрение на спам'
+        'Подозрение на спам',
+        'Слишком часто заказываете у нас'
     ]
+    # Проверяем номер карты на соответствие условиям платежа
     card_number = int(''.join([item for item in form.cleaned_data.get('number') if item.isdigit()]))
     if card_number % 10 == 0 or card_number % 10 == 6:
         order.comment = random.choice(list_payment_failed)

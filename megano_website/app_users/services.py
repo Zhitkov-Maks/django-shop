@@ -1,16 +1,19 @@
+"""Модуль для проверки введенных данных редактирования профиля, и сохранения."""
 from django.contrib.auth import authenticate, login
 
 from .models import Profile, CustomUser
 
 
-def func_for_check_form(form, user, request):
-    """Проверяем форму и сохраняем данные из формы"""
-    edit_email(user, form.cleaned_data.get('email'), form)
+def func_for_check_form(form, user, request) -> bool:
+    """Проверяем форму и сохраняем данные из формы. Если редактирование прошло успешно, то возвращаем True
+    (В конце функции проверяем на is_valid, это срабатывает так как при возникновении каких либо ошибок мы
+    добавляем к форме add_error), если нет, то False"""
+    edit_email(user, form.cleaned_data.get('email'), form)  # Проверка email
     user.first_name = form.cleaned_data.get('full_name').split()[1]
     user.last_name = form.cleaned_data.get('full_name').split()[0]
 
     if hasattr(user, 'profile'):
-        edit_phone(user, form.cleaned_data.get('phone'), form)
+        edit_phone(user, form.cleaned_data.get('phone'), form)  # Проверяем телефон
         if form.cleaned_data.get('avatar'):
             user.profile.photo = form.cleaned_data.get('avatar')
         user.profile.patronymic = form.cleaned_data.get('full_name').split()[2]
@@ -23,9 +26,12 @@ def func_for_check_form(form, user, request):
             photo=form.cleaned_data['avatar'],
             phone=form.cleaned_data['phone']
         )
-    if form.cleaned_data.get('password') and form.cleaned_data.get('passwordReplay'):
+    if form.cleaned_data.get('password') and form.cleaned_data.get('passwordReplay'):  # Если были введены пароли
         if form.cleaned_data['password'] == form.cleaned_data['passwordReplay']:
-            user.set_password(form.cleaned_data['password'])
+            password = form.cleaned_data.get('password')
+            user.set_password(password)
+            user.save()
+            # Если смена пароля прошла, то нужно снова авторизоваться
             email = form.cleaned_data.get('email')
             raw_pass = form.cleaned_data.get('password')
             user = authenticate(email=email, password=raw_pass)
@@ -33,7 +39,6 @@ def func_for_check_form(form, user, request):
         else:
             form.add_error('passwordReplay', 'Пароли не совпадают.')
             form['passwordReplay'].field.widget.attrs['class'] += ' form-input_error'
-            return False
     user.save()
     if form.is_valid():
         return True
@@ -53,7 +58,7 @@ def edit_email(user, email, form):
 
 
 def edit_phone(user, phone, form):
-    """Функция для проверки и сохранения измененного номера телефона."""
+    """Функция для проверки и сохранения измененного номера телефона. Проверка на существование введенного телефона"""
     if phone != user.profile.phone:
         if Profile.objects.filter(phone=phone).exists():
             form.add_error('phone', 'Этот телефон уже используется')

@@ -29,7 +29,7 @@ class RegisterUserForm(UserCreationForm):
         """Метод для проверки существования телефона в базе данных. Если существует, то добавляем сообщение об ошибке"""
         phone = self.cleaned_data.get('phone')
         if Profile.objects.filter(phone=phone).exists():
-            raise forms.ValidationError('Пользователь с эти номером телефона уже существует!')
+            raise forms.ValidationError('Номер телефона уже занят!')
         return phone
 
     def clean_password2(self):

@@ -1,16 +1,19 @@
+from django.core.cache import cache
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView
 
 from cart.services.cart import Cart
 from .forms import ReviewsForm
-from .models import Goods, Category, Tags, Discount
+from .models import Goods, Category, Tags, Discount, Comment
 from app_users.models import CustomUser
 
 from .services import add_category_favorite, add_queryset_top, check_product_in_cart, add_product_in_viewed_list, \
-    add_product_filter, add_data_filter, get_viewed_product_week, clean_no_active_discount, add_product_in_discount
+    add_product_filter, add_data_filter, get_viewed_product_week, clean_no_active_discount, add_product_in_discount, \
+    get_sale
 
 
 class HomeView(ListView):
@@ -20,18 +23,18 @@ class HomeView(ListView):
     context_object_name = "product_list"
 
     def get_queryset(self):
-        """Переопределяем queryset, чтобы отфильтровать вывод товаров по сортировке топ просмотров"""
-        clean_no_active_discount()
-        add_product_in_discount()
-        queryset = add_queryset_top()
+        """Переопределяем queryset, чтобы отфильтровать вывод товаров по сортировке топ покупок"""
+        queryset = cache.get_or_set('add_queryset_top', add_queryset_top(), 10*60)
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляем на главную страницу так же список с товарами с меткой ограниченная серия и
         список из 3 элементов с избранными категориями"""
         context = super().get_context_data()
-        limited_list = Goods.objects.filter(limited_edition=True, is_active=True)
-        category_dict = add_category_favorite()
+        limited_list = cache.get_or_set(
+            'get_limited_list', Goods.objects.prefetch_related('tag')
+            .filter(limited_edition=True, is_active=True), 10*60)
+        category_dict = cache.get_or_set('get_favorite_list', add_category_favorite(), 10*60)
         title = 'Интернет магазин MEGANO'
         context.update({'limited_list': limited_list, 'category_dict': category_dict, 'header': title})
         return context
@@ -45,8 +48,8 @@ class ShowCategory(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        category = Category.objects.prefetch_related('categories').get(id=self.kwargs['pk'])
-        return category.categories.all().order_by('-date_create')
+        category = Category.objects.get(id=self.kwargs['pk'])
+        return category.categories.prefetch_related('category').prefetch_related('tag').all().order_by('-date_create')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
@@ -65,7 +68,7 @@ class ShowTag(ListView):
 
     def get_queryset(self):
         tag = Tags.objects.get(id=self.kwargs['pk'])
-        return tag.tags.all().order_by('-date_create')
+        return tag.tags.prefetch_related('tag').all().order_by('-date_create')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
@@ -82,15 +85,16 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        check = check_product_in_cart(Cart(self.request), self.object)
-        count_viewed = get_viewed_product_week(self.object)
+        check = check_product_in_cart(Cart(self.request), self.object)  # Проверяем есть ли данный товар в корзине.
+        count_viewed = get_viewed_product_week(self.object)  # Получаем количество просмотров за неделю
         user = self.request.user
         if self.request.user.is_authenticated:
-            add_product_in_viewed_list(self.request.user, self.get_object())
+            add_product_in_viewed_list(self.request.user, self.get_object())  # Добавляем товар в просмотренные
 
         form = ReviewsForm()
         product = self.get_object()
-        len_comment = len(product.goods.all())
+        comment = Comment.objects.select_related('user', 'user__profile').filter(goods_id=product.id)
+        detail = product.detail.all()
         title = self.object
 
         if self.request.user.is_authenticated:
@@ -101,10 +105,12 @@ class ProductDetailView(DetailView):
 
         context.update(
             {"product": product, 'form': form, 'check': check[0],
-             'quantity': check[1], 'count_viewed': count_viewed, 'length': len_comment, 'header': title})
+             'quantity': check[1], 'count_viewed': count_viewed, 'messages': comment,
+             'len': len(comment), 'header': title, 'detail': detail})
         return context
 
     def post(self, request, pk):
+        """Добавляет комментарий к товару."""
         form = ReviewsForm(request.POST)
         if self.request.user.is_authenticated:
             if form.is_valid():
@@ -126,6 +132,7 @@ class CatalogView(ListView):
     paginate_by = 8
 
     def get_queryset(self):
+        """Выбирает записи топ продаж за 2 месяца"""
         queryset = add_queryset_top()
         return queryset
 
@@ -145,7 +152,7 @@ class CatalogSortPrice(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.all().order_by('price')
+        return Goods.objects.prefetch_related('tag').all().order_by('price')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -163,7 +170,7 @@ class CatalogSortPriceMax(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.all().order_by('-price')
+        return Goods.objects.prefetch_related('tag').all().order_by('-price')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -181,7 +188,7 @@ class CatalogSortReview(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.all().annotate(count=Count('goods')).order_by('-count')
+        return Goods.objects.prefetch_related('tag').all().annotate(count=Count('goods')).order_by('-count')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -199,7 +206,7 @@ class CatalogSortReviewMin(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.all().annotate(count=Count('goods')).order_by('count')
+        return Goods.objects.prefetch_related('tag').all().annotate(count=Count('goods')).order_by('count')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -217,7 +224,7 @@ class CatalogSortNew(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.all().order_by('-date_create')
+        return Goods.objects.prefetch_related('tag').all().order_by('-date_create')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -234,7 +241,7 @@ class CatalogSortOld(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.all().order_by('date_create')
+        return Goods.objects.prefetch_related('tag').all().order_by('date_create')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -251,18 +258,18 @@ class SearchProduct(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        """Переопределяем queryset для поиска"""
+        """Переопределяем queryset для поиска, сортируем по дате создания товара, поиск по названию товара"""
         query = self.request.GET.get('query').split()
         query_list = Q()
         for word in query:
-            query_list |= Q(name__iregex=word)
-        queryset = Goods.objects.filter(query_list).order_by('-date_create')
+            query_list &= Q(name__iregex=word)
+        queryset = Goods.objects.prefetch_related('tag').filter(Q(query_list)).order_by('-date_create')
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
         context = super().get_context_data()
-        word = self.request.GET.get('query')
+        word = self.request.GET.get('query')  # Нужно для пагинации
         title = f'Товары по тэгу {word}'
         context.update({'sortNew': True, 'header': title, 'query': word})
         return context
@@ -295,8 +302,7 @@ class ViewedProducts(ListView):
 
     def get_queryset(self):
         user = CustomUser.objects.get(id=self.kwargs['pk'])
-        list_goods = user.persons.all().order_by('-viewed_date')[:16]
-        queryset = list(map(lambda x: Goods.objects.get(id=x.goods.id), list_goods))
+        queryset = Goods.objects.prefetch_related('tag').filter(products__user=user)[:16]
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -313,11 +319,7 @@ class Sale(ListView):
     paginate_by = 16
 
     def get_queryset(self):
-        current_date = timezone.now()
-        add_product_in_discount()
-        clean_no_active_discount()
-        product_discount = Discount.objects.filter(valid_to__gte=current_date)
-        queryset = list(map(lambda product: Goods.objects.get(id=product.product_id), product_discount))
+        queryset = cache.get_or_set(f'get_sale', get_sale(), 30*60)
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):

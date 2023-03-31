@@ -7,7 +7,7 @@ register = template.Library()
 
 
 @register.simple_tag(name='get_cats')
-def all_categories():
+def all_categories() -> list:
     """Функция возвращает список категорий"""
     return Category.objects.filter(active=True).order_by('name')
 
