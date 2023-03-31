@@ -7,7 +7,7 @@
 ```
 python -m venv venv
 ```
-2Установить зависимости:  
+2. Установить зависимости:  
 ```
 pip install -r requirements.txt
 ```
