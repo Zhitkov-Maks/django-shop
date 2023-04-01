@@ -45,7 +45,7 @@
         <div class="Account-group">
           {% if request.user.profile.photo %}
           <div class="Account-column">
-            <div class="Account-avatar"><img src="{{ request.user.profile.photo.url }}" alt="card.jpg"/>
+            <div class="Account-avatar"><img height="160px" src="{{ request.user.profile.photo.url }}" alt="card.jpg"/>
             </div>
           </div>
           {% endif %}

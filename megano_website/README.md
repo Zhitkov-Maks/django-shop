@@ -12,7 +12,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-3. Настроить базу данных PostgreSQL
+3. Установить и настроить PostgreSQL
 
 4. Выполнить миграции.
 
