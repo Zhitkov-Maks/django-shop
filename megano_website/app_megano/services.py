@@ -35,8 +35,8 @@ def get_viewed_product_week(product) -> int:
     end_datetime = timezone.now()
     start_datetime = end_datetime - timedelta(days=180)
     count_viewed = ViewedProduct.objects.filter(goods_id=product.id) \
-        .filter(viewed_date__gte=start_datetime, viewed_date__lte=end_datetime, )
-    return len(count_viewed)
+        .filter(viewed_date__gte=start_datetime, viewed_date__lte=end_datetime).count()
+    return count_viewed
 
 
 def check_product_in_cart(cart, product) -> tuple:
