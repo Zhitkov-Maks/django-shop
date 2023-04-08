@@ -1,0 +1,124 @@
+{% load static %}
+{% load tags %}
+<header class="Header">
+    <div class="ControlPanel">
+      <div class="wrap">
+        <div class="row ControlPanel-row">
+          <div class="row-block">
+            <div class="row ControlPanel-rowSplit">
+              <div class="row-block"><a class="ControlPanel-title" href="#">Free Delivery</a>
+              </div>
+              <div class="row-block hide_700"><span class="ControlPanel-title">Follow Us</span>
+                <ul class="menu menu_img menu_smallImg ControlPanel-menu">
+                  <li class="menu-item"><a class="menu-link" target="_blank" href="https://www.facebook.com/"><img src="{% static 'assets/img/icons/socialHeader/fb.svg' %}" alt="fb.svg"/></a>
+                  </li>
+                  <li class="menu-item"><a class="menu-link" target="_blank" href="https://www.twitter.com/"><img src="{% static 'assets/img/icons/socialHeader/tw.svg' %}" alt="tw.svg"/></a>
+                  </li>
+                  <li class="menu-item"><a class="menu-link" target="_blank" href="https://www.instagramm.com/"><img src="{% static 'assets/img/icons/socialHeader/in.svg' %}" alt="in.svg"/></a>
+                  </li>
+                  <li class="menu-item"><a class="menu-link" target="_blank" href="#"><img src="{% static 'assets/img/icons/socialHeader/pt.svg' %}" alt="pt.svg"/></a>
+                  </li>
+                  <li class="menu-item"><a class="menu-link" target="_blank" href="https://www.mail.ru/"><img src="{% static 'assets/img/icons/socialHeader/mail.svg' %}" alt="mail.svg"/></a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <nav class="row-block">
+            <div class="row ControlPanel-rowSplit">
+                {% if not request.user.is_authenticated %}
+                <div class="row-block"><a class="ControlPanel-title" href="{% url 'login' %}">Login</a></div>
+                <div class="row-block"><a class="ControlPanel-title" href="{% url 'register' %}">Register</a></div>
+                {% else %}
+                <div class="row-block"><a class="ControlPanel-title" href="{% url 'account' %}">{{ request.user.first_name }}</a></div>
+                <div class="row-block"><a class="ControlPanel-title" href="{% url 'logout' %}">Logout</a></div>
+                {% endif %}
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="row Header-rowMain">
+        <div class="row-block Header-logo"><a class="logo" href="{% url 'home' %}"><img class="logo-image" src="{{ site_settings.logotype.url }}" alt="logo.png"/></a>
+        </div>
+        <nav class="row-block row-block_right Header-menu">
+          <div class="menuModal" id="navigate">
+            <ul class="menu menu_main">
+              <li class="menu-item"><a class="menu-link" href="{% url 'home' %}">Home</a>
+              </li>
+              <li class="menu-item"><a class="menu-link" href="{% url 'catalog' %}">Purchase</a>
+              </li>
+              <li class="menu-item"><a class="menu-link" href="{% url 'sale' %}">Sale</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <div class="row-block">
+          <div id="myCart" class="CartBlock"><a class="CartBlock-block" href="{% url 'cart' %}"><img class="CartBlock-img" src="{% static 'assets/img/icons/cart.svg' %}" alt="cart.svg"/><span class="CartBlock-amount">{{ cart|length }}</span></a>
+            <div class="CartBlock-block"><span class="CartBlock-price">{{ cart.get_total_price }}₽</span>
+            </div>
+          </div>
+        </div>
+        <div class="row-block Header-trigger"><a class="menuTrigger" href="#navigate">
+            <div class="menuTrigger-content">Показать навигацию
+            </div><span></span><span></span><span></span></a>
+        </div>
+      </div>
+    </div>
+    <div class="Header-searchWrap">
+      <div class="wrap">
+        <div class="Header-categories">
+          {% get_cats as categories %}
+          <div class="CategoriesButton">
+            <div class="CategoriesButton-title">
+              <div class="CategoriesButton-icon"><img src="{% static 'assets/img/icons/allDep.svg' %}" alt="allDep.svg"/>
+              </div><span class="CategoriesButton-text">Все категории</span>
+              <div class="CategoriesButton-arrow">
+              </div>
+            </div>
+           <div class="CategoriesButton-content">
+              {% for cat in categories %}
+              {% if not cat.parent_id %}
+              <div class="CategoriesButton-link"><a href="{% url 'category' cat.id %}">
+                {% if cat.icon %}
+                <div class="CategoriesButton-icon"><img src="{{ cat.icon.url }}" alt="2.svg"/>
+                </div>
+                {% endif %}
+                <span class="CategoriesButton-text">{{ cat.name }}</span></a>
+                {% if not cat.is_leaf_node %}
+                <a class="CategoriesButton-arrow" href="#"></a>
+                <div class="CategoriesButton-submenu">
+                    {% for child in cat.children.all %}
+                      {% if child.active %}
+                      <a class="CategoriesButton-link" href="{% url 'category' child.id %}">
+                        {% if child.icon %}
+                        <div class="CategoriesButton-icon"><img src="{{ child.icon.url }}" alt="1.svg"/>
+                        </div>
+                        {% endif %}
+                        <span class="CategoriesButton-text">{{ child.name }}</span>
+                      </a>
+                      {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+             {% endif %}
+              {% endfor %}
+              </div>
+            </div>
+          </div>
+        <div class="Header-searchLink"><img src="{% static 'assets/img/icons/search.svg' %}" alt="search.svg"/>
+        </div>
+        <div class="Header-search">
+          <div class="search">
+            <form class="form form_search" action="{% url 'searchProduct' %}" method="get">
+                <label for="query"></label><input class="search-input" id="query" name="query" value="{{ query }}" type="text" placeholder="Что будем искать ..."/>
+              <button class="search-button" type="submit" name="search" id="search"><img src="{% static 'assets/img/icons/search.svg' %}" alt="search.svg"/>Search
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+</header>

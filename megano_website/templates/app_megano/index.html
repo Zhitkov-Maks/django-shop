@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div id="header" class="Middle">
+    <div class="Section">
+      <div class="wrap">
+        <div class="BannersHome">
+          {% if category_dict %}
+          {% for cat in category_dict.values %}
+          <a class="BannersHomeBlock" href="{% url 'category' cat.0.id %}">
+            <div class="BannersHomeBlock-row">
+              <div class="BannersHomeBlock-block">
+                <strong class="BannersHomeBlock-title">{{ cat.0.name }}
+                </strong>
+                <div class="BannersHomeBlock-content">От:&#32;<span class="BannersHomeBlock-price">{{ cat.1.price__min }}₽</span>
+                </div>
+              </div>
+              {% if cat.0.image %}
+              <div class="BannersHomeBlock-block">
+                <div class="BannersHomeBlock-img"><img src="{{ cat.0.image.url }}" alt="videocart.png"/>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </a>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+        <div class="Section Section_column Section_columnDesktop"  >
+      <div class="wrap">
+        <div class="Section-content">
+          <header class="Section-header">
+            <h2 class="Section-title">Популярные товары
+            </h2>
+          </header>
+          <div class="Cards">
+            {% if product_list %}
+            {% for goods in product_list|slice:"8" %}
+                {% include 'includes/card.html' %}
+            {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    <div class="modal" data-modal="1">
+     <svg class="modal__cross js-modal-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"></path></svg>
+     <p class="modal__title">Заголовок окна 1</p>
+    </div>
+    <div class="overlay js-overlay-modal"></div>
+    </div>
+      <div class="Section Section_column Section_columnRight">
+      <div class="wrap">
+        <div class="Section-column">
+          <div class="Section-columnSection Section-columnSection_mark">
+            <div class="media media_advantage">
+              <div class="media-image"><img src="{% static 'assets/img/icons/advantages/shipping.svg' %}" alt="shipping.svg"/>
+              </div>
+              <div class="media-content">
+                <strong class="media-title">Shipping & Returns
+                </strong>
+                <p class="media-text">World wide shipping
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="Section-columnSection Section-columnSection_mark">
+            <div class="media media_advantage">
+              <div class="media-image"><img src="{% static 'assets/img/icons/advantages/moneyBack.svg' %}" alt="moneyBack.svg"/>
+              </div>
+              <div class="media-content">
+                <strong class="media-title">Money Back
+                </strong>
+                <p class="media-text">Guaranted payments
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="Section-columnSection Section-columnSection_mark">
+            <div class="media media_advantage">
+              <div class="media-image"><img src="{% static 'assets/img/icons/advantages/support.svg' %}" alt="support.svg"/>
+              </div>
+              <div class="media-content">
+                <strong class="media-title">Support Policy
+                </strong>
+                <p class="media-text">Fast support team
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="Section-columnSection Section-columnSection_mark">
+            <div class="media media_advantage">
+              <div class="media-image"><img src="{% static 'assets/img/icons/advantages/quality.svg' %}" alt="quality.svg"/>
+              </div>
+              <div class="media-content">
+                <strong class="media-title">Quality Guarantee
+                </strong>
+                <p class="media-text">Best guaranted items
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="Section-content">
+          <div class="Slider Slider_carousel">
+            <header class="Section-header Section-header_close">
+              <h2 class="Section-title">Ограниченная серия
+              </h2>
+              <div class="Section-control">
+                <div class="Slider-navigate">
+                </div>
+              </div>
+            </header>
+            <div class="Slider-box Cards">
+              {% if limited_list %}
+              {% for goods in limited_list %}
+              <div class="Slider-item">
+                <div class="Slider-content">
+                    {% include 'includes/card.html' %}
+                </div>
+              </div>
+              {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% include 'includes/modaladd.html' %}
+{% endblock %}

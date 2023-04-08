@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tags %}
+{% block content %}
+  <div class="Middle Middle_top">
+    <div class="Middle-top">
+      <div class="wrap">
+        <div class="Middle-header">
+          <h1 class="Middle-title">Catalog Megano
+          </h1>
+          <ul class="breadcrumbs Middle-breadcrumbs">
+            <li class="breadcrumbs-item"><a href="{% url 'home' %}">home</a>
+            </li>
+            <li class="breadcrumbs-item breadcrumbs-item_current"><span>Catalog</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="Section Section_column Section_columnLeft">
+      <div class="wrap">
+        <div class="Section-column">
+          <div class="Section-columnSection">
+            <header class="Section-header">
+              <strong class="Section-title">Filter
+              </strong>
+            </header>
+            <div class="Section-columnContent">
+              <form class="form" action="{% url 'searchFilter' %}" method="GET">
+                <div class="form-group">
+                  <div class="range Section-columnRange">
+                      {% get_priceMin as priceMin %}
+                      {% get_priceMax as priceMax %}
+                      <label for="price"></label><input class="range-line" id="price" name="price" type="text" data-type="double" data-min="{{ priceMin.price__min }}" data-max="{{ priceMax.price__max }}" data-from="{{ data_from }}" data-to="{{ data_to }}"/>
+                    <div class="range-price">Price;
+                      <div class="rangePrice">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                    <label for="title"></label><input class="form-input form-input_full" id="title" name="title" type="text" value="{{ title }}" placeholder="Название"/>
+                </div>
+                <div class="form-group">
+                </div>
+                <div class="form-group">
+                  {% if active %}
+                  <label class="toggle">
+                    <input type="checkbox" checked  name="active"/><span class="toggle-box"></span><span class="toggle-text">Только товары в наличии</span>
+                  </label>
+                  {% else %}
+                  <label class="toggle">
+                    <input type="checkbox"  name="active"/><span class="toggle-box"></span><span class="toggle-text">Только товары в наличии</span>
+                  </label>
+                  {% endif %}
+                </div>
+                <div class="form-group">
+                  {% if delivery %}
+                  <label class="toggle">
+                    <input type="checkbox" checked name="delivery"/><span class="toggle-box"></span><span class="toggle-text">С бесплатной доставкой</span>
+                  </label>
+                  {% else %}
+                  <label class="toggle">
+                    <input type="checkbox" name="delivery"/><span class="toggle-box"></span><span class="toggle-text">С бесплатной доставкой</span>
+                  </label>
+                  {% endif %}
+                </div>
+                <div class="form-group">
+                  <div class="buttons"><button type="submit" class="btn btn_square btn_dark btn_narrow">Filter</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="Section-columnSection">
+            <header class="Section-header">
+              <strong class="Section-title">Popular tags
+              </strong>
+            </header>
+            <div class="Section-columnContent">
+                {% get_tags as tag_list %}
+              <div class="buttons">
+                {% for tag in tag_list %}
+                <a class="btn btn_default btn_sm" href="{% url 'tag' tag.id %}">{{ tag }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="Section-content">
+          <div class="Sort">
+            <div class="Sort-title">Сортировать по:
+            </div>
+            {% if sortPopular %}
+            <div class="Sort-variants"><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortPriceMin %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortPriceMax' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortPriceMax %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortReview %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortReviewMin' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortReviewMin %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% elif sortNew %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortOld' %}">Новизне</a>
+            </div>
+            {% elif sortOld %}
+            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortNew' %}">Новизне</a>
+            </div>
+            {% endif %}
+          </div>
+          <div class="Cards">
+            {% if product_list %}
+            {% for goods in product_list %}
+                {% include 'includes/card.html' %}
+            {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if paginator.num_pages > 1 %}
+      <div class="Pagination">
+        <div class="Pagination-ins">
+          {% if page_obj.has_previous %}
+          {% if sortFilter %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}&query={{ query }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% endif %}
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
+          {% endif %}
+          {% for page in paginator.page_range %}
+          {% if page == page_obj.number %}
+          <a class="Pagination-element Pagination-element_current" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% else %}
+          {% if sortFilter %}
+          <a class="Pagination-element" href="?page={{ page }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% else %}
+          <a class="Pagination-element" href="?page={{ page }}&query={{ query }}"><span class="Pagination-text">{{ page }}</span></a>
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+          {% if sortFilter %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}&query={{ query }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% endif %}
+          {% else %}
+          <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% include 'includes/modaladd.html' %}
+{% endblock %}

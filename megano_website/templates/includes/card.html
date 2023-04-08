@@ -1,0 +1,21 @@
+{% load static %}
+{% comment %}
+Это карточка с кратким отображением о товаре
+{% endcomment %}
+<div class="Card"><a class="Card-picture" href="{% url 'detail' goods.id %}"><img src="{{ goods.image.url }}" alt="card.jpg"/></a>
+    <div class="Card-content">
+      <strong class="Card-title"><a href="{% url 'detail' goods.id %}">{{goods.name|slice:"35"}}...</a>
+      </strong>
+      <div class="Card-description">
+        <div class="Card-cost"><span class="Card-price">{{ goods.price }}₽</span>
+        </div>
+        <div class="Card-category">{% for tag in goods.tag.all|slice:"2" %} {{ tag }} / {% endfor %}
+        </div>
+        <div class="Card-hover">
+          <button type="button" class="Card-btn" value="{{ goods.id }}">
+            <img src="{% static 'assets/img/icons/card/cart.svg' %}" alt="cart.svg"/>
+          </button>
+        </div>
+      </div>
+    </div>
+</div>

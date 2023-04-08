@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="Middle Middle_top">
+    <div class="Middle-top">
+      <div class="wrap">
+        <div class="Middle-header">
+          <h1 class="Middle-title">Оплата
+          </h1>
+          <ul class="breadcrumbs Middle-breadcrumbs">
+            <li class="breadcrumbs-item"><a href="{% url 'home' %}">home</a>
+            </li>
+            <li class="breadcrumbs-item breadcrumbs-item_current"><span>Оплата</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="Section">
+      <div class="wrap">
+        <form class="form Payment" action="#" method="post">
+          {% csrf_token %}
+          <div class="Payment-card">
+            <div class="form-group">
+                <label class="form-label">{{ form.number.label }}</label>{{ form.number }}
+            </div>
+            <div class="form-group"><a class="btn btn_success Payment-generate" href="#">Сгенерировать случайный счет</a>
+            </div>
+          </div>
+          <div class="Payment-pay"><button class="btn btn_primary" type="submit">Оплатить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

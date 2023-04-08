@@ -1,0 +1,15 @@
+{% load static %}
+{% comment  %}
+Это модальное окно которое появляется если нажать на значёк корзины.
+{% endcomment %}
+<div class="modal__container">
+  <div class="modal__content">
+    <div id="myModal" class="cart__content">
+      <p class="modal__title">Товар добавлен в корзину.</p>
+    </div>
+    <div class="modal__button__delete">
+        <button class="button" type="button" id="close">Ок</button>
+        <a class="modal--link" href="{% url 'cart' %}">Перейти в корзину</a>
+    </div>
+  </div>
+</div>

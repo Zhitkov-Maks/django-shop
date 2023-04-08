@@ -1,0 +1,62 @@
+{% extends 'baseauth.html' %}
+{% load static %}
+{% block content %}
+    <div class="block__content">
+        <div>
+          <div class="wrap">
+            <form id="creation" method="post">
+                {% csrf_token %}
+                <h1 class="title__register">Заполните поля для регистрации</h1>
+                <div class="main__block">
+                    <div class="left__block">
+                        <div class="label__content">
+                            <label class="form-label">{{ form.email.label }}:</label>{{form.email}}
+                            <div class="error__message">
+                              {{ form.errors.email }}
+                            </div>
+                        </div>
+                        <div class="label__content">
+                            <label class="form-label">{{ form.last_name.label }}:</label>{{form.last_name}}
+                        </div>
+                        <div class="label__content">
+                            <label class="form-label">{{ form.first_name.label }}:</label>{{form.first_name}}
+                        </div>
+                        <div class="label__content">
+                            <label class="form-label">{{ form.patronymic.label }}:</label>{{form.patronymic}}
+                        </div>
+                        </div>
+                        <div class="right__block">
+                            <div class="label__content">
+                           <label class="form-label">{{ form.phone.label }}:</label>{{form.phone}}
+                            <div class="error__message">
+                                {{ form.errors.phone }}
+                            </div>
+                            </div>
+                            <div class="label__content">
+                                <label class="form-label">{{ form.password1.label }}:</label>{{form.password1}}
+                                <div class="error__message">
+                                   {{ form.errors.password1 }}
+                                </div>
+                            </div>
+                            <div class="label__content">
+                                <label class="form-label">{{ form.password2.label }}:</label>{{form.password2}}
+                                <div class="error__message">
+                                    {{ form.errors.password2 }}
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn_primary" type="submit">Зарегистрироваться</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="register__footer">
+                    <div>
+                        <a class="link_log" href="{% url 'login' %}">Я уже зарегистрирован.</a>
+                        <a class="link_log" href="{% url 'home' %}">Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

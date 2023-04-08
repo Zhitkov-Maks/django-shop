@@ -1,0 +1,32 @@
+{% extends 'baseauth.html' %}
+{% load static %}
+{% block content %}
+<div class="login__container">
+    <div>
+        <h1 class="login__title">Введите ваш логин и пароль</h1>
+    </div>
+    <div class="login__content">
+        <form method="post">
+            {% csrf_token %}
+            <div class="login__form">
+                <div class="label__content">
+                    <label class="form-input">{{ form.username.label }}</label>{{form.username}}
+                </div>
+                <div class="label__content">
+                    <label class="form-input">{{ form.password.label }}</label>{{form.password}}<br>
+                    <div class="error__login">
+                          {{ form.errors.username }}
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn_primary" type="submit">Войти</button>
+                </div>
+                <div class="login__link">
+                    <a class="link_log" href="{% url 'password_reset' %}">Забыли пароль?</a>
+                    <a class="link_log" href="{% url 'home' %}">Home</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
