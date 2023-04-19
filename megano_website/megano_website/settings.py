@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'megano_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'megano_db',
+        'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': '44565',
         'HOST': 'localhost',
