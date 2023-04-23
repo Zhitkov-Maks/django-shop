@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
+
 # import environ
 #
 # env = environ.Env()
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'django_mptt_admin',
     'admin_settings.apps.AdminSettingsConfig',
     'rest_framework',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -162,7 +164,8 @@ MEDIA_URL = '/media/'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 # EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
@@ -177,6 +180,5 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'teoretickzhitkov@yandex.ru'
 EMAIL_HOST_PASSWORD = 'erboqowrxmlwvcrc'
 DEFAULT_FROM_EMAIL = 'teoretickzhitkov@yandex.ru'
-
 
 LOGIN_URL = 'login'
