@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import ProgressPaymentView, PaymentSomeOneView, PaymentView, OrderView, OneOrderView, login_modal, \
     add_info_about_user
+from .api.services import OrderApi
 
 urlpatterns = [
     path('', OrderView.as_view(), name='order'),
@@ -11,4 +12,5 @@ urlpatterns = [
     path('oneorder/<int:pk>', OneOrderView.as_view(), name='oneOrder'),
     path('modalLogin/', login_modal, name='modalLogin'),
     path('addInfoUser/', add_info_about_user, name='addInfo'),
+    path('api/order/', OrderApi.as_view(), name='api-order')
 ]
