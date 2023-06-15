@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django_mptt_admin.admin import DjangoMpttAdmin
 
-
+from .admin_mixins import ExportAsCSVMixin
 from .models import Tags, Category, Detail, Goods, Comment, Gallery, Discount
 
 
@@ -35,13 +35,32 @@ class GalleryInline(admin.TabularInline):
 
 
 @admin.register(Goods)
-class GoodsAdmin(admin.ModelAdmin):
+class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     list_display = ('id', 'name', 'price', 'image_show', 'stock', 'limited_edition', 'is_active', 'free_delivery')
     list_display_links = ('name',)
     list_editable = ('stock', 'limited_edition', 'is_active', 'free_delivery')
     list_filter = ('category',)
     filter_horizontal = ('tag', 'detail', 'category')
     inlines = (GalleryInline,)
+    ordering = "price",
+    fieldsets = (
+        (None, {
+            "fields": ['name', 'description', 'stock']
+        }),
+        ("Price options", {
+            "fields": ["price"],
+            "classes": ("collapse", "wide"),
+        }),
+        ("Image", {
+            "fields": ["image"],
+            "classes": ("collapse", "wide"),
+        }),
+        ("Options", {
+            "fields": ['limited_edition', 'is_active', 'free_delivery'],
+            "classes": ("collapse", "wide"),
+        })
+    )
+    actions = ["export_csv"]
 
     def image_show(self, rec):
         """Для отображения картинок товаров в админ панели"""
