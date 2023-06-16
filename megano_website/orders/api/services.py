@@ -3,9 +3,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import OrderSerializers
-from ..models import Order, DetailOrder
+from ..models import Order
 
 
 class PaginationView(PageNumberPagination):
@@ -20,6 +21,7 @@ class OrderApi(ListModelMixin, GenericAPIView):
     serializer_class = OrderSerializers
     filter_backends = [DjangoFilterBackend]
     pagination_class = PaginationView
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return Order.objects.select_related('status').filter(Q(user_id=self.request.user.id))
