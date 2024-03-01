@@ -19,3 +19,7 @@ class ReviewsForm(forms.ModelForm):
             'name': forms.HiddenInput(attrs={'class': 'form-input', 'placeholder': 'Имя'}),
             'email': forms.HiddenInput(attrs={'class': 'form-input', 'placeholder': 'Email'}),
         }
+
+
+class CSVImportForms(forms.Form):
+    csv = forms.FileField()

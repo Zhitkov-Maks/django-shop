@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
@@ -65,7 +64,7 @@ class Goods(models.Model):
     tag = models.ManyToManyField(Tags, verbose_name='тэг', related_name='tags')
     detail = models.ManyToManyField(Detail, verbose_name='детали', related_name='details')
     image = models.ImageField(upload_to='files/images/', verbose_name='Основная фотография')
-    name = models.TextField(max_length=200, verbose_name='Название')
+    name = models.CharField(max_length=200, verbose_name='Название')
     description = models.TextField(max_length=2000, verbose_name='Описание')
     price = models.DecimalField(verbose_name="Цена", max_digits=8, decimal_places=2)
     stock = models.PositiveIntegerField(verbose_name='Остаток')

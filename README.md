@@ -23,21 +23,19 @@ python manage.py migrate
 5. Загрузить тестовые данные в базу:
 
 ```
-python manage.py loaddata settings.json
-python manage.py loaddata user.json
-python manage.py loaddata profile.json
-python manage.py loaddata megano_tags.json
-python manage.py loaddata megano_category.json
-python manage.py loaddata megano_detail.json
-python manage.py loaddata megano_goods.json
-python manage.py loaddata megano_gallery.json
-python manage.py loaddata megano_comment.json
-python manage.py loaddata megano_discount.json
-python manage.py loaddata megano_purchases.json
-python manage.py loaddata megano_viewed_product.json
-python manage.py loaddata order_status.json
-python manage.py loaddata order.json
-python manage.py loaddata order_detail.json
+python3 manage.py loaddata settings.json
+```
+
+```
+python3 manage.py loaddata users.json
+```
+
+```
+python3 manage.py loaddata megano.json
+```
+
+```
+python3 manage.py loaddata orders.json
 ```
 
 6. Запустить тестовый сервер:

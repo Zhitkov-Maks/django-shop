@@ -1,19 +1,15 @@
+from app_users.models import CustomUser
+from cart.services.cart import Cart
 from django.core.cache import cache
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.utils import timezone
-from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView
 
-from cart.services.cart import Cart
 from .forms import ReviewsForm
 from .models import Goods, Category, Tags, Discount, Comment
-from app_users.models import CustomUser
-
 from .services import add_category_favorite, add_queryset_top, check_product_in_cart, add_product_in_viewed_list, \
-    add_product_filter, add_data_filter, get_viewed_product_week, clean_no_active_discount, add_product_in_discount, \
-    get_sale
+    add_product_filter, add_data_filter, get_viewed_product_week, get_sale
 
 
 class HomeView(ListView):

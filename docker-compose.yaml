@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  megano:
+    build:
+      dockerfile: ./Dockerfile
+    command:
+      - python3
+      - manage.py
+      - runserver
+      - 0.0.0.0:8080
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "500k"
+    volumes:
+      - ./megano_website/database:/megano_website/database

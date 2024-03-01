@@ -11,7 +11,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
+from os import getenv
+import logging.config
+import sentry_sdk
+
+from sentry_sdk.integrations.django import DjangoIntegration
+
 # import environ
 #
 # env = environ.Env()
@@ -19,6 +26,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE_DIR = BASE_DIR / "database"
+DATABASE_DIR.mkdir(exist_ok=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -31,7 +40,11 @@ SECRET_KEY = 'django-insecure-s4u!m%zei%bflwco@t!ro-ho*^x9ql(o)xh8w)mm5914!fbdsu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "127.0.0.1",
+]
+
 CART_SESSION_ID = 'cart'
 ORDER_SESSION_INFO = 'order'
 
@@ -54,6 +67,7 @@ INSTALLED_APPS = [
     'django_mptt_admin',
     'admin_settings.apps.AdminSettingsConfig',
     'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -94,14 +108,21 @@ WSGI_APPLICATION = 'megano_website.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'megano_db',
-        'USER': 'postgres',
-        'PASSWORD': '44565',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(DATABASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'PASSWORD': '44565',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -162,7 +183,13 @@ MEDIA_URL = '/media/'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
 }
 
 # EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
@@ -178,5 +205,48 @@ EMAIL_HOST_USER = 'teoretickzhitkov@yandex.ru'
 EMAIL_HOST_PASSWORD = 'erboqowrxmlwvcrc'
 DEFAULT_FROM_EMAIL = 'teoretickzhitkov@yandex.ru'
 
-
 LOGIN_URL = 'login'
+
+LOGLEVEl = getenv("DJANGO_LOGLEVEL", "info").upper()
+logging.config.dictConfig({
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s",
+        }
+    },
+    "handlers": {
+        "screen": {
+            "class": "logging.StreamHandler",
+            "level": LOGLEVEl,
+            "formatter": "simple",
+            "stream": sys.stdout
+        },
+    },
+    "loggers": {
+        "app_calc": {
+            "level": LOGLEVEl,
+            "handlers": ["screen"],
+            "propagate": False,
+        }
+    },
+})
+
+
+sentry_sdk.init(
+    dsn="https://952e39f890141553399fab99124d4207@o4504045707526144.ingest.sentry.io/4505760839499776",
+    integrations=[DjangoIntegration()],
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+    # To set a uniform sample rate
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production,
+    profiles_sample_rate=1.0,
+)

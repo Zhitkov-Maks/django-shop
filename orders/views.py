@@ -27,8 +27,8 @@ class OrderView(TemplateView):
                 'full_name': f'{user.last_name} {user.first_name} {user.profile.patronymic}',
                 'email': user.email,
                 'phone': user.profile.phone,
-                'type_delivery': 'B',
-                'type_payment': 'A'
+                'type_delivery': 'simple',
+                'type_payment': 'cart'
             })
         context.update({'form': form, 'form2': form_login})
         return context
@@ -40,9 +40,9 @@ class OrderView(TemplateView):
         if form.is_valid():
             order, payment = add_order(form, user, order.get_total_price())
             add_detail_to_order(order, request)
-            if payment == 'A':
+            if payment == 'cart':
                 return redirect(reverse('payment', args=[order.pk]))
-            elif payment == 'B':
+            elif payment == 'random':
                 return redirect(reverse('paymentSomeOne', args=[order.pk]))
         return render(request, 'orders/order.html', {'form': form})
 
@@ -95,7 +95,7 @@ class PaymentView(DetailView):
         if form.is_valid():
             get_number_card(form, order)
             return redirect(reverse('progressPayment'))
-        return render(request, 'orders/paymentSomeOne.html', {'header': 'Оплата с чужой карты', 'form': form})
+        return render(request, 'orders/paymentSomeOne.html', {'header': 'Оплата с карты', 'form': form})
 
 
 class PaymentSomeOneView(DetailView):
@@ -138,7 +138,7 @@ class OneOrderView(DetailView):
         context = super().get_context_data()
         obj = self.object
         link = True  # Для того чтобы отправить на оплату своей картой или случайной
-        if obj.type_payment == 'B':
+        if obj.type_payment == 'random':
             link = False
         if obj.comment:  # Проверяем есть ли комментарий у заказа
             context.update({'statuses': True})

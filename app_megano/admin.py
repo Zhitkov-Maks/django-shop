@@ -1,9 +1,17 @@
+from csv import DictReader
+
 from django.contrib import admin
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import path
 from django.utils.safestring import mark_safe
 from django_mptt_admin.admin import DjangoMpttAdmin
+from io import TextIOWrapper
 
-
+from orders.models import DetailOrder
+from .admin_mixins import ExportAsCSVMixin
 from .models import Tags, Category, Detail, Goods, Comment, Gallery, Discount
+from .forms import CSVImportForms
 
 
 @admin.register(Tags)
@@ -34,14 +42,73 @@ class GalleryInline(admin.TabularInline):
     model = Gallery
 
 
+class OrderInline(admin.TabularInline):
+    fk_name = 'product'
+    model = DetailOrder
+
+
 @admin.register(Goods)
-class GoodsAdmin(admin.ModelAdmin):
+class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
+    change_list_template = "app_megano/products_changelist.html"
     list_display = ('id', 'name', 'price', 'image_show', 'stock', 'limited_edition', 'is_active', 'free_delivery')
     list_display_links = ('name',)
     list_editable = ('stock', 'limited_edition', 'is_active', 'free_delivery')
     list_filter = ('category',)
     filter_horizontal = ('tag', 'detail', 'category')
-    inlines = (GalleryInline,)
+    inlines = (GalleryInline, OrderInline)
+    ordering = "price",
+    fieldsets = (
+        (None, {
+            "fields": ['name', 'description', 'stock']
+        }),
+        ("Price options", {
+            "fields": ["price"],
+            "classes": ("collapse", "wide"),
+        }),
+        ("Image", {
+            "fields": ["image"],
+            "classes": ("collapse", "wide"),
+        }),
+        ("Options", {
+            "fields": ['limited_edition', 'is_active', 'free_delivery'],
+            "classes": ("collapse", "wide"),
+        })
+    )
+    actions = ["export_csv"]
+
+    def import_csv(self, request: HttpRequest) -> HttpResponse:
+        if request.method == "GET":
+            form = CSVImportForms()
+            context = {
+                "form": form,
+            }
+            return render(request, "admin/csv_forms.html", context)
+        form = CSVImportForms(request.POST, request.FILES)
+        if not form.is_valid():
+            context = {
+                "form": form,
+            }
+            return render(request, "admin/csv_forms.html", context, status=400)
+        csv_file = TextIOWrapper(
+            form.files["csv"].file,
+            encoding=request.encoding,
+        )
+        reader = DictReader(csv_file)
+        products = [Goods(**row) for row in reader]
+        Goods.objects.bulk_create(products)
+        self.message_user(request, "Data from csv was imported")
+        return redirect("..")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        new_urls = [
+            path(
+                "product-csv/",
+                self.import_csv,
+                name="import_product_csv",
+            ),
+        ]
+        return new_urls + urls
 
     def image_show(self, rec):
         """Для отображения картинок товаров в админ панели"""

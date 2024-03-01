@@ -53,9 +53,9 @@ def get_delivery_price(type_delivery, request):
     price = 0
     admin_settings = SiteSettings.objects.all()[0]
     cart = Cart(request)
-    if type_delivery == 'A':
+    if type_delivery == 'express':
         price = admin_settings.price_delivery_express
-    elif type_delivery == 'B':
+    elif type_delivery == 'simple':
         price = admin_settings.price
         min_sum = admin_settings.min_sum
         if cart.get_total_price() >= min_sum:
