@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('admin_settings', '0001_initial'),
+        ("admin_settings", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='sitesettings',
-            options={'verbose_name': 'настройки сайта', 'verbose_name_plural': 'настройки сайта'},
+            name="sitesettings",
+            options={
+                "verbose_name": "настройки сайта",
+                "verbose_name_plural": "настройки сайта",
+            },
         ),
     ]
