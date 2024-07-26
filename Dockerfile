@@ -1,15 +1,8 @@
-FROM python:3.11-alpine
+FROM python:3.12-alpine
 
-ENV PYTHONUNBUFFERED=1
+COPY . ./shop/
+RUN pip install -r ./shop/requirements.txt
 
-COPY requirements.txt requirements.txt
+WORKDIR ./shop
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-COPY . ./megano
-
-WORKDIR /megano
-
-LABEL authors="maksim"
-
+CMD ["uvicorn", "megano_website.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
