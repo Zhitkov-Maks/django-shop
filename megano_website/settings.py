@@ -11,10 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
-import sys
 from pathlib import Path
-from os import getenv
-import logging.config
 import sentry_sdk
 from dotenv import load_dotenv
 
@@ -39,7 +36,7 @@ DATABASE_DIR.mkdir(exist_ok=True)
 SECRET_KEY = 'django-insecure-s4u!m%zei%bflwco@t!ro-ho*^x9ql(o)xh8w)mm5914!fbdsu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "0.0.0.0",
@@ -189,6 +186,7 @@ EMAIL_HOST_PASSWORD = 'erboqowrxmlwvcrc'
 DEFAULT_FROM_EMAIL = 'teoretickzhitkov@yandex.ru'
 
 LOGIN_URL = 'login'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 sentry_sdk.init(
