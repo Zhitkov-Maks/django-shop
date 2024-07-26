@@ -1,23 +1,14 @@
-version: "3.9"
-
+version: '3.2'
 services:
-  megano:
-    build:
-      dockerfile: ./Dockerfile
-    command:
-      - python3
-      - manage.py
-      - runserver
-      - 0.0.0.0:8080
+  db:
+    image: postgres:15-alpine
+    container_name: megano_shop_database
+    environment:
+      - "POSTGRES_USER=${DB_USER}"
+      - "POSTGRES_PASSWORD=${DB_PASS}"
+      - "POSTGRES_DB=${DB_NAME}"
     ports:
-      - "8080:8080"
-    env_file:
-      - .env
+      - '5433:5432'
     restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "10"
-        max-size: "500k"
     volumes:
-      - ./megano_website/database:/megano_website/database
+      - ./db/:/var/lib/postgresql/data
