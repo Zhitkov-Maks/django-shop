@@ -16,6 +16,7 @@ from pathlib import Path
 from os import getenv
 import logging.config
 import sentry_sdk
+from dotenv import load_dotenv
 
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -66,7 +67,6 @@ INSTALLED_APPS = [
     'mptt',
     'django_mptt_admin',
     'admin_settings.apps.AdminSettingsConfig',
-    'rest_framework',
     'django_filters',
 ]
 
@@ -106,23 +106,18 @@ WSGI_APPLICATION = 'megano_website.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(DATABASE_DIR, 'db.sqlite3'),
-    }
-}
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'PASSWORD': '44565',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
-# }
+load_dotenv()
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASS"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
