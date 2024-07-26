@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
-from .api.services import ProductApi
 from .views import HomeView, CatalogView, ShowCategory, ProductDetailView, ShowTag, ViewedProducts, \
     CatalogSortPrice, CatalogSortReview, CatalogSortNew, CatalogSortPriceMax, SearchProduct, SearchFilter, Sale, \
     CatalogSortOld, CatalogSortReviewMin
@@ -23,5 +22,4 @@ urlpatterns = [
     path('goods/catalog/search/', SearchProduct.as_view(), name='searchProduct'),
     path('goods/catalog/searchfilter/', SearchFilter.as_view(), name='searchFilter'),
     path('goods/sale/', Sale.as_view(), name='sale'),
-    path('api/goods/', ProductApi.as_view(), name='api-product')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
