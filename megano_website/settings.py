@@ -175,18 +175,6 @@ MEDIA_URL = '/media/'
 
 # DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-}
-
 # EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 # EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 
@@ -201,32 +189,6 @@ EMAIL_HOST_PASSWORD = 'erboqowrxmlwvcrc'
 DEFAULT_FROM_EMAIL = 'teoretickzhitkov@yandex.ru'
 
 LOGIN_URL = 'login'
-
-LOGLEVEl = getenv("DJANGO_LOGLEVEL", "info").upper()
-logging.config.dictConfig({
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {
-            "format": "%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s",
-        }
-    },
-    "handlers": {
-        "screen": {
-            "class": "logging.StreamHandler",
-            "level": LOGLEVEl,
-            "formatter": "simple",
-            "stream": sys.stdout
-        },
-    },
-    "loggers": {
-        "app_calc": {
-            "level": LOGLEVEl,
-            "handlers": ["screen"],
-            "propagate": False,
-        }
-    },
-})
 
 
 sentry_sdk.init(
