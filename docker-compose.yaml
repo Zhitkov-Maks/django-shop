@@ -1,5 +1,22 @@
-version: '3.2'
+version: '3.9'
 services:
+  app:
+    build:
+      dockerfile: Dockerfile
+    stop_signal: SIGKILL
+    expose:
+      - 8000
+    container_name: django_app
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - ./media:/shop/media
+
   db:
     image: postgres:15-alpine
     container_name: megano_shop_database
