@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 
 from app_users.models import CustomUser
-from cart.services.cart import Cart
 from django.core.cache import cache
 from django.db.models import QuerySet
 from django.shortcuts import render, redirect
@@ -13,11 +12,8 @@ from app_megano.models import Goods, Category, Tags, Discount, Comment
 from app_megano.crud import (
     add_category_favorite,
     add_queryset_top,
-    add_product_in_viewed_list,
-    get_viewed_product_period,
     get_sale
 )
-from app_megano.services import check_product_in_cart
 
 
 class HomeView(ListView):
