@@ -1,7 +1,7 @@
 from app_users.models import CustomUser
 from cart.services.cart import Cart
 from django.core.cache import cache
-from django.db.models import Count, Q
+from django.db.models import Count, Q, QuerySet
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
@@ -24,34 +24,42 @@ class HomeView(ListView):
     """Класс для отображения главной страницы"""
 
     model = Goods
-    template_name = "app_megano/index.html"
-    context_object_name = "product_list"
+    template_name: str = "app_megano/index.html"
+    context_object_name: str = "product_list"
 
-    def get_queryset(self):
-        """Переопределяем queryset, чтобы отфильтровать вывод товаров по сортировке топ покупок"""
-        queryset = cache.get_or_set("add_queryset_top", add_queryset_top(), 10 * 60)
-        return queryset
+    def get_queryset(self) -> QuerySet:
+        """
+        Переопределяем queryset, чтобы отфильтровать вывод товаров по
+        сортировке топ покупок.
+        """
+        return cache.get_or_set(
+            "add_queryset_top", add_queryset_top(), 10 * 60
+        )
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляем на главную страницу так же список с товарами с меткой ограниченная серия и
-        список из 3 элементов с избранными категориями"""
-        context = super().get_context_data()
-        limited_list = cache.get_or_set(
+        """
+        Добавляем на главную страницу так же список с товарами с меткой
+        ограниченная серия и список из 3 элементов с избранными категориями.
+        """
+        context: dict = super().get_context_data()
+
+        limited_list: QuerySet = cache.get_or_set(
             "get_limited_list",
             Goods.objects.prefetch_related("tag").filter(
                 limited_edition=True, is_active=True
             ),
             10 * 60,
         )
-        category_dict = cache.get_or_set(
+
+        category_dict: QuerySet = cache.get_or_set(
             "get_favorite_list", add_category_favorite(), 10 * 60
         )
-        title = "Интернет магазин MEGANO"
+
         context.update(
             {
                 "limited_list": limited_list,
                 "category_dict": category_dict,
-                "header": title,
+                "header": "Интернет магазин MEGANO",
             }
         )
         return context
