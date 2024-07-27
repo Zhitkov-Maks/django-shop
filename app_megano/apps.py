@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class AppMeganoConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app_megano'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "app_megano"
