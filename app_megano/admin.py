@@ -1,4 +1,6 @@
+import csv
 from csv import DictReader
+from typing import Tuple, Dict, Any, List
 
 from django.contrib import admin
 from django.http import HttpRequest, HttpResponse
@@ -16,41 +18,41 @@ from .forms import CSVImportForms
 
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
-    list_display = ("id", "name")
-    list_editable = ("name",)
+    list_display: Tuple[str, str] = ("id", "name")
+    list_editable: Tuple[str] = ("name",)
 
 
 @admin.register(Category)
 class CategoryAdmin(DjangoMpttAdmin):
-    prepopulated_fields = {"slug": ("name",)}
-    list_display = ("id", "name", "image", "favorite")
-    list_editable = ("name", "favorite")
-    list_filter = ("favorite",)
+    prepopulated_fields: Dict[str, Tuple[str]] = {"slug": ("name",)}
+    list_display: tuple = ("id", "name", "image", "favorite")
+    list_editable: tuple = ("name", "favorite")
+    list_filter: tuple = ("favorite",)
 
 
 @admin.register(Detail)
 class DetailAdmin(admin.ModelAdmin):
-    list_display = ("id", "type", "info")
-    list_display_links = ("type",)
-    list_per_page = 100
-    search_fields = ("type",)
-    ordering = ("type",)
+    list_display: tuple = ("id", "type", "info")
+    list_display_links: tuple = ("type",)
+    list_per_page: int = 100
+    search_fields: tuple = ("type",)
+    ordering: tuple = ("type",)
 
 
 class GalleryInline(admin.TabularInline):
-    fk_name = "goods"
-    model = Gallery
+    fk_name: str = "goods"
+    model: Any = Gallery
 
 
 class OrderInline(admin.TabularInline):
-    fk_name = "product"
-    model = DetailOrder
+    fk_name: str = "product"
+    model: Any = DetailOrder
 
 
 @admin.register(Goods)
 class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
-    change_list_template = "app_megano/products_changelist.html"
-    list_display = (
+    change_list_template: str = "app_megano/products_changelist.html"
+    list_display: tuple = (
         "id",
         "name",
         "price",
@@ -60,13 +62,17 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
         "is_active",
         "free_delivery",
     )
-    list_display_links = ("name",)
-    list_editable = ("stock", "limited_edition", "is_active", "free_delivery")
-    list_filter = ("category",)
-    filter_horizontal = ("tag", "detail", "category")
-    inlines = (GalleryInline, OrderInline)
-    ordering = ("price",)
-    fieldsets = (
+
+    list_display_links: tuple = ("name",)
+    list_editable: tuple = (
+        "stock", "limited_edition", "is_active", "free_delivery"
+    )
+
+    list_filter: tuple = ("category",)
+    filter_horizontal: tuple = ("tag", "detail", "category")
+    inlines: tuple = (GalleryInline, OrderInline)
+    ordering: tuple = ("price",)
+    fieldsets: tuple = (
         (None, {"fields": ["name", "description", "stock"]}),
         (
             "Price options",
@@ -90,7 +96,7 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
             },
         ),
     )
-    actions = ["export_csv"]
+    actions: List[str] = ["export_csv"]
 
     def import_csv(self, request: HttpRequest) -> HttpResponse:
         if request.method == "GET":
@@ -102,17 +108,24 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
                 request, "admin/csv_forms.html", context
             )
         form = CSVImportForms(request.POST, request.FILES)
+
         if not form.is_valid():
             context = {
                 "form": form,
             }
-            return render(request, "admin/csv_forms.html", context, status=400)
+            return render(
+                request,
+                "admin/csv_forms.html",
+                context, status=400
+            )
+
         csv_file = TextIOWrapper(
             form.files["csv"].file,
             encoding=request.encoding,
         )
-        reader = DictReader(csv_file)
-        products = [Goods(**row) for row in reader]
+
+        reader: DictReader[str] = DictReader(csv_file)
+        products: List[Goods] = [Goods(**row) for row in reader]
         Goods.objects.bulk_create(products)
         self.message_user(request, "Data from csv was imported")
         return redirect("..")
@@ -131,7 +144,9 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     def image_show(self, rec):
         """Для отображения картинок товаров в админ панели"""
         if rec.image:
-            return mark_safe("<img src='{}' width='60' />".format(rec.image.url))
+            return mark_safe(
+                "<img src='{}' width='60' />".format(rec.image.url)
+            )
         return None
 
     image_show.__name__ = "Фото"
@@ -139,11 +154,13 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("id", "goods", "active", "name", "email", "get_comment")
-    list_display_links = ("goods",)
-    list_editable = ("active",)
+    list_display: tuple = (
+        "id", "goods", "active", "name", "email", "get_comment"
+    )
+    list_display_links: tuple = ("goods",)
+    list_editable: tuple = ("active",)
 
-    def get_comment(self, rec):
+    def get_comment(self, rec) -> str:
         if len(str(rec.comment)) >= 20:
             return f"{rec.comment[:20]} ..."
         else:
@@ -154,7 +171,9 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Discount)
 class DiscountAdmin(admin.ModelAdmin):
-    list_display = ["product", "valid_from", "valid_to", "discount", "active"]
-    list_filter = ["active", "valid_from", "valid_to"]
-    search_fields = ["active"]
-    list_editable = ["active"]
+    list_display: tuple = (
+        "product", "valid_from", "valid_to", "discount", "active",
+    )
+    list_filter: tuple = ("active", "valid_from", "valid_to")
+    search_fields: tuple = ("active",)
+    list_editable: tuple = ("active",)
