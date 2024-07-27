@@ -8,7 +8,9 @@ from datetime import datetime
 
 from django.db.models import Min, Count, Q, QuerySet
 from django.utils import timezone
+from django.http import HttpRequest
 
+from app_users.models import CustomUser
 from .models import Category, ViewedProduct, Goods, Discount
 
 
@@ -50,13 +52,13 @@ def add_queryset_top() -> QuerySet:
     return queryset
 
 
-def get_viewed_product_period(product) -> int:
+def get_viewed_product_period(product: Goods) -> int:
     """Получаем количество просмотров товара за полгода."""
     end_datetime: datetime = timezone.now()
     start_datetime: datetime = end_datetime - timedelta(days=180)
 
     count_viewed: int = (
-        ViewedProduct.objects.filter(goods_id=product.id)
+        ViewedProduct.objects.filter(goods_id=product.pk)
         .filter(
             viewed_date__gte=start_datetime, viewed_date__lte=end_datetime
         )
@@ -65,7 +67,7 @@ def get_viewed_product_period(product) -> int:
     return count_viewed
 
 
-def check_product_in_cart(cart, product) -> tuple:
+def check_product_in_cart(cart: dict, product: Goods) -> tuple:
     """
     Функция нужна для страницы с описанием товара, чтобы проверить есть ли
     этот товар в корзине, а если есть то узнать количество.
@@ -82,16 +84,16 @@ def check_product_in_cart(cart, product) -> tuple:
     return check, quantity
 
 
-def add_product_in_viewed_list(user, product) -> None:
+def add_product_in_viewed_list(user: CustomUser, product: Goods) -> None:
     """
     Функция для добавления к пользователю просмотренного товара.
     Если товар ранее уже был просмотрен, то обновляем дату просмотра.
     """
     if ViewedProduct.objects.filter(
-            user_id=user.id, goods_id=product.id
+            user_id=user.pk, goods_id=product.pk
     ).exists():
         viewed_product: ViewedProduct = ViewedProduct.objects.get(
-            user_id=user.id, goods_id=product.id
+            user_id=user.pk, goods_id=product.pk
         )
         viewed_product.viewed_date = timezone.now()
         viewed_product.save()
@@ -102,7 +104,7 @@ def add_product_in_viewed_list(user, product) -> None:
         )
 
 
-def add_product_filter(request) -> QuerySet | list:
+def add_product_filter(request: HttpRequest) -> QuerySet | list:
     """Функция для поиска товара по выбранным параметрам."""
     price: list = request.GET.get("price").split(";")
     price_range: tuple = (Decimal(price[0]), Decimal(price[1]))
@@ -134,16 +136,21 @@ def add_product_filter(request) -> QuerySet | list:
     return queryset
 
 
-def add_data_filter(request, context) -> dict:
-    """Функция для получения данных которые ввел пользователь, чтобы после перезагрузки были
-    выставлены параметры введенные пользователем."""
-    price = request.GET.get("price").split(";")
-    title = request.GET.get("title")
-    active, delivery = "", ""
+def add_data_filter(request: HttpRequest, context: dict) -> dict:
+    """
+    Функция для получения данных которые ввел пользователь, чтобы после
+    перезагрузки были выставлены параметры введенные пользователем.
+    """
+    price: list = request.GET.get("price").split(";")
+    title: str = request.GET.get("title")
+    active: str = ""
+    delivery: str = ""
+
     if request.GET.get("active") == "on":
         active = "on"
     if request.GET.get("delivery") == "on":
         delivery = "on"
+
     context.update(
         {
             "search": True,
@@ -159,11 +166,13 @@ def add_data_filter(request, context) -> dict:
 
 
 def clean_no_active_discount() -> None:
-    """Функция для перевода закончившихся акций в статус неактивна"""
-    current_date = timezone.now()
-    product_discount_ended = Discount.objects.filter(valid_to__lt=current_date).filter(
-        active=True
-    )
+    """Функция для перевода закончившихся акций в статус неактивна."""
+    current_date: datetime = timezone.now()
+
+    product_discount_ended: QuerySet = (Discount.objects.filter(
+        valid_to__lt=current_date)
+                              .filter(active=True))
+
     for product in product_discount_ended:
         if product.active:
             product.active = False
