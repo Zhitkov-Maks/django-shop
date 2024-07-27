@@ -6,7 +6,7 @@ from datetime import timedelta
 from typing import List, Dict
 from datetime import datetime
 
-from django.db.models import Min, Count, Q
+from django.db.models import Min, Count, Q, QuerySet
 from django.utils import timezone
 
 from .models import Category, ViewedProduct, Goods, Discount
@@ -29,7 +29,7 @@ def add_category_favorite() -> Dict[int, tuple]:
     return category_favorite_dict
 
 
-def add_queryset_top() -> list:
+def add_queryset_top() -> QuerySet:
     """
     Функция для получения списка самых продаваемых товаров за
     последние два месяца.
@@ -50,13 +50,16 @@ def add_queryset_top() -> list:
     return queryset
 
 
-def get_viewed_product_week(product) -> int:
-    """Получаем количество просмотров товара за полгода"""
-    end_datetime = timezone.now()
-    start_datetime = end_datetime - timedelta(days=180)
-    count_viewed = (
+def get_viewed_product_period(product) -> int:
+    """Получаем количество просмотров товара за полгода."""
+    end_datetime: datetime = timezone.now()
+    start_datetime: datetime = end_datetime - timedelta(days=180)
+
+    count_viewed: int = (
         ViewedProduct.objects.filter(goods_id=product.id)
-        .filter(viewed_date__gte=start_datetime, viewed_date__lte=end_datetime)
+        .filter(
+            viewed_date__gte=start_datetime, viewed_date__lte=end_datetime
+        )
         .count()
     )
     return count_viewed
