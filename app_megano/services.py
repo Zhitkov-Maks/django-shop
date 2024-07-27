@@ -83,25 +83,34 @@ def check_product_in_cart(cart, product) -> tuple:
 
 
 def add_product_in_viewed_list(user, product) -> None:
-    """Функция для добавления к пользователю просмотренного товара. Если товар ранее уже был просмотрен, то обновляем
-    дату просмотра."""
-    if ViewedProduct.objects.filter(user_id=user.id, goods_id=product.id).exists():
-        viewed_product = ViewedProduct.objects.get(user_id=user.id, goods_id=product.id)
+    """
+    Функция для добавления к пользователю просмотренного товара.
+    Если товар ранее уже был просмотрен, то обновляем дату просмотра.
+    """
+    if ViewedProduct.objects.filter(
+            user_id=user.id, goods_id=product.id
+    ).exists():
+        viewed_product: ViewedProduct = ViewedProduct.objects.get(
+            user_id=user.id, goods_id=product.id
+        )
         viewed_product.viewed_date = timezone.now()
         viewed_product.save()
+
     else:
         ViewedProduct.objects.create(
             user=user, goods=product, viewed_date=timezone.now()
         )
 
 
-def add_product_filter(request) -> list:
-    """Функция для поиска товара по выбранным параметрам"""
-    price = request.GET.get("price").split(";")
-    price_range = (Decimal(price[0]), Decimal(price[1]))
-    name = request.GET.get("title").split()
-    active = request.GET.get("active")
-    delivery = request.GET.get("delivery")
+def add_product_filter(request) -> QuerySet:
+    """Функция для поиска товара по выбранным параметрам."""
+    price: list = request.GET.get("price").split(";")
+    price_range: tuple = (Decimal(price[0]), Decimal(price[1]))
+
+    name: list = request.GET.get("title").split()
+    active: str = request.GET.get("active")
+    delivery: str = request.GET.get("delivery")
+
     query_name, query_descr, query_info = Q(), Q(), Q()
     for word in name:
         query_name &= Q(name__iregex=word)
