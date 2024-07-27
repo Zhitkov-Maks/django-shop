@@ -16,7 +16,7 @@ from .crud import (
     add_product_in_viewed_list,
     add_product_filter,
     get_viewed_product_period,
-    get_sale,
+    get_sale, search_product_queryset,
 )
 from .services import check_product_in_cart, add_data_filter
 
@@ -357,29 +357,26 @@ class CatalogSortOld(ListView):
 class SearchProduct(ListView):
     """Класс для поиска товаров по вводу пользователя"""
 
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
-        """Переопределяем queryset для поиска, сортируем по дате создания товара, поиск по названию товара"""
-        query = self.request.GET.get("query").split()
-        query_list = Q()
-        for word in query:
-            query_list &= Q(name__iregex=word)
-        queryset = (
-            Goods.objects.prefetch_related("tag")
-            .filter(Q(query_list))
-            .order_by("-date_create")
+    def get_queryset(self) -> QuerySet:
+        """
+        Переопределяем queryset для поиска, сортируем по дате создания
+        товара, поиск по названию товара.
+        """
+        return search_product_queryset(self.request.GET.get("query").split())
+
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
+        context.update(
+            {
+                "sortNew": True,
+                "header": f"Товары по тэгу {self.request.GET.get('query')}",
+                "query": self.request.GET.get("query")}
         )
-        return queryset
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
-        word = self.request.GET.get("query")  # Нужно для пагинации
-        title = f"Товары по тэгу {word}"
-        context.update({"sortNew": True, "header": title, "query": word})
         return context
 
 
