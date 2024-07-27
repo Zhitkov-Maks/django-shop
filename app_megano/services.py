@@ -1,10 +1,13 @@
 """Модуль для операций, чтобы не делать это во view, а также при
 необходимости использовать в другом месте."""
-
+from django.db.models import QuerySet
 from django.http import HttpRequest
 
+from app_users.models import CustomUser
 from cart.services.cart import Cart
-from .models import Goods
+from .crud import get_viewed_product_period, add_product_in_viewed_list
+from .models import Goods, Comment
+from .views.views import ProductDetailView
 
 
 def check_product_in_cart(cart: Cart, product: Goods) -> tuple:
@@ -51,3 +54,37 @@ def add_data_filter(request: HttpRequest, context: dict) -> dict:
         }
     )
     return context
+
+
+def collection_data(obj: ProductDetailView, context: dict) -> None:
+    # Проверяем есть ли данный товар в корзине.
+    check: tuple = check_product_in_cart(Cart(obj.request), obj.object)
+
+    # Получаем количество просмотров за неделю
+    count_viewed: int = get_viewed_product_period(obj.object)
+
+    user: CustomUser = obj.request.user
+    # Добавляем товар в просмотренные
+    if obj.request.user.is_authenticated:
+        add_product_in_viewed_list(user, obj.get_object())
+
+    product: Goods = obj.get_object()
+    comment: QuerySet = (
+        Comment.objects
+        .select_related('user', 'user__profile')
+        .filter(goods_id=product.id)
+    )
+
+    detail = product.detail.prefetch_related("details").all()
+    context.update(
+        {
+            "product": product,
+            'check': check[0],
+            'quantity': check[1],
+            'count_viewed': count_viewed,
+            'messages': comment,
+            'len': len(comment),
+            'header': obj.object,
+            'detail': detail
+        }
+    )
