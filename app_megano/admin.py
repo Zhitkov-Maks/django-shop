@@ -16,63 +16,79 @@ from .forms import CSVImportForms
 
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    list_editable = ('name',)
+    list_display = ("id", "name")
+    list_editable = ("name",)
 
 
 @admin.register(Category)
 class CategoryAdmin(DjangoMpttAdmin):
-    prepopulated_fields = {"slug": ('name',)}
-    list_display = ('id', 'name', 'image', 'favorite')
-    list_editable = ('name', 'favorite')
-    list_filter = ('favorite',)
+    prepopulated_fields = {"slug": ("name",)}
+    list_display = ("id", "name", "image", "favorite")
+    list_editable = ("name", "favorite")
+    list_filter = ("favorite",)
 
 
 @admin.register(Detail)
 class DetailAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'info')
-    list_display_links = ('type',)
+    list_display = ("id", "type", "info")
+    list_display_links = ("type",)
     list_per_page = 100
-    search_fields = ('type',)
-    ordering = ('type',)
+    search_fields = ("type",)
+    ordering = ("type",)
 
 
 class GalleryInline(admin.TabularInline):
-    fk_name = 'goods'
+    fk_name = "goods"
     model = Gallery
 
 
 class OrderInline(admin.TabularInline):
-    fk_name = 'product'
+    fk_name = "product"
     model = DetailOrder
 
 
 @admin.register(Goods)
 class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     change_list_template = "app_megano/products_changelist.html"
-    list_display = ('id', 'name', 'price', 'image_show', 'stock', 'limited_edition', 'is_active', 'free_delivery')
-    list_display_links = ('name',)
-    list_editable = ('stock', 'limited_edition', 'is_active', 'free_delivery')
-    list_filter = ('category',)
-    filter_horizontal = ('tag', 'detail', 'category')
+    list_display = (
+        "id",
+        "name",
+        "price",
+        "image_show",
+        "stock",
+        "limited_edition",
+        "is_active",
+        "free_delivery",
+    )
+    list_display_links = ("name",)
+    list_editable = ("stock", "limited_edition", "is_active", "free_delivery")
+    list_filter = ("category",)
+    filter_horizontal = ("tag", "detail", "category")
     inlines = (GalleryInline, OrderInline)
-    ordering = "price",
+    ordering = ("price",)
     fieldsets = (
-        (None, {
-            "fields": ['name', 'description', 'stock']
-        }),
-        ("Price options", {
-            "fields": ["price"],
-            "classes": ("collapse", "wide"),
-        }),
-        ("Image", {
-            "fields": ["image"],
-            "classes": ("collapse", "wide"),
-        }),
-        ("Options", {
-            "fields": ['limited_edition', 'is_active', 'free_delivery'],
-            "classes": ("collapse", "wide"),
-        })
+        (None, {"fields": ["name", "description", "stock"]}),
+        (
+            "Price options",
+            {
+                "fields": ["price"],
+                "classes": ("collapse", "wide"),
+            },
+        ),
+        (
+            "Image",
+            {
+                "fields": ["image"],
+                "classes": ("collapse", "wide"),
+            },
+        ),
+        (
+            "Options",
+            {
+                "fields": ["limited_edition", "is_active", "free_delivery"],
+                "classes": ("collapse", "wide"),
+            },
+        ),
     )
     actions = ["export_csv"]
 
@@ -82,7 +98,9 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
             context = {
                 "form": form,
             }
-            return render(request, "admin/csv_forms.html", context)
+            return render(
+                request, "admin/csv_forms.html", context
+            )
         form = CSVImportForms(request.POST, request.FILES)
         if not form.is_valid():
             context = {
@@ -121,22 +139,22 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'goods', 'active', 'name', 'email', 'get_comment')
-    list_display_links = ('goods',)
-    list_editable = ('active',)
+    list_display = ("id", "goods", "active", "name", "email", "get_comment")
+    list_display_links = ("goods",)
+    list_editable = ("active",)
 
     def get_comment(self, rec):
         if len(str(rec.comment)) >= 20:
-            return f'{rec.comment[:20]} ...'
+            return f"{rec.comment[:20]} ..."
         else:
             return rec.comment
 
-    get_comment.short_description = 'Комментарий'
+    get_comment.short_description = "Комментарий"
 
 
 @admin.register(Discount)
 class DiscountAdmin(admin.ModelAdmin):
-    list_display = ['product', 'valid_from', 'valid_to', 'discount', 'active']
-    list_filter = ['active', 'valid_from', 'valid_to']
-    search_fields = ['active']
-    list_editable = ['active']
+    list_display = ["product", "valid_from", "valid_to", "discount", "active"]
+    list_filter = ["active", "valid_from", "valid_to"]
+    search_fields = ["active"]
+    list_editable = ["active"]
