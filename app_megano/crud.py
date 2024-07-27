@@ -161,3 +161,14 @@ def get_sale() -> QuerySet:
         )
     )
     return queryset
+
+
+def search_product_queryset(query: list) -> QuerySet:
+    query_list = Q()
+    for word in query:
+        query_list &= Q(name__iregex=word)
+    return (
+        Goods.objects.prefetch_related("tag")
+        .filter(Q(query_list))
+        .order_by("-date_create")
+    )
