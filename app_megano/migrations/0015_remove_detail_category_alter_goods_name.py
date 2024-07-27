@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0014_alter_detail_info_alter_detail_type'),
+        ("app_megano", "0014_alter_detail_info_alter_detail_type"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='detail',
-            name='category',
+            model_name="detail",
+            name="category",
         ),
         migrations.AlterField(
-            model_name='goods',
-            name='name',
-            field=models.TextField(max_length=200, verbose_name='Название'),
+            model_name="goods",
+            name="name",
+            field=models.TextField(max_length=200, verbose_name="Название"),
         ),
     ]

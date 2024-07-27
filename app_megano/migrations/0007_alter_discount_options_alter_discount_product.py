@@ -5,19 +5,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0006_discount'),
+        ("app_megano", "0006_discount"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='discount',
-            options={'ordering': ('valid_from',), 'verbose_name': 'скидка', 'verbose_name_plural': 'скидки'},
+            name="discount",
+            options={
+                "ordering": ("valid_from",),
+                "verbose_name": "скидка",
+                "verbose_name_plural": "скидки",
+            },
         ),
         migrations.AlterField(
-            model_name='discount',
-            name='product',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='app_megano.goods', verbose_name='Товар'),
+            model_name="discount",
+            name="product",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="app_megano.goods",
+                verbose_name="Товар",
+            ),
         ),
     ]

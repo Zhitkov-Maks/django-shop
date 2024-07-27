@@ -5,107 +5,214 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, verbose_name='Категория')),
-                ('icon', models.FileField(blank=True, null=True, upload_to='files', verbose_name='Иконка')),
-                ('favorite', models.BooleanField(default=False, verbose_name='Избранная')),
-                ('active', models.BooleanField(default=False, verbose_name='Активность')),
-                ('image', models.FileField(blank=True, null=True, upload_to='files', verbose_name='Картинка')),
-                ('slug', models.SlugField()),
-                ('lft', models.PositiveIntegerField(editable=False)),
-                ('rght', models.PositiveIntegerField(editable=False)),
-                ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('level', models.PositiveIntegerField(editable=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=20, verbose_name="Категория")),
+                (
+                    "icon",
+                    models.FileField(
+                        blank=True, null=True, upload_to="files", verbose_name="Иконка"
+                    ),
+                ),
+                (
+                    "favorite",
+                    models.BooleanField(default=False, verbose_name="Избранная"),
+                ),
+                (
+                    "active",
+                    models.BooleanField(default=False, verbose_name="Активность"),
+                ),
+                (
+                    "image",
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to="files",
+                        verbose_name="Картинка",
+                    ),
+                ),
+                ("slug", models.SlugField()),
+                ("lft", models.PositiveIntegerField(editable=False)),
+                ("rght", models.PositiveIntegerField(editable=False)),
+                ("tree_id", models.PositiveIntegerField(db_index=True, editable=False)),
+                ("level", models.PositiveIntegerField(editable=False)),
             ],
             options={
-                'verbose_name': 'категория',
-                'verbose_name_plural': 'категории',
+                "verbose_name": "категория",
+                "verbose_name_plural": "категории",
             },
         ),
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=30, verbose_name='Имя')),
-                ('email', models.EmailField(max_length=254, verbose_name='Email')),
-                ('comment', models.TextField(max_length=2000, verbose_name='Комментарий')),
-                ('active', models.BooleanField(default=True, verbose_name='Активен')),
-                ('date_comment', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=30, verbose_name="Имя")),
+                ("email", models.EmailField(max_length=254, verbose_name="Email")),
+                (
+                    "comment",
+                    models.TextField(max_length=2000, verbose_name="Комментарий"),
+                ),
+                ("active", models.BooleanField(default=True, verbose_name="Активен")),
+                ("date_comment", models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'verbose_name': 'комментарий',
-                'verbose_name_plural': 'комментарии',
+                "verbose_name": "комментарий",
+                "verbose_name_plural": "комментарии",
             },
         ),
         migrations.CreateModel(
-            name='Detail',
+            name="Detail",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(max_length=40, verbose_name='Тип')),
-                ('info', models.CharField(max_length=200, verbose_name='Описание')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("type", models.CharField(max_length=40, verbose_name="Тип")),
+                ("info", models.CharField(max_length=200, verbose_name="Описание")),
             ],
             options={
-                'verbose_name': 'детали',
-                'verbose_name_plural': 'детали',
+                "verbose_name": "детали",
+                "verbose_name_plural": "детали",
             },
         ),
         migrations.CreateModel(
-            name='Gallery',
+            name="Gallery",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='gallery')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="gallery")),
             ],
             options={
-                'verbose_name': 'еще фотография',
-                'verbose_name_plural': 'добавить фотографий',
+                "verbose_name": "еще фотография",
+                "verbose_name_plural": "добавить фотографий",
             },
         ),
         migrations.CreateModel(
-            name='Goods',
+            name="Goods",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='files/images/', verbose_name='Основная фотография')),
-                ('name', models.CharField(max_length=200, verbose_name='Название')),
-                ('description', models.TextField(max_length=2000, verbose_name='Описание')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=8, verbose_name='Цена')),
-                ('stock', models.PositiveIntegerField(verbose_name='Остаток')),
-                ('limited_edition', models.BooleanField(default=False, verbose_name='Ограниченная серия')),
-                ('date_create', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        upload_to="files/images/", verbose_name="Основная фотография"
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="Название")),
+                (
+                    "description",
+                    models.TextField(max_length=2000, verbose_name="Описание"),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=8, verbose_name="Цена"
+                    ),
+                ),
+                ("stock", models.PositiveIntegerField(verbose_name="Остаток")),
+                (
+                    "limited_edition",
+                    models.BooleanField(
+                        default=False, verbose_name="Ограниченная серия"
+                    ),
+                ),
+                (
+                    "date_create",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'товар',
-                'verbose_name_plural': 'товары',
-                'ordering': ('-date_create',),
+                "verbose_name": "товар",
+                "verbose_name_plural": "товары",
+                "ordering": ("-date_create",),
             },
         ),
         migrations.CreateModel(
-            name='Tags',
+            name="Tags",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, verbose_name='Тэги')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=20, verbose_name="Тэги")),
             ],
             options={
-                'verbose_name': 'тэг',
-                'verbose_name_plural': 'теги',
+                "verbose_name": "тэг",
+                "verbose_name_plural": "теги",
             },
         ),
         migrations.CreateModel(
-            name='ViewedProduct',
+            name="ViewedProduct",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.IntegerField(default=1)),
-                ('viewed_date', models.DateTimeField()),
-                ('goods', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='products', to='app_megano.goods', verbose_name='Товар')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.IntegerField(default=1)),
+                ("viewed_date", models.DateTimeField()),
+                (
+                    "goods",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="products",
+                        to="app_megano.goods",
+                        verbose_name="Товар",
+                    ),
+                ),
             ],
         ),
     ]

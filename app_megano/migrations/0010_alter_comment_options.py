@@ -4,14 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0009_alter_comment_options_comment_user'),
+        ("app_megano", "0009_alter_comment_options_comment_user"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='comment',
-            options={'ordering': ('date_comment',), 'verbose_name': 'комментарий', 'verbose_name_plural': 'комментарии'},
+            name="comment",
+            options={
+                "ordering": ("date_comment",),
+                "verbose_name": "комментарий",
+                "verbose_name_plural": "комментарии",
+            },
         ),
     ]

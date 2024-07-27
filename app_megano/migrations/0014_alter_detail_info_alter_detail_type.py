@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0013_alter_comment_active_alter_comment_user'),
+        ("app_megano", "0013_alter_comment_active_alter_comment_user"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='detail',
-            name='info',
-            field=models.CharField(max_length=200, verbose_name='Значение'),
+            model_name="detail",
+            name="info",
+            field=models.CharField(max_length=200, verbose_name="Значение"),
         ),
         migrations.AlterField(
-            model_name='detail',
-            name='type',
-            field=models.CharField(max_length=40, verbose_name='Название атрибута'),
+            model_name="detail",
+            name="type",
+            field=models.CharField(max_length=40, verbose_name="Название атрибута"),
         ),
     ]

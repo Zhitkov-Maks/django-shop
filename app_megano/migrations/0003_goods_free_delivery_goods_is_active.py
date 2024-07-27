@@ -4,20 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0002_initial'),
+        ("app_megano", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='goods',
-            name='free_delivery',
-            field=models.BooleanField(default=False, verbose_name='Бесплатная доставка'),
+            model_name="goods",
+            name="free_delivery",
+            field=models.BooleanField(
+                default=False, verbose_name="Бесплатная доставка"
+            ),
         ),
         migrations.AddField(
-            model_name='goods',
-            name='is_active',
-            field=models.BooleanField(default=True, verbose_name='Активен'),
+            model_name="goods",
+            name="is_active",
+            field=models.BooleanField(default=True, verbose_name="Активен"),
         ),
     ]

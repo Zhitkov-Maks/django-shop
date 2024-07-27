@@ -5,19 +5,34 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0003_goods_free_delivery_goods_is_active'),
+        ("app_megano", "0003_goods_free_delivery_goods_is_active"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Purchases',
+            name="Purchases",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.PositiveIntegerField(verbose_name='Количество')),
-                ('date_purchases', models.DateTimeField(auto_now=True)),
-                ('goods', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shipments', to='app_megano.goods', verbose_name='Товар')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.PositiveIntegerField(verbose_name="Количество")),
+                ("date_purchases", models.DateTimeField(auto_now=True)),
+                (
+                    "goods",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="shipments",
+                        to="app_megano.goods",
+                        verbose_name="Товар",
+                    ),
+                ),
             ],
         ),
     ]

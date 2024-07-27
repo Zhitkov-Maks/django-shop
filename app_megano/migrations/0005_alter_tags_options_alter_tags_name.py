@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_megano', '0004_purchases'),
+        ("app_megano", "0004_purchases"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='tags',
-            options={'verbose_name': 'тег', 'verbose_name_plural': 'теги'},
+            name="tags",
+            options={"verbose_name": "тег", "verbose_name_plural": "теги"},
         ),
         migrations.AlterField(
-            model_name='tags',
-            name='name',
-            field=models.CharField(max_length=20, verbose_name='Теги'),
+            model_name="tags",
+            name="name",
+            field=models.CharField(max_length=20, verbose_name="Теги"),
         ),
     ]
