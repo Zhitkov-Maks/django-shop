@@ -230,52 +230,59 @@ class CatalogView(ListView):
 
 
 class CatalogSortPrice(ListView):
-    """Класс для сортировки товаров начиная с самых дешевых"""
+    """Класс для сортировки товаров начиная с самых дешевых."""
 
     model = Goods
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         return Goods.objects.prefetch_related("tag").all().order_by("price")
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
-        title = "Сначала дешевые товары"
-        context.update({"sortPriceMin": True, "header": title})
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
+        context.update(
+            {"sortPriceMin": True, "header": "Сначала дешевые товары"}
+        )
         return context
 
 
 class CatalogSortPriceMax(ListView):
-    """Класс для сортировки товаров начиная с самых дорогих"""
+    """Класс для сортировки товаров начиная с самых дорогих."""
 
     model = Goods
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """Переопределил, чтобы избежать лишних обращений к бд."""
         return Goods.objects.prefetch_related("tag").all().order_by("-price")
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
         context = super().get_context_data()
-        title = "Сначала дорогие товары"
-        context.update({"sortPriceMax": True, "header": title})
+        context.update(
+            {"sortPriceMax": True, "header": "Сначала дорогие товары"}
+        )
         return context
 
 
 class CatalogSortReview(ListView):
-    """Класс для сортировки товаров по количеству отзывов. Сначала выводятся товары где больше всего отзывов."""
+    """
+    Класс для сортировки товаров по количеству отзывов.
+    Сначала выводятся товары где больше всего отзывов.
+    """
 
     model = Goods
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """Переопределили метод для сортировки."""
         return (
             Goods.objects.prefetch_related("tag")
             .all()
@@ -283,11 +290,15 @@ class CatalogSortReview(ListView):
             .order_by("-count")
         )
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
-        title = "Товары с наибольшим количеством отзывов"
-        context.update({"sortReview": True, "header": title})
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
+        context.update(
+            {
+                "sortReview": True,
+                "header": "Товары с наибольшим количеством отзывов"
+            }
+        )
         return context
 
 
