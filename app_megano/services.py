@@ -102,7 +102,7 @@ def add_product_in_viewed_list(user, product) -> None:
         )
 
 
-def add_product_filter(request) -> QuerySet:
+def add_product_filter(request) -> QuerySet | list:
     """Функция для поиска товара по выбранным параметрам."""
     price: list = request.GET.get("price").split(";")
     price_range: tuple = (Decimal(price[0]), Decimal(price[1]))
@@ -117,7 +117,7 @@ def add_product_filter(request) -> QuerySet:
         query_descr &= Q(description__iregex=word)
         query_info &= Q(detail__info__iregex=word)
 
-    queryset = (
+    queryset: QuerySet = (
         Goods.objects.prefetch_related("tag")
         .filter(
             Q(query_name, price__range=price_range)
@@ -128,9 +128,9 @@ def add_product_filter(request) -> QuerySet:
     )
 
     if active == "on":
-        queryset = list(filter(lambda x: x.is_active, queryset))
+        queryset: list = list(filter(lambda x: x.is_active, queryset))
     if delivery == "on":
-        queryset = list(filter(lambda x: x.free_delivery, queryset))
+        queryset: list = list(filter(lambda x: x.free_delivery, queryset))
     return queryset
 
 
