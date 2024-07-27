@@ -44,9 +44,9 @@ def add_product(request, pk, quantity=1):
 
 def delete_product(request, pk) -> JsonResponse:
     """Удаляет продукт из корзины."""
-    cart = Cart(request)
+    cart: Cart = Cart(request)
 
-    product = get_object_or_404(Goods, id=pk)
+    product: Goods = get_object_or_404(Goods, id=pk)
     cart.remove(product=product)
     response = {"success": True}
     return JsonResponse(response)
