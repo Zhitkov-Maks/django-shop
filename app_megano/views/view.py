@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 
+from app_megano.services import collection_data
 from app_users.models import CustomUser
 from django.core.cache import cache
 from django.db.models import QuerySet
@@ -139,6 +140,7 @@ class ProductDetailView(DetailView):
         полноценной работы.
         """
         context: dict = super().get_context_data()
+        collection_data(self, context)
         form = ReviewsForm()
         user: CustomUser = self.request.user
         if self.request.user.is_authenticated:

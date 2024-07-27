@@ -7,7 +7,6 @@ from app_users.models import CustomUser
 from cart.services.cart import Cart
 from .crud import get_viewed_product_period, add_product_in_viewed_list
 from .models import Goods, Comment
-from .views.views import ProductDetailView
 
 
 def check_product_in_cart(cart: Cart, product: Goods) -> tuple:
@@ -56,19 +55,23 @@ def add_data_filter(request: HttpRequest, context: dict) -> dict:
     return context
 
 
-def collection_data(obj: ProductDetailView, context: dict) -> None:
+def collection_data(product_detail_view, context: dict) -> None:
     # Проверяем есть ли данный товар в корзине.
-    check: tuple = check_product_in_cart(Cart(obj.request), obj.object)
+    check: tuple = check_product_in_cart(
+        Cart(product_detail_view.request),
+        product_detail_view.object
+    )
 
     # Получаем количество просмотров за неделю
-    count_viewed: int = get_viewed_product_period(obj.object)
+    count_viewed: int = get_viewed_product_period(product_detail_view.object)
 
-    user: CustomUser = obj.request.user
+    user: CustomUser = product_detail_view.request.user
+
     # Добавляем товар в просмотренные
-    if obj.request.user.is_authenticated:
-        add_product_in_viewed_list(user, obj.get_object())
+    if product_detail_view.request.user.is_authenticated:
+        add_product_in_viewed_list(user, product_detail_view.get_object())
 
-    product: Goods = obj.get_object()
+    product: Goods = product_detail_view.get_object()
     comment: QuerySet = (
         Comment.objects
         .select_related('user', 'user__profile')
@@ -84,7 +87,7 @@ def collection_data(obj: ProductDetailView, context: dict) -> None:
             'count_viewed': count_viewed,
             'messages': comment,
             'len': len(comment),
-            'header': obj.object,
+            'header': product_detail_view.object,
             'detail': detail
         }
     )
