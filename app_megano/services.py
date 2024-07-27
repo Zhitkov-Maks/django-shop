@@ -11,7 +11,7 @@ from django.utils import timezone
 from .models import Category, ViewedProduct, Goods, Discount
 
 
-def add_category_favorite() -> dict:
+def add_category_favorite() -> Dict[int, tuple]:
     """
     Функция для получения 3 избранных категорий(для отображения на главной
     странице в самом верху). Так же к категории добавляем сразу минимальную
@@ -19,6 +19,7 @@ def add_category_favorite() -> dict:
     """
     category_favorite_list: list = Category.objects.filter(favorite=True)[:3]
     category_favorite_dict: Dict[int, tuple] = {}
+
     for category in category_favorite_list:
         category_favorite_dict[category.id] = (
             category,
