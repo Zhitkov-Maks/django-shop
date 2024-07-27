@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+
 from app_users.models import CustomUser
 from cart.services.cart import Cart
 from django.core.cache import cache
@@ -138,63 +140,73 @@ class ProductDetailView(DetailView):
     template_name: str = "app_megano/product.html"
 
     def get_context_data(self, **kwargs) -> dict:
+        """
+        Переопределяем метод, чтобы прикрепить все, что нам нужно, для
+        полноценной работы.
+        """
         context: dict = super().get_context_data()
 
         # Проверяем есть ли данный товар в корзине.
-        check = check_product_in_cart(
-            Cart(self.request), self.object
-        )
+        check: tuple = check_product_in_cart(Cart(self.request), self.object)
 
         # Получаем количество просмотров за неделю
-        count_viewed = get_viewed_product_period(
-            self.object
-        )
+        count_viewed: int = get_viewed_product_period(self.object)
 
-        user = self.request.user
+        user: CustomUser = self.request.user
+        # Добавляем товар в просмотренные
         if self.request.user.is_authenticated:
-            add_product_in_viewed_list(
-                self.request.user, self.get_object()
-            )  # Добавляем товар в просмотренные
+            add_product_in_viewed_list(user, self.get_object())
 
         form = ReviewsForm()
-        product = self.get_object()
-        comment = Comment.objects.select_related("user", "user__profile").filter(
-            goods_id=product.id
+        product: Goods = self.get_object()
+        comment: QuerySet = (
+            Comment.objects
+            .select_related('user', 'user__profile')
+            .filter(goods_id=product.id)
         )
-        detail = product.detail.all()
-        title = self.object
+        detail = product.detail.prefetch_related("details").all()
 
         if self.request.user.is_authenticated:
-            form = ReviewsForm({"email": user.email, "name": user.first_name})
+            form = ReviewsForm({
+                'email': user.email,
+                'name': user.first_name
+            })
 
         context.update(
             {
                 "product": product,
-                "form": form,
-                "check": check[0],
-                "quantity": check[1],
-                "count_viewed": count_viewed,
-                "messages": comment,
-                "len": len(comment),
-                "header": title,
-                "detail": detail,
+                'form': form,
+                'check': check[0],
+                'quantity': check[1],
+                'count_viewed': count_viewed,
+                'messages': comment,
+                'len': len(comment),
+                'header': self.object,
+                'detail': detail
             }
         )
         return context
 
-    def post(self, request, pk):
+    def post(self, request, pk) -> HttpResponse:
         """Добавляет комментарий к товару."""
         form = ReviewsForm(request.POST)
+
         if self.request.user.is_authenticated:
             if form.is_valid():
-                review = form.save(commit=False)
+                review: Comment = form.save(commit=False)
                 review.goods = self.get_object()
                 review.user = request.user
                 form.save()
                 return redirect(reverse("detail", args=[pk]))
+
         else:
             return redirect("login")
-        return render(request, "app_megano/product.html", context={"form": form})
+
+        return render(
+            request,
+            "app_megano/product.html",
+            context={"form": form}
+        )
 
 
 class CatalogView(ListView):
@@ -313,7 +325,8 @@ class CatalogSortNew(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.prefetch_related("tag").all().order_by("-date_create")
+        return Goods.objects.prefetch_related("tag").all().order_by(
+            "-date_create")
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -331,7 +344,8 @@ class CatalogSortOld(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        return Goods.objects.prefetch_related("tag").all().order_by("date_create")
+        return Goods.objects.prefetch_related("tag").all().order_by(
+            "date_create")
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
@@ -387,7 +401,8 @@ class SearchFilter(ListView):
         context = super().get_context_data()
         add_data_filter(self.request, context)
         context.update(
-            {"sortNew": True, "header": "Поиск по параметрам", "sortFilter": True}
+            {"sortNew": True, "header": "Поиск по параметрам",
+             "sortFilter": True}
         )
         return context
 
@@ -401,9 +416,10 @@ class ViewedProducts(ListView):
 
     def get_queryset(self):
         user = CustomUser.objects.get(id=self.kwargs["pk"])
-        queryset = Goods.objects.prefetch_related("tag").filter(products__user=user)[
-            :16
-        ]
+        queryset = Goods.objects.prefetch_related("tag").filter(
+            products__user=user)[
+                   :16
+                   ]
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
