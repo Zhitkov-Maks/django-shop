@@ -4,6 +4,7 @@
 from _decimal import Decimal
 from datetime import timedelta
 from typing import List, Dict
+from datetime import datetime
 
 from django.db.models import Min, Count, Q
 from django.utils import timezone
@@ -29,9 +30,12 @@ def add_category_favorite() -> Dict[int, tuple]:
 
 
 def add_queryset_top() -> list:
-    """Функция для получения списка самых продаваемых товаров за последние два месяца."""
-    end_datetime = timezone.now()
-    start_datetime = end_datetime - timedelta(days=60)
+    """
+    Функция для получения списка самых продаваемых товаров за
+    последние два месяца.
+    """
+    end_datetime: datetime = timezone.now()
+    start_datetime: datetime = end_datetime - timedelta(days=60)
     queryset = (
         Goods.objects.prefetch_related("tag")
         .annotate(count=Count("shipments"))
