@@ -410,20 +410,19 @@ class ViewedProducts(ListView):
     """Класс для отображения товаров просмотренных пользователем"""
 
     model = CustomUser
-    template_name = "app_megano/viewed.html"
-    context_object_name = "history_list"
+    template_name: str = "app_megano/viewed.html"
+    context_object_name: str = "history_list"
 
     def get_queryset(self):
+        """Переопределил, чтобы не выполнялось лишних запросов к бд."""
         user = CustomUser.objects.get(id=self.kwargs["pk"])
-        queryset = Goods.objects.prefetch_related("tag").filter(
-            products__user=user)[
-                   :16
-                   ]
-        return queryset
+        return Goods.objects.prefetch_related("tag").filter(
+            products__user=user
+        )[:16]
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
         """Нужен только, чтобы добавить header в контекст."""
-        context = super().get_context_data()
+        context: dict = super().get_context_data()
         context.update({"header": "Вы интересовались!!!"})
         return context
 
