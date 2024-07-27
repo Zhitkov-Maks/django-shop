@@ -3,7 +3,7 @@
 
 from _decimal import Decimal
 from datetime import timedelta
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from datetime import datetime
 
 from django.db.models import Min, Count, Q, QuerySet
@@ -66,15 +66,19 @@ def get_viewed_product_period(product) -> int:
 
 
 def check_product_in_cart(cart, product) -> tuple:
-    """Функция нужна для страницы с описанием товара, чтобы проверить есть ли этот товар в корзине, а если
-    есть то узнать количество. Чтобы на странице с товаром уже сразу отображалось что данный товар у пользователя уже в
-    корзине."""
-    check = False
-    quantity = 0
+    """
+    Функция нужна для страницы с описанием товара, чтобы проверить есть ли
+    этот товар в корзине, а если есть то узнать количество.
+    Чтобы на странице с товаром уже сразу отображалось что данный товар у
+    пользователя уже в корзине.
+    """
+    check: bool = False
+    quantity: int = 0
     for detail in cart:
         if detail["product"] == product:
             check = True
             quantity = detail["quantity"]
+            break
     return check, quantity
 
 
