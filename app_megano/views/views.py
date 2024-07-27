@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from app_users.models import CustomUser
 from cart.services.cart import Cart
 from django.core.cache import cache
-from django.db.models import Count, Q, QuerySet
+from django.db.models import QuerySet
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
@@ -14,11 +14,10 @@ from app_megano.crud import (
     add_category_favorite,
     add_queryset_top,
     add_product_in_viewed_list,
-    add_product_filter,
     get_viewed_product_period,
-    get_sale, search_product_queryset,
+    get_sale
 )
-from app_megano.services import check_product_in_cart, add_data_filter
+from app_megano.services import check_product_in_cart
 
 
 class HomeView(ListView):
@@ -133,7 +132,7 @@ class ShowTag(ListView):
 
 
 class ProductDetailView(DetailView):
-    """Класс для отображения подробной информации о товаре"""
+    """Класс для отображения подробной информации о товаре."""
 
     model = Goods
     template_name: str = "app_megano/product.html"
@@ -144,46 +143,15 @@ class ProductDetailView(DetailView):
         полноценной работы.
         """
         context: dict = super().get_context_data()
-
-        # Проверяем есть ли данный товар в корзине.
-        check: tuple = check_product_in_cart(Cart(self.request), self.object)
-
-        # Получаем количество просмотров за неделю
-        count_viewed: int = get_viewed_product_period(self.object)
-
-        user: CustomUser = self.request.user
-        # Добавляем товар в просмотренные
-        if self.request.user.is_authenticated:
-            add_product_in_viewed_list(user, self.get_object())
-
         form = ReviewsForm()
-        product: Goods = self.get_object()
-        comment: QuerySet = (
-            Comment.objects
-            .select_related('user', 'user__profile')
-            .filter(goods_id=product.id)
-        )
-        detail = product.detail.prefetch_related("details").all()
-
+        user: CustomUser = self.request.user
         if self.request.user.is_authenticated:
             form = ReviewsForm({
                 'email': user.email,
                 'name': user.first_name
             })
 
-        context.update(
-            {
-                "product": product,
-                'form': form,
-                'check': check[0],
-                'quantity': check[1],
-                'count_viewed': count_viewed,
-                'messages': comment,
-                'len': len(comment),
-                'header': self.object,
-                'detail': detail
-            }
-        )
+        context.update({'form': form})
         return context
 
     def post(self, request, pk) -> HttpResponse:
