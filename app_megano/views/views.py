@@ -8,9 +8,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 
-from .forms import ReviewsForm
-from .models import Goods, Category, Tags, Discount, Comment
-from .crud import (
+from app_megano.forms import ReviewsForm
+from app_megano.models import Goods, Category, Tags, Discount, Comment
+from app_megano.crud import (
     add_category_favorite,
     add_queryset_top,
     add_product_in_viewed_list,
@@ -18,7 +18,7 @@ from .crud import (
     get_viewed_product_period,
     get_sale, search_product_queryset,
 )
-from .services import check_product_in_cart, add_data_filter
+from app_megano.services import check_product_in_cart, add_data_filter
 
 
 class HomeView(ListView):
@@ -292,14 +292,20 @@ class CatalogSortReview(ListView):
 
 
 class CatalogSortReviewMin(ListView):
-    """Класс для сортировки товаров по количеству отзывов. Сначала выводятся товары где меньше всего отзывов."""
+    """
+    Класс для сортировки товаров по количеству отзывов. Сначала выводятся
+    товары где меньше всего отзывов.
+    """
 
     model = Goods
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """Переопределили, чтобы добавить сортировку и избежать
+        лишних обращений к бд.
+        """
         return (
             Goods.objects.prefetch_related("tag")
             .all()
@@ -308,49 +314,61 @@ class CatalogSortReviewMin(ListView):
         )
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
         context = super().get_context_data()
-        title = "Товары с наименьшим количеством отзывов"
-        context.update({"sortReviewMin": True, "header": title})
+        context.update(
+            {
+                "sortReviewMin": True,
+                "header": "Товары с наименьшим количеством отзывов"
+            }
+        )
         return context
 
 
 class CatalogSortNew(ListView):
-    """Класс для вывода каталога товаров отсортированных по новизне. Сначала отображаются товары, которые были
-    добавлены последними."""
+    """
+    Класс для вывода каталога товаров отсортированных по новизне.
+    Сначала отображаются товары, которые были добавлены последними.
+    """
 
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """Переопределил, чтобы избежать лишних запросов к бд."""
         return Goods.objects.prefetch_related("tag").all().order_by(
-            "-date_create")
+            "-date_create"
+        )
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
-        title = "Сначала новые товары"
-        context.update({"sortNew": True, "header": title})
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
+        context.update(
+            {"sortNew": True, "header": "Сначала новые товары"}
+        )
         return context
 
 
 class CatalogSortOld(ListView):
     """Сначала отображаются товары, которые были добавлены первыми."""
 
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: str = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """Переопределил, чтобы избежать лишних запросов к бд."""
         return Goods.objects.prefetch_related("tag").all().order_by(
-            "date_create")
+            "date_create"
+        )
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """Добавляет идентификатор для отображения сортировки в шаблоне"""
         context = super().get_context_data()
-        title = "Сначала старые товары"
-        context.update({"sortOld": True, "header": title})
+        context.update(
+            {"sortOld": True, "header": "Сначала старые товары"}
+        )
         return context
 
 
