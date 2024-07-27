@@ -74,6 +74,10 @@ class ShowCategory(ListView):
     paginate_by: int = 8
 
     def get_queryset(self) -> QuerySet:
+        """
+        Переопределяем метод, чтобы прикрепить к категориям еще и теги, для
+        отображения на странице.
+        """
         category: Category = Category.objects.get(id=self.kwargs["pk"])
         return (
             category.categories.prefetch_related("category")
@@ -83,6 +87,10 @@ class ShowCategory(ListView):
         )
 
     def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """
+        Переопределяем метод, для того чтобы прикрепить тип сортировки
+        и header.
+        """
         context: dict = super().get_context_data()
         pk: int = self.kwargs["pk"]
         context.update(
@@ -102,10 +110,17 @@ class ShowTag(ListView):
     paginate_by: int = 8
 
     def get_queryset(self) -> QuerySet:
+        """
+        Переопределяем метод, чтобы подгрузить все, что нужно за один раз.
+        """
         tag: Tags = Tags.objects.get(id=self.kwargs["pk"])
         return tag.tags.prefetch_related("tag").all().order_by("-date_create")
 
     def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """
+        Переопределяем метод, для того чтобы прикрепить тип сортировки
+        и header.
+        """
         context: dict = super().get_context_data()
         pk: int = self.kwargs["pk"]
         context.update(
@@ -120,16 +135,21 @@ class ProductDetailView(DetailView):
     """Класс для отображения подробной информации о товаре"""
 
     model = Goods
-    template_name = "app_megano/product.html"
+    template_name: str = "app_megano/product.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+    def get_context_data(self, **kwargs) -> dict:
+        context: dict = super().get_context_data()
+
+        # Проверяем есть ли данный товар в корзине.
         check = check_product_in_cart(
             Cart(self.request), self.object
-        )  # Проверяем есть ли данный товар в корзине.
+        )
+
+        # Получаем количество просмотров за неделю
         count_viewed = get_viewed_product_period(
             self.object
-        )  # Получаем количество просмотров за неделю
+        )
+
         user = self.request.user
         if self.request.user.is_authenticated:
             add_product_in_viewed_list(
