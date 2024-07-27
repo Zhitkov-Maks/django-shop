@@ -195,12 +195,19 @@ def add_product_in_discount() -> None:
             product.save()
 
 
-def get_sale():
-    """Получаем список акционных товаров, предварительно проверяем на неактивные акции и не появились ли новые"""
-    current_date = timezone.now()
+def get_sale() -> QuerySet:
+    """
+    Получаем список акционных товаров, предварительно проверяем на
+    неактивные акции и не появились ли новые.
+    """
+    current_date: datetime = timezone.now()
     clean_no_active_discount()
     add_product_in_discount()
-    queryset = Goods.objects.select_related("discount").filter(
-        Q(discount__valid_to__gte=current_date)
+
+    queryset = (
+        Goods.objects.select_related("discount")
+        .filter(
+            Q(discount__valid_to__gte=current_date)
+        )
     )
     return queryset
