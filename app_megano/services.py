@@ -59,7 +59,7 @@ def get_viewed_product_period(product: Goods) -> int:
     start_datetime: datetime = end_datetime - timedelta(days=180)
 
     count_viewed: int = (
-        ViewedProduct.objects.filter(goods_id=product.pk)
+        ViewedProduct.objects.filter(goods_id=product.id)
         .filter(
             viewed_date__gte=start_datetime, viewed_date__lte=end_datetime
         )
@@ -91,10 +91,10 @@ def add_product_in_viewed_list(user: CustomUser, product: Goods) -> None:
     Если товар ранее уже был просмотрен, то обновляем дату просмотра.
     """
     if ViewedProduct.objects.filter(
-            user_id=user.pk, goods_id=product.pk
+            user_id=user.id, goods_id=product.id
     ).exists():
         viewed_product: ViewedProduct = ViewedProduct.objects.get(
-            user_id=user.pk, goods_id=product.pk
+            user_id=user.id, goods_id=product.id
         )
         viewed_product.viewed_date = timezone.now()
         viewed_product.save()
