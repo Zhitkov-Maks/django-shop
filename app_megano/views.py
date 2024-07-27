@@ -36,7 +36,7 @@ class HomeView(ListView):
             "add_queryset_top", add_queryset_top(), 10 * 60
         )
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
         """
         Добавляем на главную страницу так же список с товарами с меткой
         ограниченная серия и список из 3 элементов с избранными категориями.
@@ -66,15 +66,15 @@ class HomeView(ListView):
 
 
 class ShowCategory(ListView):
-    """Класс выводит список товаров по категориям"""
+    """Класс выводит список товаров по категориям."""
 
     model = Category
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
-        category = Category.objects.get(id=self.kwargs["pk"])
+    def get_queryset(self) -> QuerySet:
+        category: Category = Category.objects.get(id=self.kwargs["pk"])
         return (
             category.categories.prefetch_related("category")
             .prefetch_related("tag")
@@ -82,11 +82,14 @@ class ShowCategory(ListView):
             .order_by("-date_create")
         )
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
-        pk = self.kwargs["pk"]
-        title = f"Товары по категории {Category.objects.get(id=pk)}"
-        context.update({"sortNew": True, "header": title})
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        context: dict = super().get_context_data()
+        pk: int = self.kwargs["pk"]
+        context.update(
+            {
+                "sortNew": True,
+                "header": f"Товары по категории {Category.objects.get(id=pk)}"}
+        )
         return context
 
 
