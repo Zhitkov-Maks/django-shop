@@ -10,16 +10,15 @@ from django.views.generic import ListView, DetailView
 
 from .forms import ReviewsForm
 from .models import Goods, Category, Tags, Discount, Comment
-from .services import (
+from .crud import (
     add_category_favorite,
     add_queryset_top,
-    check_product_in_cart,
     add_product_in_viewed_list,
     add_product_filter,
-    add_data_filter,
     get_viewed_product_period,
     get_sale,
 )
+from .services import check_product_in_cart, add_data_filter
 
 
 class HomeView(ListView):
@@ -423,6 +422,7 @@ class ViewedProducts(ListView):
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        """Нужен только, чтобы добавить header в контекст."""
         context = super().get_context_data()
         context.update({"header": "Вы интересовались!!!"})
         return context
@@ -432,15 +432,19 @@ class Sale(ListView):
     """Класс для отображения страницы с акциями"""
 
     model = Discount
-    template_name = "app_megano/sale.html"
-    context_object_name = "sale_list"
-    paginate_by = 16
+    template_name: str = "app_megano/sale.html"
+    context_object_name: str = "sale_list"
+    paginate_by: int = 16
 
-    def get_queryset(self):
-        queryset = cache.get_or_set("get_sale", get_sale(), 30 * 60)
-        return queryset
+    def get_queryset(self) -> QuerySet:
+        """
+        Переопределяем, чтобы кешировать ответ, так как скидки обновляются
+        не так часто.
+        """
+        return cache.get_or_set("get_sale", get_sale(), 30 * 60)
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Нужен только, чтобы добавить header в контекст."""
+        context: dict = super().get_context_data()
         context.update({"header": "Действующие скидки"})
         return context
