@@ -238,6 +238,7 @@ class CatalogSortPrice(ListView):
     paginate_by: int = 8
 
     def get_queryset(self) -> QuerySet:
+        """Переопределил, чтобы избежать лишних обращений к бд."""
         return Goods.objects.prefetch_related("tag").all().order_by("price")
 
     def get_context_data(self, *, object_list=None, **kwargs) -> dict:
