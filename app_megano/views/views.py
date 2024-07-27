@@ -212,20 +212,20 @@ class CatalogView(ListView):
     """Класс для получения товаров по выбранной категории"""
 
     model = Goods
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
-        """Выбирает записи топ продаж за 2 месяца"""
-        queryset = add_queryset_top()
-        return queryset
+    def get_queryset(self) -> QuerySet:
+        """Выбирает записи топ продаж за 2 месяца."""
+        return add_queryset_top()
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
-        title = "Популярные товары"
-        context.update({"sortPopular": True, "header": title})
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
+        context.update(
+            {"sortPopular": True, "header": "Популярные товары"}
+        )
         return context
 
 
