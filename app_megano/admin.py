@@ -99,6 +99,7 @@ class GoodsAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     actions: List[str] = ["export_csv"]
 
     def import_csv(self, request: HttpRequest) -> HttpResponse:
+        """Метод для загрузки данных в админке из csv файла."""
         if request.method == "GET":
             form = CSVImportForms()
             context = {
