@@ -386,22 +386,24 @@ class SearchProduct(ListView):
 class SearchFilter(ListView):
     """Класс для поиска товаров по вводу пользователя"""
 
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         """Переопределяем queryset для поиска"""
-        queryset = add_product_filter(self.request)
-        return queryset
+        return add_product_filter(self.request)
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
         add_data_filter(self.request, context)
         context.update(
-            {"sortNew": True, "header": "Поиск по параметрам",
-             "sortFilter": True}
+            {
+                "sortNew": True,
+                "header": "Поиск по параметрам",
+                "sortFilter": True
+            }
         )
         return context
 
