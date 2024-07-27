@@ -3,7 +3,7 @@
 
 from _decimal import Decimal
 from datetime import timedelta
-from typing import List, Dict, Tuple
+from typing import Dict
 from datetime import datetime
 
 from django.db.models import Min, Count, Q, QuerySet
