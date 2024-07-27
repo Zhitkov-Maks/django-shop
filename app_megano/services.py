@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.http import HttpRequest
 
 from app_users.models import CustomUser
+from cart.services.cart import Cart
 from .models import Category, ViewedProduct, Goods, Discount
 
 
@@ -67,7 +68,7 @@ def get_viewed_product_period(product: Goods) -> int:
     return count_viewed
 
 
-def check_product_in_cart(cart: dict, product: Goods) -> tuple:
+def check_product_in_cart(cart: Cart, product: Goods) -> tuple:
     """
     Функция нужна для страницы с описанием товара, чтобы проверить есть ли
     этот товар в корзине, а если есть то узнать количество.
