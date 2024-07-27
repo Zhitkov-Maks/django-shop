@@ -2,23 +2,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
-from .views import (
+from app_megano.views.views import (
     HomeView,
     CatalogView,
     ShowCategory,
     ProductDetailView,
     ShowTag,
-    ViewedProducts,
-    CatalogSortPrice,
-    CatalogSortReview,
-    CatalogSortNew,
-    CatalogSortPriceMax,
-    SearchProduct,
-    SearchFilter,
-    Sale,
-    CatalogSortOld,
-    CatalogSortReviewMin,
+    ViewedProducts, Sale
 )
+from app_megano.views.views_sort_and_search import CatalogSortPrice, \
+    CatalogSortPriceMax, CatalogSortReview, CatalogSortReviewMin, \
+    CatalogSortNew, CatalogSortOld, SearchProduct, SearchFilter
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
