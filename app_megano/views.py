@@ -94,22 +94,25 @@ class ShowCategory(ListView):
 
 
 class ShowTag(ListView):
-    """Класс выводит список товаров по тегам"""
+    """Класс выводит список товаров по тегам."""
 
     model = Tags
-    template_name = "app_megano/catalog.html"
-    context_object_name = "product_list"
-    paginate_by = 8
+    template_name: str = "app_megano/catalog.html"
+    context_object_name: str = "product_list"
+    paginate_by: int = 8
 
-    def get_queryset(self):
-        tag = Tags.objects.get(id=self.kwargs["pk"])
+    def get_queryset(self) -> QuerySet:
+        tag: Tags = Tags.objects.get(id=self.kwargs["pk"])
         return tag.tags.prefetch_related("tag").all().order_by("-date_create")
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
-        pk = self.kwargs["pk"]
-        title = f"Товары по тегу {Tags.objects.get(id=pk)}"
-        context.update({"sortNew": True, "header": title})
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        context: dict = super().get_context_data()
+        pk: int = self.kwargs["pk"]
+        context.update(
+            {
+                "sortNew": True,
+                "header": f"Товары по тегу {Tags.objects.get(id=pk)}"}
+        )
         return context
 
 
