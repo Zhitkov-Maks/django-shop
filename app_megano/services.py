@@ -171,7 +171,7 @@ def clean_no_active_discount() -> None:
 
     product_discount_ended: QuerySet = (Discount.objects.filter(
         valid_to__lt=current_date)
-                              .filter(active=True))
+                                        .filter(active=True))
 
     for product in product_discount_ended:
         if product.active:
@@ -180,11 +180,15 @@ def clean_no_active_discount() -> None:
 
 
 def add_product_in_discount() -> None:
-    """Проверяем не появилось ли новые активные акции"""
-    current_date = timezone.now()
-    product_discount_started = Discount.objects.filter(
-        valid_from__lte=current_date
-    ).filter(valid_to__gte=current_date)
+    """Проверяем не появилось ли новые активные акции."""
+    current_date: datetime = timezone.now()
+
+    product_discount_started: QuerySet = (
+        Discount.objects
+        .filter(valid_from__lte=current_date)
+        .filter(valid_to__gte=current_date)
+    )
+
     for product in product_discount_started:
         if not product.active:
             product.active = True
