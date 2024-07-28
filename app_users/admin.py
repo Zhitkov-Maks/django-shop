@@ -6,19 +6,23 @@ from .models import CustomUser, Profile
 
 @admin.register(CustomUser)
 class UserRegister(admin.ModelAdmin):
-    list_display = ("id", "email", "is_active", "first_name", "last_name")
-    list_display_links = ("email",)
+    list_display: tuple = (
+        "id", "email", "is_active", "first_name", "last_name"
+    )
+    list_display_links: tuple = ("email",)
 
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "phone", "image_show")
-    list_display_links = ("user",)
+    list_display: tuple = ("id", "user", "phone", "image_show")
+    list_display_links: tuple = ("user",)
 
     def image_show(self, rec):
         """Для отображения картинок товаров в админ панели"""
         if rec.photo:
-            return mark_safe("<img src='{}' width='60' />".format(rec.photo.url))
+            return mark_safe(
+                "<img src='{}' width='60' />".format(rec.photo.url)
+            )
         return None
 
     image_show.__name__ = "Фото"
