@@ -6,24 +6,46 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app_users', '0001_initial'),
+        ("app_users", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Profile',
+            name="Profile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('patronymic', models.CharField(max_length=20, verbose_name='Отчество')),
-                ('photo', models.ImageField(blank=True, upload_to='files/image', verbose_name='Фото')),
-                ('phone', models.CharField(max_length=20, verbose_name='Телефон')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "patronymic",
+                    models.CharField(max_length=20, verbose_name="Отчество"),
+                ),
+                (
+                    "photo",
+                    models.ImageField(
+                        blank=True, upload_to="files/image", verbose_name="Фото"
+                    ),
+                ),
+                ("phone", models.CharField(max_length=20, verbose_name="Телефон")),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'пользователь',
-                'verbose_name_plural': 'пользователи',
+                "verbose_name": "пользователь",
+                "verbose_name_plural": "пользователи",
             },
         ),
     ]
