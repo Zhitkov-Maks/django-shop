@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView
@@ -122,39 +122,50 @@ class AccountView(LoginRequiredMixin, TemplateView):
 class ProfileEditView(LoginRequiredMixin, TemplateView):
     """Класс для редактирования профиля пользователя."""
 
-    template_name = "app_users/profile.html"
-    login_url = "login"
+    template_name: str = "app_users/profile.html"
+    login_url: str = "login"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         """Добавляет и вставляет в форму текущие данные пользователя."""
-        context = super().get_context_data()
-        user = self.request.user
-        form = UpdateUserForm()
-        if hasattr(user, "profile"):  # Проверяем есть ли у нас связь с таблицей profile
-            image = user.profile.photo
+        context: dict = super().get_context_data()
+        user: CustomUser = self.request.user
+        form: UpdateUserForm = UpdateUserForm()
+
+        # Проверяем есть ли у нас связь с таблицей profile
+        if hasattr(user, "profile"):
+            image: str = user.profile.photo
             context.update({"image": image})
+
             form = UpdateUserForm(
                 {
                     "email": user.email,
                     "phone": user.profile.phone,
-                    "full_name": f"{user.last_name} {user.first_name} {user.profile.patronymic}",
+                    "full_name": f"{user.last_name} {user.first_name}"
+                                 f" {user.profile.patronymic}",
                 }
             )
+
         context.update({"form": form, "header": "Редактирование профиля"})
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = UpdateUserForm(request.POST, request.FILES)
-        user = request.user
-        edit = False
+    def post(self, request, *args, **kwargs) -> HttpResponse:
+        form: UpdateUserForm = UpdateUserForm(request.POST, request.FILES)
+        user: CustomUser = request.user
+        edit: bool = False
+
         if form.is_valid():
             if len(form.cleaned_data.get("full_name").split()) == 3:
                 edit = distributor_function(form, user, request)
+
             else:
                 form.add_error(
-                    "full_name", "Необходимо ввести имя, фамилию и отчество!"
+                    "full_name",
+                    "Необходимо ввести имя, фамилию и отчество!"
                 )
-                form["full_name"].field.widget.attrs["class"] += " form-input_error"
+                form[
+                    "full_name"
+                ].field.widget.attrs["class"] += " form-input_error"
+
         return render(
             request,
             "app_users/profile.html",
