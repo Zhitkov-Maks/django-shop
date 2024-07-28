@@ -4,20 +4,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('orders', '0005_remove_status_comment_order_comment'),
+        ("orders", "0005_remove_status_comment_order_comment"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='order',
-            name='type_delivery',
-            field=models.CharField(choices=[('express', 'Экспресс доставка'), ('simple', 'Обычная доставка')], default='simple', max_length=10, verbose_name='Тип доставки'),
+            model_name="order",
+            name="type_delivery",
+            field=models.CharField(
+                choices=[
+                    ("express", "Экспресс доставка"),
+                    ("simple", "Обычная доставка"),
+                ],
+                default="simple",
+                max_length=10,
+                verbose_name="Тип доставки",
+            ),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='type_payment',
-            field=models.CharField(choices=[('cart', 'Онлайн картой'), ('random', 'Онлайн со случайного чужого счета')], default='cart', max_length=10, verbose_name='Тип платежа'),
+            model_name="order",
+            name="type_payment",
+            field=models.CharField(
+                choices=[
+                    ("cart", "Онлайн картой"),
+                    ("random", "Онлайн со случайного чужого счета"),
+                ],
+                default="cart",
+                max_length=10,
+                verbose_name="Тип платежа",
+            ),
         ),
     ]
