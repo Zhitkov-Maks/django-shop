@@ -15,5 +15,9 @@ urlpatterns = [
     path("login/", LoginUser.as_view(), name="login"),
     path("account/", AccountView.as_view(), name="account"),
     path("profile/", ProfileEditView.as_view(), name="profile"),
-    path("historyorder/<int:pk>", HistoryOrderView.as_view(), name="historyOrder"),
+    path(
+        "historyorder/<int:pk>",
+        HistoryOrderView.as_view(),
+        name="historyOrder"
+    ),
 ]
