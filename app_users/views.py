@@ -95,22 +95,21 @@ class LoginUser(LoginView):
 
 class LogoutUser(LogoutView):
     """Класс для выхода пользователя из системы."""
-
     next_page = "home"
 
 
 class AccountView(LoginRequiredMixin, TemplateView):
     """Класс для отображения профиля пользователя"""
 
-    template_name = "app_users/account.html"
-    login_url = "login"
+    template_name: str = "app_users/account.html"
+    login_url: str = "login"
 
-    def get_context_data(self, **kwargs):
-        """Получаем последний заказ пользователя, если таковой имеется"""
-        context = super().get_context_data()
-        user = self.request.user
+    def get_context_data(self, **kwargs) -> dict:
+        """Получаем последний заказ пользователя, если таковой имеется."""
+        context: dict = super().get_context_data()
+        user: CustomUser = self.request.user
         if Order.objects.filter(user=user).exists():
-            order = Order.objects.filter(user=user).order_by("-id")[0]
+            order: Order = Order.objects.filter(user=user).order_by("-id")[0]
             context.update(
                 {
                     "order": order,
