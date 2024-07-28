@@ -16,13 +16,14 @@ from orders.models import Order
 
 class RegisterUser(CreateView):
     """Класс реализует регистрацию пользователей."""
+
     form_class = RegisterUserForm
-    template_name = 'app_users/register.html'
-    success_url = reverse_lazy('home')
+    template_name = "app_users/register.html"
+    success_url = reverse_lazy("home")
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update({'header': 'Регистрация'})
+        context.update({"header": "Регистрация"})
         return context
 
     def post(self, request, *args, **kwargs):
@@ -33,88 +34,95 @@ class RegisterUser(CreateView):
         if form.is_valid():
             user = form.save()
 
-            phone = form.cleaned_data.get('phone')
-            patronymic = form.cleaned_data.get('patronymic')
-            Profile.objects.create(
-                user=user,
-                phone=phone,
-                patronymic=patronymic
-            )
+            phone = form.cleaned_data.get("phone")
+            patronymic = form.cleaned_data.get("patronymic")
+            Profile.objects.create(user=user, phone=phone, patronymic=patronymic)
 
-            email = form.cleaned_data.get('email')
-            raw_pass = form.cleaned_data.get('password1')
+            email = form.cleaned_data.get("email")
+            raw_pass = form.cleaned_data.get("password1")
             user = authenticate(email=email, password=raw_pass)
             login(request, user)
-            return redirect('home')
-        return render(request, 'app_users/register.html', {'form': form})
+            return redirect("home")
+        return render(request, "app_users/register.html", {"form": form})
 
 
 class LoginUser(LoginView):
     """Класс реализует авторизацию пользователей."""
-    template_name = 'app_users/login.html'
-    success_url = reverse_lazy('home')
+
+    template_name = "app_users/login.html"
+    success_url = reverse_lazy("home")
     form_class = AuthenticationForm
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update({'header': 'Авторизация'})
+        context.update({"header": "Авторизация"})
         return context
 
     def post(self, request, **kwargs):
         form = AuthenticationForm(data=request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST["username"]
+        password = request.POST["password"]
 
         user = authenticate(email=username, password=password)
         if user is not None or password is None:
             if user.is_active:
                 login(request, user)
-                return redirect('home')
-        form.add_error('username', 'Неверно введен email или пароль. Попробуйте еще раз.')
-        return render(request, 'app_users/login.html', {'form': form})
+                return redirect("home")
+        form.add_error(
+            "username", "Неверно введен email или пароль. Попробуйте еще раз."
+        )
+        return render(request, "app_users/login.html", {"form": form})
 
 
 class LogoutUser(LogoutView):
     """Класс для выхода пользователя из системы."""
-    next_page = 'home'
+
+    next_page = "home"
 
 
 class AccountView(LoginRequiredMixin, TemplateView):
     """Класс для отображения профиля пользователя"""
-    template_name = 'app_users/account.html'
-    login_url = 'login'
+
+    template_name = "app_users/account.html"
+    login_url = "login"
 
     def get_context_data(self, **kwargs):
         """Получаем последний заказ пользователя, если таковой имеется"""
         context = super().get_context_data()
         user = self.request.user
         if Order.objects.filter(user=user).exists():
-            order = Order.objects.filter(user=user).order_by('-id')[0]
-            context.update({'order': order, 'header': f'Профиль {user.first_name} {user.last_name}'})
+            order = Order.objects.filter(user=user).order_by("-id")[0]
+            context.update(
+                {
+                    "order": order,
+                    "header": f"Профиль {user.first_name} {user.last_name}",
+                }
+            )
         return context
 
 
 class ProfileEditView(LoginRequiredMixin, TemplateView):
     """Класс для редактирования профиля пользователя."""
-    template_name = 'app_users/profile.html'
-    login_url = 'login'
+
+    template_name = "app_users/profile.html"
+    login_url = "login"
 
     def get_context_data(self, **kwargs):
         """Добавляет и вставляет в форму текущие данные пользователя."""
         context = super().get_context_data()
         user = self.request.user
         form = UpdateUserForm()
-        if hasattr(user, 'profile'):  # Проверяем есть ли у нас связь с таблицей profile
+        if hasattr(user, "profile"):  # Проверяем есть ли у нас связь с таблицей profile
             image = user.profile.photo
-            context.update({'image': image})
+            context.update({"image": image})
             form = UpdateUserForm(
                 {
-                    'email': user.email,
-                    'phone': user.profile.phone,
-                    'full_name': f'{user.last_name} {user.first_name} {user.profile.patronymic}'
+                    "email": user.email,
+                    "phone": user.profile.phone,
+                    "full_name": f"{user.last_name} {user.first_name} {user.profile.patronymic}",
                 }
             )
-        context.update({'form': form, 'header': 'Редактирование профиля'})
+        context.update({"form": form, "header": "Редактирование профиля"})
         return context
 
     def post(self, request, *args, **kwargs):
@@ -122,25 +130,34 @@ class ProfileEditView(LoginRequiredMixin, TemplateView):
         user = request.user
         edit = False
         if form.is_valid():
-            if len(form.cleaned_data.get('full_name').split()) == 3:
+            if len(form.cleaned_data.get("full_name").split()) == 3:
                 edit = func_for_check_form(form, user, request)
             else:
-                form.add_error('full_name', 'Необходимо ввести имя, фамилию и отчество!')
-                form['full_name'].field.widget.attrs['class'] += ' form-input_error'
-        return render(request, 'app_users/profile.html', {'form': form, 'image': user.profile.photo, 'edit': edit})
+                form.add_error(
+                    "full_name", "Необходимо ввести имя, фамилию и отчество!"
+                )
+                form["full_name"].field.widget.attrs["class"] += " form-input_error"
+        return render(
+            request,
+            "app_users/profile.html",
+            {"form": form, "image": user.profile.photo, "edit": edit},
+        )
 
 
 class HistoryOrderView(LoginRequiredMixin, ListView):
     """Страница для отображения заказов в профиле."""
+
     model = CustomUser
-    template_name = 'app_users/historyOrder.html'
-    context_object_name = 'history_list'
-    login_url = 'login'
+    template_name = "app_users/historyOrder.html"
+    context_object_name = "history_list"
+    login_url = "login"
 
     def get_queryset(self):
-        return Order.objects.select_related('status').filter(Q(user_id=self.request.user.id))
+        return Order.objects.select_related("status").filter(
+            Q(user_id=self.request.user.id)
+        )
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update({'header': 'История заказов'})
+        context.update({"header": "История заказов"})
         return context
