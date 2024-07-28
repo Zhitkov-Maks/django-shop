@@ -2,9 +2,11 @@ from typing import Tuple
 from unicodedata import decimal
 
 from django.conf import settings
+from django.http import HttpRequest
 
 from admin_settings.models import SiteSettings
 from cart.services.cart import Cart
+from orders.forms import OrderForms
 from orders.models import Order
 
 
@@ -14,7 +16,7 @@ class OrderInfo(object):
     оформлении заказа, чтобы вывести введенные пользователем данные.
     """
 
-    def __init__(self, request):
+    def __init__(self, request: HttpRequest):
         """Инициализируем заказ."""
         self.session = request.session
         order: dict = self.session.get(settings.ORDER_SESSION_INFO)
@@ -23,7 +25,7 @@ class OrderInfo(object):
             order = self.session[settings.ORDER_SESSION_INFO] = {}
         self.order = order
 
-    def add(self, form, request) -> None:
+    def add(self, form: OrderForms, request: HttpRequest) -> None:
         """Добавить заказ в словарь из сессии."""
         type_delivery: str = Order.get_delivery(
             form.cleaned_data.get("type_delivery")
@@ -64,7 +66,10 @@ class OrderInfo(object):
             yield item
 
 
-def get_delivery_price(type_delivery, request) -> Tuple[float, float]:
+def get_delivery_price(
+        type_delivery: str,
+        request: HttpRequest
+) -> Tuple[float, float]:
     """
     Функция для получения стоимости доставки, в зависимости от суммы
     и выбранной доставки.
