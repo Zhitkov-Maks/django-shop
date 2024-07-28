@@ -1,16 +1,17 @@
 from django.contrib import admin
+from django.db.models import QuerySet
 
 from orders.models import Order, Status, DetailOrder
 
 
 class ProductsInline(admin.TabularInline):
-    fk_name = "order"
+    fk_name: str = "order"
     model = DetailOrder
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = (
+    list_display: tuple = (
         "id",
         "user_verbose",
         "paid",
@@ -21,12 +22,12 @@ class OrderAdmin(admin.ModelAdmin):
         "type_payment",
         "status",
     )
-    list_display_links = ("user_verbose",)
-    list_filter = ("status",)
-    inlines = (ProductsInline,)
-    list_editable = ("status", "paid")
-    ordering = ("-order_date",)
-    fieldsets = (
+    list_display_links: tuple = ("user_verbose",)
+    list_filter: tuple = ("status",)
+    inlines: tuple = (ProductsInline,)
+    list_editable: tuple = ("status", "paid")
+    ordering: tuple = ("-order_date",)
+    fieldsets: tuple = (
         (None, {"fields": ["city", "address", "paid"]}),
         (
             "Delivery and Payment",
@@ -37,7 +38,7 @@ class OrderAdmin(admin.ModelAdmin):
         ),
     )
 
-    def get_queryset(self, request):
+    def get_queryset(self, request) -> QuerySet:
         return Order.objects.select_related("user")
 
     def user_verbose(self, obj: Order) -> str:
@@ -46,5 +47,5 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
-    list_display = ("id", "status")
-    list_display_links = ("status",)
+    list_display: tuple = ("id", "status")
+    list_display_links: tuple = ("status",)
