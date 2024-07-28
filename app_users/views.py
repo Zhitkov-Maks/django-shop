@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView
@@ -10,7 +11,7 @@ from django.views.generic import CreateView, ListView, TemplateView
 from .forms import RegisterUserForm, UpdateUserForm
 from .models import Profile, CustomUser
 
-from .services import func_for_check_form
+from .services import distributor_function
 from orders.models import Order
 
 
@@ -18,32 +19,46 @@ class RegisterUser(CreateView):
     """Класс реализует регистрацию пользователей."""
 
     form_class = RegisterUserForm
-    template_name = "app_users/register.html"
-    success_url = reverse_lazy("home")
+    template_name: str = "app_users/register.html"
+    success_url: str = reverse_lazy("home")
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Для добавления header."""
+        context: dict = super().get_context_data()
         context.update({"header": "Регистрация"})
         return context
 
-    def post(self, request, *args, **kwargs):
-        """Метод проверяет форму и если она валидна сохраняет пользователя в модели CustomUser и дополнительные
-        в модели Profile. И так же если сохранение прошло успешно метод аутентифицирует пользователя и авторизует
-        пользователя и перенаправляет на главную страницу."""
+    def post(self, request, *args, **kwargs) -> HttpResponse:
+        """
+        Метод проверяет форму и если она валидна сохраняет пользователя
+        в модели CustomUser и дополнительные в модели Profile.
+        И так же если сохранение прошло успешно метод аутентифицирует
+        пользователя и авторизует
+        пользователя и перенаправляет на главную страницу.
+        """
         form = RegisterUserForm(request.POST)
         if form.is_valid():
             user = form.save()
 
             phone = form.cleaned_data.get("phone")
             patronymic = form.cleaned_data.get("patronymic")
-            Profile.objects.create(user=user, phone=phone, patronymic=patronymic)
+            Profile.objects.create(
+                user=user, phone=phone, patronymic=patronymic
+            )
 
-            email = form.cleaned_data.get("email")
-            raw_pass = form.cleaned_data.get("password1")
+            email: str = form.cleaned_data.get("email")
+            raw_pass: str = form.cleaned_data.get("password1")
+
+            # Аутентифицируем пользователя.
             user = authenticate(email=email, password=raw_pass)
             login(request, user)
+
             return redirect("home")
-        return render(request, "app_users/register.html", {"form": form})
+        return render(
+            request,
+            "app_users/register.html",
+            {"form": form}
+        )
 
 
 class LoginUser(LoginView):
@@ -131,7 +146,7 @@ class ProfileEditView(LoginRequiredMixin, TemplateView):
         edit = False
         if form.is_valid():
             if len(form.cleaned_data.get("full_name").split()) == 3:
-                edit = func_for_check_form(form, user, request)
+                edit = distributor_function(form, user, request)
             else:
                 form.add_error(
                     "full_name", "Необходимо ввести имя, фамилию и отчество!"
