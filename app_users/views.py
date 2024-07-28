@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -177,16 +177,18 @@ class HistoryOrderView(LoginRequiredMixin, ListView):
     """Страница для отображения заказов в профиле."""
 
     model = CustomUser
-    template_name = "app_users/historyOrder.html"
-    context_object_name = "history_list"
-    login_url = "login"
+    template_name: str = "app_users/historyOrder.html"
+    context_object_name: str = "history_list"
+    login_url: str = "login"
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """Переопределил метод, чтобы избежать лишних запросов к бд."""
         return Order.objects.select_related("status").filter(
             Q(user_id=self.request.user.id)
         )
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляем header для отображения названия страницы."""
+        context: dict = super().get_context_data()
         context.update({"header": "История заказов"})
         return context
