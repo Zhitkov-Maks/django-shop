@@ -64,19 +64,20 @@ class RegisterUser(CreateView):
 class LoginUser(LoginView):
     """Класс реализует авторизацию пользователей."""
 
-    template_name = "app_users/login.html"
-    success_url = reverse_lazy("home")
-    form_class = AuthenticationForm
+    template_name: str = "app_users/login.html"
+    success_url: str = reverse_lazy("home")
+    form_class: AuthenticationForm = AuthenticationForm
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляем header для отображения в строке названия сайта."""
+        context: dict = super().get_context_data()
         context.update({"header": "Авторизация"})
         return context
 
-    def post(self, request, **kwargs):
-        form = AuthenticationForm(data=request.POST)
-        username = request.POST["username"]
-        password = request.POST["password"]
+    def post(self, request, **kwargs) -> HttpResponse:
+        form: AuthenticationForm = AuthenticationForm(data=request.POST)
+        username: str = request.POST["username"]
+        password: str = request.POST["password"]
 
         user = authenticate(email=username, password=password)
         if user is not None or password is None:
@@ -84,9 +85,12 @@ class LoginUser(LoginView):
                 login(request, user)
                 return redirect("home")
         form.add_error(
-            "username", "Неверно введен email или пароль. Попробуйте еще раз."
+            "username",
+            "Неверно введен email или пароль. Попробуйте еще раз."
         )
-        return render(request, "app_users/login.html", {"form": form})
+        return render(
+            request, "app_users/login.html", {"form": form}
+        )
 
 
 class LogoutUser(LogoutView):
