@@ -2,10 +2,11 @@ import random
 from typing import Tuple
 
 from django.db import transaction
+from django.forms import CharField
 from django.http import HttpRequest
 
 from app_users.models import CustomUser
-from orders.forms import OrderForms
+from orders.forms import OrderForms, NumberCard
 from orders.models import Status, DetailOrder, Order
 from cart.services.cart import Cart
 from app_megano.models import Purchases, Goods
@@ -15,7 +16,7 @@ def add_order(
         form: OrderForms,
         user: CustomUser,
         total_price: int
-) -> Tuple[Order, str]:
+) -> Tuple[Order, CharField]:
     """
     Добавляем информацию о заказе. Возвращаем заказ и тип платежа чтобы в
     зависимости от выбранного платежа перенаправить на нужную страницу.
@@ -69,7 +70,7 @@ def check_cart(cart: Cart) -> bool:
     return stock
 
 
-def get_number_card(form: OrderForms, order: Order):
+def get_number_card(form: NumberCard, order: Order):
     """Проверяем номер карты на валидность условиям."""
     list_payment_failed = [
         "Недостаточно средств",
