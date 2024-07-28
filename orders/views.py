@@ -174,17 +174,21 @@ class ProgressPaymentView(TemplateView):
 class OneOrderView(DetailView):
     """Страница с подробной информацией о заказе."""
 
-    template_name = "orders/oneOrder.html"
+    template_name: str = "orders/oneOrder.html"
     model = Order
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        obj = self.object
-        link = True  # Для того чтобы отправить на оплату своей картой или случайной
+    def get_context_data(self, **kwargs) -> dict:
+        context: dict = super().get_context_data()
+        obj: Order = self.object
+
+        # Для того чтобы отправить на оплату своей картой или случайной
+        link = True
         if obj.type_payment == "random":
             link = False
-        if obj.comment:  # Проверяем есть ли комментарий у заказа
+
+        # Проверяем есть ли комментарий у заказа
+        if obj.comment:
             context.update({"statuses": True})
-        title = "Информация о заказе."
-        context.update({"link": link, "header": title})
+
+        context.update({"link": link, "header": "Информация о заказе."})
         return context
