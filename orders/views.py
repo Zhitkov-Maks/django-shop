@@ -65,34 +65,43 @@ class OrderView(TemplateView):
         )
 
 
-def add_info_about_user(request):
-    """Получает форму с данными о заказе и отправляет на сохранение в сессии"""
+def add_info_about_user(request: HttpRequest) -> JsonResponse:
+    """
+    Получает форму с данными о заказе и отправляет на сохранение в сессии.
+    """
     if request.method == "POST":
         form = OrderForms(request.POST)
+
         if form.is_valid():
             order_info = OrderInfo(request)
             order_info.add(form=form, request=request)
-            response = JsonResponse({"success": True})
-            return response
+            return JsonResponse({"success": True})
+
     return JsonResponse({"success": False})
 
 
-def login_modal(request):
-    """Обрабатываем запрос на авторизацию из всплывающего окна при оформлении заказа, если авторизация прошла
-    успешно то продолжаем оформление, если нет то отправляем на страницу login.html"""
-    form = AuthenticationForm(data=request.POST)
+def login_modal(request: HttpRequest) -> HttpResponse:
+    """
+    Обрабатываем запрос на авторизацию из всплывающего окна при оформлении
+    заказа, если авторизация прошла успешно то продолжаем оформление,
+    если нет то отправляем на страницу login.html.
+    """
+    form: AuthenticationForm = AuthenticationForm(data=request.POST)
     if request.method == "POST":
         if form.is_valid():
-            email = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
+            email: str = form.cleaned_data.get("username")
+            password: str = form.cleaned_data.get("password")
             user = authenticate(email=email, password=password)
 
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     return redirect("order")
+
     form.add_error("username", "Пользователь не найден((")
-    return render(request, "app_users/login.html", {"form": form})
+    return render(
+        request, "app_users/login.html", {"form": form}
+    )
 
 
 class PaymentView(DetailView):
