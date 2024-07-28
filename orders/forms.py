@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import CharField, RadioSelect, TextInput, EmailInput
 
 from orders.models import Order
 
@@ -6,7 +7,7 @@ from orders.models import Order
 class OrderForms(forms.ModelForm):
     class Meta:
         model = Order
-        fields = (
+        fields: tuple = (
             "full_name",
             "phone",
             "email",
@@ -15,7 +16,7 @@ class OrderForms(forms.ModelForm):
             "address",
             "type_payment",
         )
-        widgets = {
+        widgets: dict[str, RadioSelect | TextInput | EmailInput] = {
             "full_name": forms.TextInput(
                 attrs={
                     "class": "form-input",
@@ -49,7 +50,7 @@ class OrderForms(forms.ModelForm):
 
 
 class NumberCard(forms.Form):
-    number = forms.CharField(
+    number: CharField = forms.CharField(
         label="Номер карты",
         widget=forms.TextInput(
             attrs={
