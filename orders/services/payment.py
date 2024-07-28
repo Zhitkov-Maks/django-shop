@@ -2,7 +2,6 @@ import random
 from typing import Tuple
 
 from django.db import transaction
-from django.db.models.fields import PositiveIntegerField
 from django.http import HttpRequest
 
 from app_users.models import CustomUser
