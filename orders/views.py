@@ -1,32 +1,38 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpRequest
 
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import DetailView, TemplateView
 
+from app_users.models import CustomUser
 from orders.forms import OrderForms, NumberCard
 from orders.models import Order
 from orders.services.orderInfo import OrderInfo
-from orders.services.payment import add_order, add_detail_to_order, get_number_card
-from cart.services.cart import Cart
+from orders.services.payment import (
+    add_order,
+    add_detail_to_order,
+    get_number_card
+)
 
 
 class OrderView(TemplateView):
     """Страница с оформлением заказа."""
 
-    template_name = "orders/order.html"
+    template_name: str = "orders/order.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        user = self.request.user
-        form = OrderForms()
-        form_login = AuthenticationForm()
+    def get_context_data(self, **kwargs) -> dict:
+        context: dict = super().get_context_data()
+        user: CustomUser = self.request.user
+        form: OrderForms = OrderForms()
+        form_login: AuthenticationForm = AuthenticationForm()
+
         if hasattr(user, "profile"):
             form = OrderForms(
                 {
-                    "full_name": f"{user.last_name} {user.first_name} {user.profile.patronymic}",
+                    "full_name": f"{user.last_name} {user.first_name} "
+                                 f"{user.profile.patronymic}",
                     "email": user.email,
                     "phone": user.profile.phone,
                     "type_delivery": "simple",
@@ -36,18 +42,27 @@ class OrderView(TemplateView):
         context.update({"form": form, "form2": form_login})
         return context
 
-    def post(self, request):
-        form = OrderForms(request.POST)
-        user = self.request.user
-        order = OrderInfo(request)
+    def post(self, request: HttpRequest) -> HttpResponse:
+        form: OrderForms = OrderForms(request.POST)
+        user: CustomUser = self.request.user
+        order_info: OrderInfo = OrderInfo(request)
+
         if form.is_valid():
-            order, payment = add_order(form, user, order.get_total_price())
+            order, payment = add_order(
+                form, user, order_info.get_total_price()
+            )
             add_detail_to_order(order, request)
+
             if payment == "cart":
                 return redirect(reverse("payment", args=[order.pk]))
+
             elif payment == "random":
-                return redirect(reverse("paymentSomeOne", args=[order.pk]))
-        return render(request, "orders/order.html", {"form": form})
+                return redirect(
+                    reverse("paymentSomeOne", args=[order.pk])
+                )
+        return render(
+            request, "orders/order.html", {"form": form}
+        )
 
 
 def add_info_about_user(request):
