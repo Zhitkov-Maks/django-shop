@@ -162,10 +162,11 @@ class PaymentSomeOneView(DetailView):
 class ProgressPaymentView(TemplateView):
     """Страница с фиктивной оплатой товара."""
 
-    template_name = "orders/progressPayment.html"
+    template_name: str = "orders/progressPayment.html"
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляем header для отображения названия страницы."""
+        context: dict = super().get_context_data()
         context.update({"header": "Прогресс оплаты"})
         return context
 
