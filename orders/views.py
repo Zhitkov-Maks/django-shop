@@ -105,24 +105,26 @@ def login_modal(request: HttpRequest) -> HttpResponse:
 
 
 class PaymentView(DetailView):
-    """Страница с вводом номера карты пользователя"""
+    """Страница с вводом номера карты пользователя."""
 
-    template_name = "orders/payment.html"
+    template_name: str = "orders/payment.html"
     model = Order
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        """Добавляет идентификатор для отображения сортировки в шаблоне"""
-        context = super().get_context_data()
-        form = NumberCard()
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        """Добавляет идентификатор для отображения сортировки в шаблоне."""
+        context: dict = super().get_context_data()
+        form: NumberCard = NumberCard()
         context.update({"header": "Оплата со своей карты", "form": form})
         return context
 
-    def post(self, request, pk):
-        form = NumberCard(request.POST)
-        order = Order.objects.get(id=pk)
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        form: NumberCard = NumberCard(request.POST)
+        order: Order = Order.objects.get(id=pk)
+
         if form.is_valid():
             get_number_card(form, order)
             return redirect(reverse("progressPayment"))
+
         return render(
             request,
             "orders/paymentSomeOne.html",
