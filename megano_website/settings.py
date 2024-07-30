@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'mptt',
     'django_mptt_admin',
     'admin_settings.apps.AdminSettingsConfig',
-    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -148,6 +147,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles/')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -185,22 +185,3 @@ EMAIL_HOST_PASSWORD = 'erboqowrxmlwvcrc'
 DEFAULT_FROM_EMAIL = 'teoretickzhitkov@yandex.ru'
 
 LOGIN_URL = 'login'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-
-sentry_sdk.init(
-    dsn="https://952e39f890141553399fab99124d4207@o4504045707526144.ingest.sentry.io/4505760839499776",
-    integrations=[DjangoIntegration()],
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True,
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0,
-    # To set a uniform sample rate
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production,
-    profiles_sample_rate=1.0,
-)
