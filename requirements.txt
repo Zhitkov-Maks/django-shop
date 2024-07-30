@@ -16,4 +16,4 @@ sentry-sdk==2.11.0
 sqlparse==0.4.3
 tzdata==2022.6
 urllib3==2.2.2
-uvicorn==0.30.3
+gunicorn==22.0.0
