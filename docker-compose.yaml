@@ -4,6 +4,8 @@ services:
     build: ./nginx
     ports:
       - "80:80"
+    volumes:
+      - staticfiles:/home/shop/staticfiles
     depends_on:
       - app
 
@@ -19,6 +21,8 @@ services:
       - .env
     depends_on:
       - db
+    volumes:
+      - staticfiles:/home/shop/staticfiles
 
   db:
     image: postgres:15-alpine
