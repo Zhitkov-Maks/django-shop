@@ -168,7 +168,7 @@
                   {% for comment in messages %}
                   <div class="Comment">
                     <div class="Comment-column Comment-column_pict">
-                      {% if comment.user.profile.photo.url %}
+                      {% if comment.user.profile.photo %}
                       <img class="Comment__avatar" src="{{ comment.user.profile.photo.url }}" alt="photo">
                       {% else %}
                       <div class="Comment-avatar">
