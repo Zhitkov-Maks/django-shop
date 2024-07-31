@@ -3,25 +3,35 @@
 ---
 
 ## Инструкция по установке:
-1. Создать виртуальное окружение
-```
-python -m venv venv
-```
-2. Установить зависимости:  
-```
-pip install -r requirements.txt
-```
 
-3. Установить и настроить PostgreSQL
+- В настройках в ALLOWED_HOSTS нужно добавить адреса вашего сервера.
+- Так же у вас должен быть .env файл в котором нужно указать все нужные
+переменные окружения.
 
-4. Выполнить миграции.
+- Сгенерировать статические файлы, для чего предварительно
+должен быть установлен django.
 
 ```
-python manage.py migrate
+python3 manage.py collectstatic
 ```
 
-5. Загрузить тестовые данные в базу:
+Для запуска приложения должен быть установлен 
+[docker](https://docs.docker.com/engine/install/ubuntu/)
 
+- Запуск 
+
+```
+docker compose up -d
+```
+
+- Далее нужно выполнить миграции, для этого нужно перейти в контейнер с самим
+приложением.
+```
+docker exec -ti <container_id> sh
+python3 manage.py migrations
+```
+
+- И загрузить данные из фикстур.
 ```
 python3 manage.py loaddata settings.json
 ```
@@ -37,13 +47,6 @@ python3 manage.py loaddata megano.json
 ```
 python3 manage.py loaddata orders.json
 ```
-
-6. Запустить тестовый сервер:
-```
-python manage.py runserver
-```
-
-7. Перейдите по ссылке: [localhost](http://127.0.0.1:8000)
 
 Тестовый суперпользователь:    
 ```
