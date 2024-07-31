@@ -1,11 +1,10 @@
-version: '3.9'
 services:
   nginx:
     build: ./nginx
     ports:
       - "80:80"
     volumes:
-      - staticfiles:/home/shop/staticfiles
+      - ./staticfiles:/home/shop/staticfiles
     depends_on:
       - app
 
@@ -22,7 +21,7 @@ services:
     depends_on:
       - db
     volumes:
-      - staticfiles:/home/shop/staticfiles
+      - ./staticfiles:/home/shop/staticfiles
 
   db:
     image: postgres:15-alpine
