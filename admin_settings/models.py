@@ -3,13 +3,15 @@ from django.db import models
 
 class SingletonModel(models.Model):
     """
-    Модель нужна для того чтобы у нас в настройках была всегда одна запись
+    Модель нужна для того чтобы у нас в настройках была
+    всегда одна запись.
     """
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
+        # Удаляем все другие записи перед сохранением новой
         self.__class__.objects.exclude(id=self.pk).delete()
         super(SingletonModel, self).save(*args, **kwargs)
 
@@ -20,17 +22,16 @@ class SingletonModel(models.Model):
         except cls.DoesNotExist:
             return cls()
 
-
 class SiteSettings(SingletonModel):
     """Непосредственно сама модель с настройками"""
 
     logotype = models.FileField(
-        upload_to="files/logo", verbose_name="Логотип", default=0
+        upload_to="files/logo", verbose_name="Логотип", blank=True, null=True
     )
-    phone = models.CharField(max_length=15, verbose_name="Телефон", default=0)
-    email = models.EmailField(max_length=50, verbose_name="Email", default=0)
-    skype = models.CharField(max_length=50, verbose_name="Skype", default=0)
-    address = models.CharField(max_length=200, verbose_name="Адрес", default=0)
+    phone = models.CharField(max_length=15, verbose_name="Телефон", blank=True)
+    email = models.EmailField(max_length=50, verbose_name="Email", blank=True)
+    skype = models.CharField(max_length=50, verbose_name="Skype", blank=True)
+    address = models.CharField(max_length=200, verbose_name="Адрес", blank=True)
     price_delivery_express = models.DecimalField(
         verbose_name="Стоимость экспресс доставки",
         max_digits=8,
