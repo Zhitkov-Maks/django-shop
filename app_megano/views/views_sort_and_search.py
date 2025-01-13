@@ -99,7 +99,7 @@ class CatalogSortView(ListView):
             {'key': 'newest', 'label': 'Новизне', 'direction': current_direction},
         ]
 
-        # Обновляем направление для цен и отзывов
+        # Обновляем направление для сортировок
         for option in context['sort_options']:
             if option['key'] == current_sort_key:
                 option['direction'] = 'desc' if current_direction == 'asc' else 'asc'
