@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 
 from app_megano.services import collection_data
@@ -18,7 +19,7 @@ from app_megano.crud import (
 
 
 class HomeView(ListView):
-    """Класс для отображения главной страницы"""
+    """Класс для отображения главной страницы сайта."""
 
     model = Goods
     template_name: str = "app_megano/index.html"
@@ -142,7 +143,7 @@ class ProductDetailView(DetailView):
         context: dict = super().get_context_data()
         collection_data(self, context)
         form = ReviewsForm()
-        user: CustomUser = self.request.user
+        user: User = self.request.user
         if self.request.user.is_authenticated:
             form = ReviewsForm({
                 'email': user.email,
@@ -153,7 +154,10 @@ class ProductDetailView(DetailView):
         return context
 
     def post(self, request, pk) -> HttpResponse:
-        """Добавляет комментарий к товару."""
+        """
+        Добавляет комментарий к товару. Комментировать могут только
+        зарегистрированные пользователи.
+        """
         form = ReviewsForm(request.POST)
 
         if self.request.user.is_authenticated:
@@ -172,27 +176,6 @@ class ProductDetailView(DetailView):
             "app_megano/product.html",
             context={"form": form}
         )
-
-
-class CatalogView(ListView):
-    """Класс для получения товаров по выбранной категории"""
-
-    model = Goods
-    template_name: str = "app_megano/catalog.html"
-    context_object_name: str = "product_list"
-    paginate_by: int = 8
-
-    def get_queryset(self) -> QuerySet:
-        """Выбирает записи топ продаж за 2 месяца."""
-        return add_queryset_top()
-
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """Добавляет идентификатор для отображения сортировки в шаблоне."""
-        context: dict = super().get_context_data()
-        context.update(
-            {"sortPopular": True, "header": "Популярные товары"}
-        )
-        return context
 
 
 class ViewedProducts(ListView):
