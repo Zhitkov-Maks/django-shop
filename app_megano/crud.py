@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict
 
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Min, QuerySet, Count, Q
-from django.http import HttpRequest
 from django.utils import timezone
 
 from app_megano.models import Category, Goods, ViewedProduct, Discount
@@ -34,7 +34,7 @@ def add_queryset_top() -> QuerySet:
     """
     end_datetime: datetime = timezone.now()
     start_datetime: datetime = end_datetime - timedelta(days=60)
-    queryset = (
+    queryset: QuerySet = (
         Goods.objects.prefetch_related("tag")
         .annotate(count=Count("shipments"))
         .filter(
@@ -83,14 +83,14 @@ def add_product_in_viewed_list(user: CustomUser, product: Goods) -> None:
         )
 
 
-def add_product_filter(request: HttpRequest) -> QuerySet | list:
+def add_product_filter(request: WSGIRequest) -> QuerySet:
     """Функция для поиска товара по выбранным параметрам."""
-    price: list = request.GET.get("price").split(";")
+    price: list = request.GET.get(key="price").split(";")
     price_range: tuple = (Decimal(price[0]), Decimal(price[1]))
 
-    name: list = request.GET.get("title").split()
-    active: str = request.GET.get("active")
-    delivery: str = request.GET.get("delivery")
+    name: list = request.GET.get(key="title").split()
+    active: str = request.GET.get(key="active", default="")
+    delivery: str = request.GET.get(key="delivery")
 
     query_name, query_descr, query_info = Q(), Q(), Q()
     for word in name:
@@ -119,9 +119,10 @@ def clean_no_active_discount() -> None:
     """Функция для перевода закончившихся акций в статус неактивна."""
     current_date: datetime = timezone.now()
 
-    product_discount_ended: QuerySet = (Discount.objects.filter(
-        valid_to__lt=current_date)
-                                        .filter(active=True))
+    product_discount_ended: QuerySet = (
+        Discount.objects
+        .filter(valid_to__lt=current_date)
+        .filter(active=True))
 
     for product in product_discount_ended:
         if product.active:
@@ -164,11 +165,31 @@ def get_sale() -> QuerySet:
 
 
 def search_product_queryset(query: list) -> QuerySet:
-    query_list = Q()
+    """
+    Функция для поиска товаров по заданным ключевым словам.
+
+    :param query: Список ключевых слов для поиска.
+    :return: QuerySet объектов Goods, соответствующих критериям поиска.
+    """
+
+    # Инициализация пустого Q-объекта для построения сложного запроса
+    query_list: Q = Q()
+    end_datetime: datetime = timezone.now()
+    start_datetime: datetime = end_datetime - timedelta(days=180)
+
+    # Проходим по каждому слову в списке ключевых слов
     for word in query:
+        # Добавляем условие поиска для каждого слова с использованием регулярного выражения
         query_list &= Q(name__iregex=word)
+
+    # Выполняем запрос к базе данных
     return (
         Goods.objects.prefetch_related("tag")
+        .annotate(count=Count("shipments"))
         .filter(Q(query_list))
-        .order_by("-date_create")
+        .filter(Q(
+            shipments__date_purchases__gte=start_datetime,
+            shipments__date_purchases__lte=end_datetime,
+        ))
+        .order_by("-count")  # Сортируем результаты по продаваемости товаров.
     )

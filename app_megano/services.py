@@ -1,7 +1,7 @@
 """Модуль для операций, чтобы не делать это во view, а также при
 необходимости использовать в другом месте."""
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
-from django.http import HttpRequest
 
 from app_users.models import CustomUser
 from cart.services.cart import Cart
@@ -26,7 +26,7 @@ def check_product_in_cart(cart: Cart, product: Goods) -> tuple:
     return check, quantity
 
 
-def add_data_filter(request: HttpRequest, context: dict) -> dict:
+def add_data_filter(request: WSGIRequest, context: dict) -> dict:
     """
     Функция для получения данных которые ввел пользователь, чтобы после
     перезагрузки были выставлены параметры введенные пользователем.

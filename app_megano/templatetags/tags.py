@@ -1,5 +1,5 @@
 from django import template
-from django.db.models import Count, Min, Max
+from django.db.models import Count, Min, Max, QuerySet
 
 from app_megano.models import Category, Tags, Goods
 
@@ -7,8 +7,8 @@ register = template.Library()
 
 
 @register.simple_tag(name="get_cats")
-def all_categories() -> list:
-    """Функция возвращает список категорий"""
+def all_categories() -> QuerySet:
+    """Функция возвращает список категорий для отображения на всех страницах."""
     return Category.objects.filter(active=True).order_by("name")
 
 
@@ -23,15 +23,11 @@ def load_tag() -> dict:
 
 @register.simple_tag(name="get_priceMin")
 def price_min() -> dict:
-    """
-    Функция для возврата минимальной цены для страницы с каталогом товаров.
-    """
+    """Функция для возврата минимальной цены для страницы с каталогом товаров."""
     return Goods.objects.aggregate(Min("price"))
 
 
 @register.simple_tag(name="get_priceMax")
 def price_max() -> dict:
-    """
-    Функция для возврата максимальной цены для страницы с каталогом товаров.
-    """
+    """Функция для возврата максимальной цены для страницы с каталогом товаров."""
     return Goods.objects.aggregate(Max("price"))

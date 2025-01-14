@@ -4,26 +4,19 @@ from django.urls import path
 
 from app_megano.views.view import (
     HomeView,
-    CatalogView,
     ShowCategory,
     ProductDetailView,
     ShowTag,
     ViewedProducts, Sale
 )
 from app_megano.views.views_sort_and_search import (
-    CatalogSortPriceMax,
-    CatalogSortPrice,
-    CatalogSortReview,
-    CatalogSortReviewMin,
-    CatalogSortNew,
-    CatalogSortOld,
+    CatalogSortView,
     SearchProduct,
     SearchFilter
 )
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
-    path("goods/catalog/", CatalogView.as_view(), name="catalog"),
     path(
         "goods/categories/<int:pk>/",
         ShowCategory.as_view(),
@@ -41,35 +34,9 @@ urlpatterns = [
         name="viewed"
     ),
     path(
-        "goods/catalog/price/",
-        CatalogSortPrice.as_view(),
-        name="sortPrice"
-    ),
-    path(
-        "goods/catalog/pricemax/",
-        CatalogSortPriceMax.as_view(),
-        name="sortPriceMax"
-    ),
-    path(
-        "goods/catalog/review/",
-        CatalogSortReview.as_view(),
-        name="sortReview"
-    ),
-    path(
-
-        "goods/catalog/reviewMin/",
-        CatalogSortReviewMin.as_view(),
-        name="sortReviewMin"
-    ),
-    path(
-        "goods/catalog/new/",
-        CatalogSortNew.as_view(),
-        name="sortNew"
-    ),
-    path(
-        "goods/catalog/old/",
-        CatalogSortOld.as_view(),
-        name="sortOld"
+        "goods/catalog/",
+        CatalogSortView.as_view(),
+        name="catalog"
     ),
     path(
         "goods/catalog/search/",

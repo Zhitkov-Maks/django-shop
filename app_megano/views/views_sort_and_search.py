@@ -3,10 +3,13 @@ from typing import List, Dict
 from django.db.models import QuerySet, Count
 from django.views.generic import ListView
 
-from app_megano.crud import add_product_filter, search_product_queryset, add_queryset_top
-from app_megano.models import Goods
+from app_megano.crud import (
+    add_product_filter,
+    search_product_queryset,
+    add_queryset_top
+)
+from app_megano.models.model_goods import Goods
 from app_megano.services import add_data_filter
-
 
 
 class SearchProduct(ListView):

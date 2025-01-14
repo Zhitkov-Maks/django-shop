@@ -1,6 +1,10 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
+from app_megano.models.model_comments import Comment
+from app_megano.models.model_discount import Discount
+from app_megano.models.model_goods import Goods
+from app_megano.models.model_tags_categories import Category, Tags
 from app_megano.services import collection_data
 from app_users.models import CustomUser
 from django.core.cache import cache
@@ -10,7 +14,6 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView
 
 from app_megano.forms import ReviewsForm
-from app_megano.models import Goods, Category, Tags, Discount, Comment
 from app_megano.crud import (
     add_category_favorite,
     add_queryset_top,
@@ -56,8 +59,7 @@ class HomeView(ListView):
         context.update(
             {
                 "limited_list": limited_list,
-                "category_dict": category_dict,
-                "header": "Интернет магазин MEGANO",
+                "category_dict": category_dict
             }
         )
         return context
@@ -84,20 +86,6 @@ class ShowCategory(ListView):
             .order_by("-date_create")
         )
 
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """
-        Переопределяем метод, для того чтобы прикрепить тип сортировки
-        и header.
-        """
-        context: dict = super().get_context_data()
-        pk: int = self.kwargs["pk"]
-        context.update(
-            {
-                "sortNew": True,
-                "header": f"Товары по категории {Category.objects.get(id=pk)}"}
-        )
-        return context
-
 
 class ShowTag(ListView):
     """Класс выводит список товаров по тегам."""
@@ -113,20 +101,6 @@ class ShowTag(ListView):
         """
         tag: Tags = Tags.objects.get(id=self.kwargs["pk"])
         return tag.tags.prefetch_related("tag").all().order_by("-date_create")
-
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """
-        Переопределяем метод, для того чтобы прикрепить тип сортировки
-        и header.
-        """
-        context: dict = super().get_context_data()
-        pk: int = self.kwargs["pk"]
-        context.update(
-            {
-                "sortNew": True,
-                "header": f"Товары по тегу {Tags.objects.get(id=pk)}"}
-        )
-        return context
 
 
 class ProductDetailView(DetailView):
@@ -192,12 +166,6 @@ class ViewedProducts(ListView):
             products__user=user
         )[:16]
 
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """Нужен только, чтобы добавить header в контекст."""
-        context: dict = super().get_context_data()
-        context.update({"header": "Вы интересовались!!!"})
-        return context
-
 
 class Sale(ListView):
     """Класс для отображения страницы с акциями"""
@@ -213,9 +181,3 @@ class Sale(ListView):
         не так часто.
         """
         return cache.get_or_set("get_sale", get_sale(), 30 * 60)
-
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """Нужен только, чтобы добавить header в контекст."""
-        context: dict = super().get_context_data()
-        context.update({"header": "Действующие скидки"})
-        return context
