@@ -88,33 +88,27 @@
           </div>
         </div>
         <div class="Section-content">
-          <div class="Sort">
-            <div class="Sort-title">Сортировать по:
-            </div>
-            {% if sortPopular %}
-            <div class="Sort-variants"><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
-            </div>
-            {% elif sortPriceMin %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortPriceMax' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
-            </div>
-            {% elif sortPriceMax %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
-            </div>
-            {% elif sortReview %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortReviewMin' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
-            </div>
-            {% elif sortReviewMin %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy" href="{% url 'sortNew' %}">Новизне</a>
-            </div>
-            {% elif sortNew %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_inc" href="{% url 'sortOld' %}">Новизне</a>
-            </div>
-            {% elif sortOld %}
-            <div class="Sort-variants"><a class="Sort-sortBy" href="{% url 'catalog' %}">Популярности</a><a class="Sort-sortBy" href="{% url 'sortPrice' %}">Цене</a><a class="Sort-sortBy" href="{% url 'sortReview' %}">Отзывам</a><a class="Sort-sortBy Sort-sortBy_dec" href="{% url 'sortNew' %}">Новизне</a>
+        <div class="Sort">
+            {% if sort_options %}
+            <div class="Sort-title">Сортировать по:</div>
+            <div class="Sort-variants">
+                {% for sort_option in sort_options %}
+                    <a class="Sort-sortBy 
+                        {% if sort_option.key == current_sort_key %}
+                            {% if sort_option.direction == 'asc' %}
+                                Sort-sortBy_inc
+                            {% else %}
+                                Sort-sortBy_dec
+                            {% endif %}
+                        {% endif %}"
+                        href="{% url 'catalog' %}?sort={{ sort_option.key }}&direction={{ sort_option.direction }}">
+                        {{ sort_option.label }}
+                    </a>
+                {% endfor %}
             </div>
             {% endif %}
-          </div>
-          <div class="Cards">
+        </div>
+        <div class="Cards">
             {% if product_list %}
             {% for goods in product_list %}
                 {% include 'includes/card.html' %}
@@ -125,38 +119,24 @@
       </div>
       {% if paginator.num_pages > 1 %}
       <div class="Pagination">
-        <div class="Pagination-ins">
-          {% if page_obj.has_previous %}
-          {% if sortFilter %}
-          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
-          {% else %}
-          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.previous_page_number }}&query={{ query }}"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
-          {% endif %}
-          {% else %}
-          <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination.svg"/></a>
-          {% endif %}
-          {% for page in paginator.page_range %}
-          {% if page == page_obj.number %}
-          <a class="Pagination-element Pagination-element_current" href="?page={{ page }}"><span class="Pagination-text">{{ page }}</span></a>
-          {% else %}
-          {% if sortFilter %}
-          <a class="Pagination-element" href="?page={{ page }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><span class="Pagination-text">{{ page }}</span></a>
-          {% else %}
-          <a class="Pagination-element" href="?page={{ page }}&query={{ query }}"><span class="Pagination-text">{{ page }}</span></a>
-          {% endif %}
-          {% endif %}
-          {% endfor %}
-          {% if page_obj.has_next %}
-          {% if sortFilter %}
-          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}&price={{ price }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
-          {% else %}
-          <a class="Pagination-element Pagination-element_prev" href="?page={{ page_obj.next_page_number }}&query={{ query }}"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
-          {% endif %}
-          {% else %}
-          <a class="Pagination-element Pagination-element_prev"><img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="nextPagination.svg"/></a>
-          {% endif %}
+        {% if is_paginated %}
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1&sort={{ current_sort_key }}&direction={{ request.GET.direction }}}&price={{ price }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}">первая</a>
+                    <a href="?page={{ page_obj.previous_page_number }}&sort={{ current_sort_key }}&direction={{ request.GET.direction }}}&price={{ price }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}">предыдущая</a>
+                {% endif %}
+    
+                <span class="current">
+                    Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+                </span>
+    
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&sort={{ current_sort_key }}&direction={{ request.GET.direction }}&price={{ price }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}">следующая</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}&sort={{ current_sort_key }}&direction={{ request.GET.direction }}}&price={{ price }}&title={{ title }}&active={{ active }}&delivery={{ delivery }}">последняя</a>
+                {% endif %}
+            </span>
+        {% endif %}
         </div>
-      </div>
       {% endif %}
     </div>
   </div>
