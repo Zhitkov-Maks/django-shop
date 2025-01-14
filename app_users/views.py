@@ -22,12 +22,6 @@ class RegisterUser(CreateView):
     template_name: str = "app_users/register.html"
     success_url: str = reverse_lazy("home")
 
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """Для добавления header."""
-        context: dict = super().get_context_data()
-        context.update({"header": "Регистрация"})
-        return context
-
     def post(self, request, *args, **kwargs) -> HttpResponse:
         """
         Метод проверяет форму и если она валидна сохраняет пользователя
@@ -68,12 +62,6 @@ class LoginUser(LoginView):
     success_url: str = reverse_lazy("home")
     form_class: AuthenticationForm = AuthenticationForm
 
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """Добавляем header для отображения в строке названия сайта."""
-        context: dict = super().get_context_data()
-        context.update({"header": "Авторизация"})
-        return context
-
     def post(self, request, **kwargs) -> HttpResponse:
         form: AuthenticationForm = AuthenticationForm(data=request.POST)
         username: str = request.POST["username"]
@@ -110,12 +98,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
         user: CustomUser = self.request.user
         if Order.objects.filter(user=user).exists():
             order: Order = Order.objects.filter(user=user).order_by("-id")[0]
-            context.update(
-                {
-                    "order": order,
-                    "header": f"Профиль {user.first_name} {user.last_name}",
-                }
-            )
+            context.update({"order": order})
         return context
 
 
@@ -145,7 +128,7 @@ class ProfileEditView(LoginRequiredMixin, TemplateView):
                 }
             )
 
-        context.update({"form": form, "header": "Редактирование профиля"})
+        context.update({"form": form})
         return context
 
     def post(self, request, *args, **kwargs) -> HttpResponse:
@@ -186,9 +169,3 @@ class HistoryOrderView(LoginRequiredMixin, ListView):
         return Order.objects.select_related("status").filter(
             Q(user_id=self.request.user.id)
         )
-
-    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
-        """Добавляем header для отображения названия страницы."""
-        context: dict = super().get_context_data()
-        context.update({"header": "История заказов"})
-        return context
