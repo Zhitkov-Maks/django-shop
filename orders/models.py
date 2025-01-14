@@ -3,10 +3,17 @@ from typing import Tuple
 from django.conf import settings
 from django.db import models
 from django.db.models import ForeignKey
-from django.db.models.fields import CharField, EmailField, DateTimeField, \
-    DecimalField, BooleanField, TextField, PositiveIntegerField
+from django.db.models.fields import (
+    CharField,
+    EmailField,
+    DateTimeField,
+    DecimalField,
+    BooleanField,
+    TextField,
+    PositiveIntegerField
+)
 
-from app_megano.models import Goods
+from app_megano.models.model_goods import Goods
 
 
 class Status(models.Model):

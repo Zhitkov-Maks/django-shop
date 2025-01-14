@@ -1,4 +1,5 @@
 from typing import Tuple
+
 from unicodedata import decimal
 
 from django.conf import settings
@@ -74,7 +75,7 @@ def get_delivery_price(
     Функция для получения стоимости доставки, в зависимости от суммы
     и выбранной доставки.
     """
-    price: int = 0
+    price: decimal = 0
 
     # Получаем стоимость доставки
     admin_settings: SiteSettings = SiteSettings.objects.all()[0]
@@ -85,7 +86,7 @@ def get_delivery_price(
 
     elif type_delivery == "simple":
         price = admin_settings.price
-        min_sum: int = admin_settings.min_sum
+        min_sum: decimal = admin_settings.min_sum
 
         if cart.get_total_price() >= min_sum:
             price = decimal("0")
