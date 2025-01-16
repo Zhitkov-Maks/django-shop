@@ -131,3 +131,6 @@ dmypy.json
 
 # Jetbrains Intellij IDEA
 .idea/
+db
+docker-compose.yaml
+Dockerfile
