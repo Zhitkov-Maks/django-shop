@@ -1,0 +1,357 @@
+.modal__container {
+    position: fixed;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s ease-out;
+}
+
+.content__block {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.content__block:last-child {
+    margin-bottom: 30px;
+}
+
+.modal__content {
+    width: 80%;
+    max-width: 400px;
+    background-color: #fff;
+    padding: 30px;
+    transition: all 0.6s ease 0s;
+    opacity: 0;
+    transform: translate(0px, -150%);
+}
+
+.open__modal {
+    opacity: 1;
+    visibility: visible;
+}
+
+.open__modal .modal__content {
+    transform: translate(0px, 0px);
+    opacity: 1;
+}
+
+.modal__descr {
+    padding-left: 30px;
+    font-size: 18px;
+}
+
+.modal__button {
+    display: flex;
+}
+
+.modal--link {
+    margin-left: 40px;
+    color: black;
+}
+
+.button {
+    background-color: #FFFFFF;
+    cursor: pointer;
+    border: none;
+    border-bottom: 1px solid transparent;
+}
+
+.button:hover {
+    border-bottom: 1px solid black;
+}
+
+.modal__title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.block-opacity {
+    opacity: 0.5;
+}
+
+.modal__container__delete {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease 0s;
+}
+
+.button-yes {
+    margin-right: 40px;
+}
+
+.modal__button__delete {
+    display: flex;
+    justify-content: center;
+}
+
+.modal__content__delete {
+    width: 80%;
+    max-width: 500px;
+    background-color: #fff;
+    padding: 30px;
+    opacity: 0;
+    transition: all 0.3s ease 0s;
+    transform: translate(0px, -100%);
+}
+
+.order__auth {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 1px;
+    left: 1px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease 0s;
+}
+
+.order__auth__content {
+    width: 80%;
+    max-width: 600px;
+    background-color: #fff;
+    padding: 30px;
+    transition: all 0.6s ease 0s;
+    opacity: 0;
+    transform: translate(0px, -150%);
+}
+
+.open__modal {
+    opacity: 1;
+    visibility: visible;
+}
+
+.order__auth .order__auth__content {
+    transform: translate(0px, 0px);
+    opacity: 1;
+}
+
+.open__modal__delete {
+    opacity: 1;
+    visibility: visible;
+}
+
+.open__modal__delete .modal__content__delete {
+    opacity: 1;
+    transform: translate(0px, 0px);
+}
+
+.content__delete {
+    display: flex;
+    justify-content: center;
+}
+.button-yes, .button-no {
+    border: none;
+    border-bottom: 1px solid transparent;
+    background-color: white;
+    cursor: pointer;
+    padding: 5px;
+    transition: all .1s ease-in;
+}
+
+.button-yes:hover, .button-no:hover {
+    border-bottom: 1px solid black;
+}
+
+.errors__messages {
+    color: red;
+}
+
+.form__content {
+    display: flex;
+    justify-content: center;
+}
+
+.order__block {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 600px;
+}
+
+.cart__content {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 15px;
+}
+
+.order__title {
+    text-align: center;
+}
+
+@media screen and (max-width: 500px) {
+    .modal__button__delete {
+        align-items: center;
+    }
+}
+
+.Comment:nth-child(n + 7) {
+    visibility: hidden;
+    max-height: 0;
+    padding: 0;
+    opacity: 0;
+    transition: all .3s ease-in-out;
+}
+
+.Comment.open__comment {
+    visibility: visible;
+    max-height: 100%;
+    padding: 45px;
+    opacity: 1;
+    transition: all .3s ease-in-out;
+}
+
+.all-comment {
+    margin-top: 40px;
+}
+
+.Comment__avatar {
+  width: 99px;
+  height: 99px;
+  border-radius: 100px;
+}
+
+.form-group {
+    position: relative;
+}
+
+.error__message {
+    position: absolute;
+    top: 75%;
+    left: 0;
+    color: red;
+    font-size: 12px;
+}
+
+.error__avatar {
+    position: absolute;
+    top: 95%;
+    left: 0;
+    color: red;
+    font-size: 12px;
+}
+
+.form-label {
+    margin-bottom: 8px;
+}
+
+.error input, .error select {
+    border: 2px red solid;
+}
+
+.block__content {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.main__block {
+    width: 800px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.left__block {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    justify-content: space-between;
+}
+
+.title__register {
+    text-align: center;
+}
+
+.right__block {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    justify-content: space-between;
+}
+
+.label__content {
+    position: relative;
+}
+
+.login__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 40px;
+}
+
+.login__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 280px;
+    height: 60vh;
+}
+
+.login__title {
+    margin: 40px;
+}
+
+.login__form {
+    display: flex;
+    height: 300px;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.error__login {
+    position: absolute;
+    top: 58%;
+    left: 0;
+    color: red;
+    font-size: 12px;
+}
+
+.login__link {
+    display: flex;
+    justify-content: space-around;
+}
+
+.link_log:nth-child(1) {
+    margin-right: 30px;
+}
+
+.register__footer {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+@media screen and (max-width: 990px) {
+    .main__block {
+        width: auto;
+        flex-direction: column;
+    }
+}
+
