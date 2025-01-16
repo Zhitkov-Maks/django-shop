@@ -36,4 +36,3 @@ services:
       - db
     volumes:
       - ./media:/shop/media
-      - ./logs:/shop/logs
