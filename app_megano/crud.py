@@ -174,8 +174,6 @@ def search_product_queryset(query: list) -> QuerySet:
 
     # Инициализация пустого Q-объекта для построения сложного запроса
     query_list: Q = Q()
-    end_datetime: datetime = timezone.now()
-    start_datetime: datetime = end_datetime - timedelta(days=180)
 
     # Проходим по каждому слову в списке ключевых слов
     for word in query:
@@ -185,11 +183,6 @@ def search_product_queryset(query: list) -> QuerySet:
     # Выполняем запрос к базе данных
     return (
         Goods.objects.prefetch_related("tag")
-        .annotate(count=Count("shipments"))
         .filter(Q(query_list))
-        .filter(Q(
-            shipments__date_purchases__gte=start_datetime,
-            shipments__date_purchases__lte=end_datetime,
-        ))
-        .order_by("-count")  # Сортируем результаты по продаваемости товаров.
+        .order_by("-date_create")  # Сортируем результаты по продаваемости товаров.
     )

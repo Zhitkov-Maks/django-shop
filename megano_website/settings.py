@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
+
+from django.utils.log import RequireDebugFalse
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,8 +25,8 @@ DATABASE_DIR.mkdir(exist_ok=True)
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = env("SECRET_KEY")
-SECRET_KEY = 'django-insecure-s4u!m%zei%bflwco@t!ro-ho*^x9ql(o)xh8w)mm5914!fbdsu'
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", ""),
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -94,7 +96,6 @@ WSGI_APPLICATION = 'megano_website.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 
-load_dotenv()
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

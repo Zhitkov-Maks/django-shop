@@ -1,10 +1,24 @@
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: megano_shop_database
+    environment:
+      - "POSTGRES_USER=${DB_USER}"
+      - "POSTGRES_PASSWORD=${DB_PASS}"
+      - "POSTGRES_DB=${DB_NAME}"
+    ports:
+      - '5432:5432'
+    restart: always
+    volumes:
+      - ./db/:/var/lib/postgresql/data
+
   nginx:
     build: ./nginx
     ports:
       - "80:80"
     volumes:
-      - ./staticfiles:/home/shop/staticfiles
+      - ./staticfiles:/shop/staticfiles
+      - ./media:/shop/media
     depends_on:
       - app
 
@@ -21,17 +35,5 @@ services:
     depends_on:
       - db
     volumes:
-      - ./staticfiles:/home/shop/staticfiles
-
-  db:
-    image: postgres:15-alpine
-    container_name: megano_shop_database
-    environment:
-      - "POSTGRES_USER=${DB_USER}"
-      - "POSTGRES_PASSWORD=${DB_PASS}"
-      - "POSTGRES_DB=${DB_NAME}"
-    ports:
-      - '5433:5432'
-    restart: always
-    volumes:
-      - ./db/:/var/lib/postgresql/data
+      - ./media:/shop/media
+      - ./logs:/shop/logs
